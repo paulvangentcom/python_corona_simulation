@@ -170,6 +170,8 @@ def infect(population, infection_range, infection_chance, frame):
     #find new infections
     infected_previous_step = population[population[:,6] == 1]
 
+    new_infections = []
+
     #if less than half are infected, slice based on infected (to speed up computation)
     if len(infected_previous_step) < (pop_size // 2):
         for patient in infected_previous_step:
@@ -188,6 +190,7 @@ def infect(population, infection_range, infection_chance, frame):
                 if np.random.random() < infection_chance:
                     population[idx][6] = 1
                     population[idx][8] = frame
+                    new_infections.append(idx)
 
     else:
         #if more than half are infected slice based in healthy people (to speed up computation)
@@ -209,6 +212,10 @@ def infect(population, infection_range, infection_chance, frame):
                         #roll die to see if healthy person will be infected
                         population[np.int32(person[0])][6] = 1
                         population[np.int32(person[0])][8] = frame
+                        new_infections.append(np.int32(person[0]))
+
+    if len(new_infections) > 0:
+        print('at timestep %i these people got sick: %s' %(frame, new_infections))
 
     return population
 
@@ -326,7 +333,7 @@ if __name__ == '__main__':
 
     #set simulation parameters
     pop_size = 2000
-    simulation_steps = 10000
+    simulation_steps = 1500
     xbounds = [0, 1] 
     ybounds = [0, 1]
 
