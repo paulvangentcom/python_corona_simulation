@@ -213,7 +213,50 @@ def infect(population, infection_range, infection_chance, frame):
     return population
 
 
-def update(frame, population, infection_range=0.01, infection_chance=0.05,
+def recover_or_die(population, frame, recovery_duration, mortality_chance):
+    '''see whether to recover or die
+
+    '''
+
+    #find sick people
+    sick_people = population[population[:,6] == 1]
+
+    #define vector of how long everyone has been sick
+    illness_duration_vector = frame - sick_people[:,8]
+    
+    recovery_odds_vector = (illness_duration_vector - recovery_duration[0]) / np.ptp(recovery_duration)
+    recovery_odds_vector = np.clip(recovery_odds_vector, a_min = 0, a_max = None)
+
+    #update states of sick people 
+    indices = sick_people[:,0][recovery_odds_vector >= sick_people[:,9]]
+
+    cured = []
+    died = []
+
+    #decide whether to die or recover
+    for idx in indices:
+        if np.random.random() <= mortality_chance:
+            #die
+            sick_people[:,6][sick_people[:,0] == idx] = 3
+            died.append(np.int32(sick_people[sick_people[:,0] == idx][:,0][0]))
+        else:
+            #recover (become immune)
+            sick_people[:,6][sick_people[:,0] == idx] = 2
+            cured.append(np.int32(sick_people[sick_people[:,0] == idx][:,0][0]))
+
+    if len(died) > 0:
+        print('at timestep %i these people died: %s' %(frame, died))
+    if len(cured) > 0:
+        print('at timestep %i these people recovered: %s' %(frame, cured))
+
+    #put array back into population
+    population[population[:,6] == 1] = sick_people
+
+    return population
+
+
+def update(frame, population, infection_range=0.01, infection_chance=0.05, 
+           recovery_duration=(200, 500), mortality_chance=0.02,
            xbounds=[0.02, 0.98], ybounds=[0.02, 0.98], wander_range=0.05,
            visualise=True):
 
@@ -231,7 +274,7 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
     population = update_randoms(population)
 
     #for dead ones: set speed and heading to 0
-    population[:,3:5][population[:,6] == 3][:,3:5] = 0
+    population[:,3:5][population[:,6] == 3] = 0
 
     #update positions
     population = update_positions(population)
@@ -240,10 +283,16 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
     population = infect(population, infection_range, infection_chance, frame)
     infected.append(len(population[population[:,6] == 1]))
 
+    #recover and die
+    population = recover_or_die(population, frame, recovery_duration, mortality_chance)
+
+
+
     if visualise:
         #construct plot and visualise
         spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
         ax1.clear()
+        ax2.clear()
 
         ax1.set_xlim(xbounds[0] - 0.1, xbounds[1] + 0.1)
         ax1.set_ylim(ybounds[0] - 0.1, ybounds[1] + 0.1)
@@ -258,7 +307,7 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
         ax1.scatter(immune[:,0], immune[:,1], color='green', s = 2, label='immune')
     
         dead = population[population[:,6] == 3][:,1:3]
-        ax1.scatter(dead[:,0], dead[:,1], color='black', label='dead')
+        ax1.scatter(dead[:,0], dead[:,1], color='black', s = 2, label='dead')
     
         #add text descriptors
         ax1.text(xbounds[0], 
@@ -304,7 +353,7 @@ if __name__ == '__main__':
     plt.show()
 
     #alternatively dry run simulation without visualising
-    #for i in range(10000):
-    #    update(i, population, visualise=False)
-    #    sys.stdout.write('\r')
-    #    sys.stdout.write('%i: %i/%i' %(i, len(infected), pop_size))
+    #for i in range(simulation_steps):
+        #update(i, population, visualise=False)
+        #sys.stdout.write('\r')
+        #sys.stdout.write('%i: %i/%i' %(i, len(infected), pop_size))
