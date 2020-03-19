@@ -263,6 +263,7 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
     #add one infection to jumpstart
     if frame == 50:
         population[0][6] = 1
+        population[0][8] = 75
 
     #update out of bounds
     #define bounds arrays
@@ -325,7 +326,7 @@ if __name__ == '__main__':
 
     #set simulation parameters
     pop_size = 2000
-    simulation_steps = 1000
+    simulation_steps = 10000
     xbounds = [0, 1] 
     ybounds = [0, 1]
 
@@ -349,7 +350,7 @@ if __name__ == '__main__':
     infected = []
     
     #start animation loop through matplotlib visualisation
-    animation = FuncAnimation(fig, update, fargs = (population,), frames = 1000, interval = 33)
+    animation = FuncAnimation(fig, update, fargs = (population,), frames = simulation_steps, interval = 33)
     plt.show()
 
     #alternatively dry run simulation without visualising
