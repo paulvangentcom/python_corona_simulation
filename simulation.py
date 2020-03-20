@@ -190,8 +190,8 @@ def infect(population, infection_range, infection_chance, frame, healthcare_capa
                 if np.random.random() < infection_chance:
                     population[idx][6] = 1
                     population[idx][8] = frame
-                    #if len(population[population[:,10] == 1]) <= healthcare_capacity:
-                    #    population[idx][10] = 1
+                    if len(population[population[:,10] == 1]) <= healthcare_capacity:
+                        population[idx][10] = 1
                     new_infections.append(idx)
 
     else:
@@ -214,8 +214,8 @@ def infect(population, infection_range, infection_chance, frame, healthcare_capa
                         #roll die to see if healthy person will be infected
                         population[np.int32(person[0])][6] = 1
                         population[np.int32(person[0])][8] = frame
-                        #if len(population[population[:,10] == 1]) <= healthcare_capacity:
-                        #    population[np.int32(person[0])][10] = 1
+                        if len(population[population[:,10] == 1]) <= healthcare_capacity:
+                            population[np.int32(person[0])][10] = 1
                         new_infections.append(np.int32(person[0]))
 
     if len(new_infections) > 0 and verbose:
@@ -227,7 +227,7 @@ def infect(population, infection_range, infection_chance, frame, healthcare_capa
 def recover_or_die(population, frame, recovery_duration, mortality_chance, 
                    risk_age, critical_age, critical_mortality_chance, 
                    risk_increase, no_treatment_factor, age_dependent_risk,
-                   treatment_dependent_risk, verbose):
+                   treatment_dependent_risk, treatment_factor, verbose):
     '''see whether to recover or die
 
     '''
@@ -251,15 +251,21 @@ def recover_or_die(population, frame, recovery_duration, mortality_chance,
     for idx in indices:
         #check if we want risk to be age dependent
         #if age_dependent_risk:
-        updated_mortality_chance = compute_mortality(sick_people[sick_people[:,0] == idx][:,7][0], mortality_chance,
-                                                        risk_age, critical_age, 
-                                                        critical_mortality_chance, risk_increase)
-        #else:
-        #    updated_mortality_chance = mortality_chance
+        if age_dependent_risk:
+            updated_mortality_chance = compute_mortality(sick_people[sick_people[:,0] == idx][:,7][0], 
+                                                         mortality_chance,
+                                                         risk_age, critical_age, 
+                                                         critical_mortality_chance, 
+                                                         risk_increase)
+        else:
+            updated_mortality_chance = mortality_chance
 
         if sick_people[sick_people[:,0] == int(idx)][:,10] == 0 and treatment_dependent_risk:
             #if person is not in treatment, increase risk by no_treatment_factor
             updated_mortality_chance = updated_mortality_chance * no_treatment_factor
+        elif sick_people[sick_people[:,0] == int(idx)][:,10] == 1 and treatment_dependent_risk:
+            #if person is in treatment, decrease risk by 
+            updated_mortality_chance = updated_mortality_chance * treatment_factor
 
         if np.random.random() <= updated_mortality_chance:
             #die
@@ -345,18 +351,19 @@ def compute_mortality(age, mortality_chance, risk_age=50,
         return critical_mortality_chance
 
 
-def update(frame, population, infection_range=0.01, infection_chance=0.05, 
+def update(frame, population, infection_range=0.01, infection_chance=0.03, 
            recovery_duration=(200, 500), mortality_chance=0.02,
            xbounds=[0.02, 0.98], ybounds=[0.02, 0.98], wander_range=0.05,
            risk_age=55, critical_age=75, critical_mortality_chance=0.1,
            risk_increase='quadratic', no_treatment_factor=3, 
-           treatment_factor = 0.5, healthcare_capacity=50, age_dependent_risk=True, 
+           treatment_factor=0.5, healthcare_capacity=250, age_dependent_risk=True, 
            treatment_dependent_risk=True, visualise=True, verbose=True):
 
     #add one infection to jumpstart
     if frame == 50:
         population[0][6] = 1
         population[0][8] = 75
+        population[0][10] = 1
 
     #update out of bounds
     #define bounds arrays
@@ -382,7 +389,9 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
     population = recover_or_die(population, frame, recovery_duration, mortality_chance,
                                 risk_age, critical_age, critical_mortality_chance,
                                 risk_increase, no_treatment_factor, age_dependent_risk,
-                                treatment_dependent_risk, verbose)
+                                treatment_dependent_risk, treatment_factor, verbose)
+
+    deaths.append(len(population[population[:,6] == 3]))
 
     if visualise:
         #construct plot and visualise
@@ -415,6 +424,7 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
         ax2.set_xlim(0, simulation_steps)
         ax2.set_ylim(0, pop_size + 100)
         ax2.plot(infected, color='gray')
+        ax2.plot(deaths, color='black', label='deaths')
 
         if treatment_dependent_risk:
             ax2.plot([healthcare_capacity for x in range(simulation_steps)], color='red', 
@@ -426,9 +436,11 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
             ax2.plot(indices, infected_arr[infected_arr >= healthcare_capacity], 
                      color='red')
 
+
+
             ax2.legend(loc = 1, fontsize = 6)
 
-        #plt.savefig('render/%i.png' %frame)
+        plt.savefig('render/%i.png' %frame)
 
     return population
 
@@ -437,7 +449,7 @@ if __name__ == '__main__':
 
     #set simulation parameters
     pop_size = 2000
-    simulation_steps = 1500
+    simulation_steps = 5000
     xbounds = [0, 1] 
     ybounds = [0, 1]
     healthcare_capacity = 500
@@ -460,13 +472,15 @@ if __name__ == '__main__':
     ax2.set_ylim(0, pop_size + 100)
 
     infected = []
+    deaths = []
     
     #start animation loop through matplotlib visualisation
-    #animation = FuncAnimation(fig, update, fargs = (population,), frames = simulation_steps, interval = 33)
-    #plt.show()
+    animation = FuncAnimation(fig, update, fargs = (population,), frames = simulation_steps, interval = 33)
+    plt.show()
 
     #alternatively dry run simulation without visualising
     
+    """
     for i in range(simulation_steps):
         population = update(i, population, visualise=False, verbose=False)
         if len(population[population[:,6] == 1]) == 0 and i > 100:
@@ -474,11 +488,15 @@ if __name__ == '__main__':
             print('total dead: %i' %len(population[population[:,6] == 3]))
             print('total immune: %i' %len(population[population[:,6] == 2]))
             sys.exit(0)
-        #sys.stdout.write('\r')
-        print('%i: infected: %i, immune: %i, in treatment: %i, \
+        sys.stdout.write('\r')
+        sys.stdout.write('%i: infected: %i, immune: %i, in treatment: %i, \
 dead: %i, of total: %i' %(i, len(population[population[:,6] == 1]),
                           len(population[population[:,6] == 2]), 
                           len(population[population[:,10] == 1]),
                           len(population[population[:,6] == 3]),
                           pop_size))
-        
+
+    print('\n-----stopping-----\n')
+    print('total dead: %i' %len(population[population[:,6] == 3]))
+    print('total immune: %i' %len(population[population[:,6] == 2]))
+    """
