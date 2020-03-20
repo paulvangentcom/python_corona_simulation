@@ -417,7 +417,11 @@ def update(frame, population, infection_range=0.01, infection_chance=0.03,
         #add text descriptors
         ax1.text(xbounds[0], 
                  ybounds[1] + ((ybounds[1] - ybounds[0]) / 8), 
-                 'timestep: %i sick: %i immune: %i dead: %i' %(frame, len(sick), len(immune), len(dead)),
+                 'timestep: %i healthy: %i, sick: %i immune: %i dead: %i' %(frame, 
+                                                                            len(healthy),
+                                                                            len(sick), 
+                                                                            len(immune), 
+                                                                            len(dead)),
                  fontsize = 8)
     
         ax2.set_title('number of infected')
@@ -440,20 +444,64 @@ def update(frame, population, infection_range=0.01, infection_chance=0.03,
 
             ax2.legend(loc = 1, fontsize = 6)
 
-        plt.savefig('render/%i.png' %frame)
+        #plt.savefig('render/%i.png' %frame)
 
     return population
 
 
 if __name__ == '__main__':
 
+    ###############################
+    ##### SETTABLE PARAMETERS #####
+    ###############################
     #set simulation parameters
-    pop_size = 2000
-    simulation_steps = 5000
+    simulation_steps = 5000 #total simulation steps performed
+    #size of the simulated world in coordinates
     xbounds = [0, 1] 
     ybounds = [0, 1]
-    healthcare_capacity = 500
 
+    visualise = True #whether to visualise the simulation 
+    verbose = True #whether to print infections, recoveries and deaths to the terminal
+
+    #population parameters
+    pop_size = 2000
+    mean_age=45
+    max_age=105
+
+    #motion parameters
+    mean_speed = 0.01 # the mean speed (defined as heading * speed)
+    std_speed = 0.01 / 3 #the standard deviation of the speed parameter
+    #the proportion of the population that practices social distancing, simulated
+    #by them standing still
+    proportion_distancing = 0
+    #when people have an active destination, the wander range defines the area
+    #surrounding the destination they will wander upon arriving
+    wander_range=0.05 
+
+    #illness parameters
+    infection_range=0.01 #range surrounding sick patient that infections can take place
+    infection_chance=0.03 #chance that an infection spreads to nearby healthy people each tick
+    recovery_duration=(200, 500) #how many ticks it may take to recover from the illness
+    mortality_chance=0.02 #global baseline chance of dying from the disease
+
+    #healthcare parameters
+    healthcare_capacity = 300 #capacity of the healthcare system
+    treatment_factor = 0.5 #when in treatment, affect risk by this factor
+
+    #risk parameters
+    age_dependent_risk = True #whether risk increases with age
+    risk_age = 55 #age where mortality risk starts increasing
+    critical_age = 75 #age at and beyond which mortality risk reaches maximum
+    critical_mortality_chance = 0.1 #maximum mortality risk for older age
+    treatment_dependent_risk = True #whether risk is affected by treatment
+    #whether risk between risk and critical age increases 'linear' or 'quadratic'
+    risk_increase = 'quadratic' 
+    no_treatment_factor = 3 #risk increase factor to use if healthcare system is full
+   
+    ######################################
+    ##### END OF SETTABLE PARAMETERS #####
+    ######################################
+    
 
     population = initialize_population(pop_size)
 
@@ -474,29 +522,42 @@ if __name__ == '__main__':
     infected = []
     deaths = []
     
-    #start animation loop through matplotlib visualisation
-    animation = FuncAnimation(fig, update, fargs = (population,), frames = simulation_steps, interval = 33)
-    plt.show()
+    #define arguments for visualisation loop
+    fargs = (population, infection_range, infection_chance, 
+             recovery_duration, mortality_chance, xbounds, ybounds, 
+             wander_range, risk_age, critical_age, critical_mortality_chance,
+             risk_increase, no_treatment_factor, treatment_factor, 
+             healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
+             visualise, verbose,)
 
-    #alternatively dry run simulation without visualising
-    
-    """
-    for i in range(simulation_steps):
-        population = update(i, population, visualise=False, verbose=False)
-        if len(population[population[:,6] == 1]) == 0 and i > 100:
-            print('\n-----stopping-----\n')
-            print('total dead: %i' %len(population[population[:,6] == 3]))
-            print('total immune: %i' %len(population[population[:,6] == 2]))
-            sys.exit(0)
-        sys.stdout.write('\r')
-        sys.stdout.write('%i: infected: %i, immune: %i, in treatment: %i, \
-dead: %i, of total: %i' %(i, len(population[population[:,6] == 1]),
+    #start animation loop through matplotlib visualisation
+    if visualise:
+        animation = FuncAnimation(fig, update, fargs = fargs, frames = simulation_steps, interval = 33)
+        plt.show()
+    else:
+        #alternatively dry run simulation without visualising
+        for i in range(simulation_steps):
+            population = update(i, population, infection_range, infection_chance, 
+                                recovery_duration, mortality_chance, xbounds, ybounds, 
+                                wander_range, risk_age, critical_age, critical_mortality_chance,
+                                risk_increase, no_treatment_factor, treatment_factor, 
+                                healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
+                                visualise, verbose)
+            if len(population[population[:,6] == 1]) == 0 and i > 100:
+                print('\n-----stopping-----\n')
+                print('total dead: %i' %len(population[population[:,6] == 3]))
+                print('total immune: %i' %len(population[population[:,6] == 2]))
+                sys.exit(0)
+            sys.stdout.write('\r')
+            sys.stdout.write('%i: healthy: %i, infected: %i, immune: %i, in treatment: %i, \
+dead: %i, of total: %i' %(i, len(population[population[:,6] == 0]),
+                          len(population[population[:,6] == 1]),
                           len(population[population[:,6] == 2]), 
                           len(population[population[:,10] == 1]),
                           len(population[population[:,6] == 3]),
                           pop_size))
 
-    print('\n-----stopping-----\n')
-    print('total dead: %i' %len(population[population[:,6] == 3]))
-    print('total immune: %i' %len(population[population[:,6] == 2]))
-    """
+        print('\n-----stopping-----\n')
+        print('total dead: %i' %len(population[population[:,6] == 3]))
+        print('total immune: %i' %len(population[population[:,6] == 2]))
+    
