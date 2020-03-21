@@ -22,6 +22,9 @@ def initialize_population(pop_size, mean_age=45, max_age=105,
     8 : infected_since (frame the person got infected)
     9 : recovery vector (used in determining when someone recovers or dies)
     10 : in treatment
+    11 : active destination (0 = random wander, 1, .. = destination matrix index)
+    12 : at destination: whether arrived at destination (0=traveling, 1=arrived)
+    13 : wander_range : wander ranges for those who are confined to a location
 
     Keyword arguments
     -----------------
@@ -42,15 +45,15 @@ def initialize_population(pop_size, mean_age=45, max_age=105,
     '''
 
     #initialize population matrix
-    population = np.zeros((pop_size, 11))
+    population = np.zeros((pop_size, 14))
 
     #initalize unique IDs
     population[:,0] = [x for x in range(pop_size)]
 
     #initialize random coordinates
-    population[:,1] = np.random.uniform(low = xbounds[0] - 0.05, high = xbounds[1] + 0.05, 
+    population[:,1] = np.random.uniform(low = xbounds[0] + 0.05, high = xbounds[1] - 0.05, 
                                         size = (pop_size,))
-    population[:,2] = np.random.uniform(low = ybounds[0] - 0.05, high = ybounds[1] + 0.05, 
+    population[:,2] = np.random.uniform(low = ybounds[0] + 0.05, high = ybounds[1] - 0.05, 
                                         size=(pop_size,))
 
     #initialize random headings -1 to 1
@@ -75,3 +78,13 @@ def initialize_population(pop_size, mean_age=45, max_age=105,
     population[:,9] = np.random.normal(loc = 0.5, scale = 0.5 / 3, size=(pop_size,))
 
     return population
+
+
+def initialize_destination_matrix(pop_size, total_destinations):
+    '''intialized the destination matrix
+
+    '''
+
+    destinations = np.zeros((pop_size, total_destinations * 2))
+
+    return destinations
