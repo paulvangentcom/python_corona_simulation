@@ -394,7 +394,7 @@ if __name__ == '__main__':
     ######################################
     
     #initalize population
-    population = initialize_population(pop_size)
+    population = initialize_population(pop_size, mean_age, max_age, xbounds, ybounds)
     population[:,13] = wander_range_x #set wander ranges to default specified value
     population[:,14] = wander_range_y #set wander ranges to default specified value
 

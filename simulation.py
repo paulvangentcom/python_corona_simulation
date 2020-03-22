@@ -162,7 +162,7 @@ if __name__ == '__main__':
     ######################################
     
 
-    population = initialize_population(pop_size)
+    population = initialize_population(pop_size, mean_age, max_age, xbounds, ybounds)
 
     #define figure
     fig = plt.figure(figsize=(5,7))
