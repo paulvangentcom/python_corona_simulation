@@ -238,14 +238,9 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
         population[:,11] = 1
 
     elif frame == 400:
-        #destinations[:,0][0:50] = 0.2
-        #destinations[:,1][0:50] = 0.6
         population[:,11] = 0
         population[:,12] = 0
         population = update_randoms(population, pop_size, 1, 1)
-
-   
-
 
     #define motion vectors if destinations active and not everybody is at destination
     active_dests = len(population[population[:,11] != 0]) # look op this only once

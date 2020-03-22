@@ -37,31 +37,35 @@ def out_of_bounds(population, xbounds, ybounds):
     shp = population[:,3][(population[:,1] <= xbounds[:,0]) &
                           (population[:,3] < 0)].shape
     population[:,3][(population[:,1] <= xbounds[:,0]) &
-                    (population[:,3] < 0)] = np.random.normal(loc = 0.5, 
-                                                              scale = 0.5/3,
-                                                              size = shp)
+                    (population[:,3] < 0)] = np.clip(np.random.normal(loc = 0.5, 
+                                                                      scale = 0.5/3,
+                                                                      size = shp),
+                                                     a_min = 0.05, a_max = 1)
 
     shp = population[:,3][(population[:,1] >= xbounds[:,1]) &
                           (population[:,3] > 0)].shape
     population[:,3][(population[:,1] >= xbounds[:,1]) &
-                    (population[:,3] > 0)] = -np.random.normal(loc = 0.5, 
-                                                                scale = 0.5/3,
-                                                                size = shp)
+                    (population[:,3] > 0)] = np.clip(-np.random.normal(loc = 0.5, 
+                                                                       scale = 0.5/3,
+                                                                       size = shp),
+                                                     a_min = -1, a_max = -0.05)
 
     #update y heading
     shp = population[:,4][(population[:,2] <= ybounds[:,0]) &
                           (population[:,4] < 0)].shape
     population[:,4][(population[:,2] <= ybounds[:,0]) &
-                    (population[:,4] < 0)] = np.random.normal(loc = 0.5, 
-                                                              scale = 0.5/3,
-                                                              size = shp)
+                    (population[:,4] < 0)] = np.clip(np.random.normal(loc = 0.5, 
+                                                                      scale = 0.5/3,
+                                                                      size = shp),
+                                                     a_min = 0.05, a_max = 1)
 
     shp = population[:,4][(population[:,2] >= ybounds[:,1]) &
                           (population[:,4] > 0)].shape
     population[:,4][(population[:,2] >= ybounds[:,1]) &
-                    (population[:,4] > 0)] = -np.random.normal(loc = 0.5, 
-                                                               scale = 0.5/3,
-                                                               size = shp)
+                    (population[:,4] > 0)] = np.clip(-np.random.normal(loc = 0.5, 
+                                                                       scale = 0.5/3,
+                                                                       size = shp),
+                                                     a_min = -1, a_max = -0.05)
 
     return population
 
@@ -113,15 +117,13 @@ def set_destination(population, destinations):
     for d in active_dests:
         dest_x = destinations[:,int((d - 1) * 2)]
         dest_y = destinations[:,int(((d - 1) * 2) + 1)]
-        
+
         #compute new headings
         head_x = dest_x - population[:,1]
         head_y = dest_y - population[:,2]
 
-        #scale headings to have sum 1
-        correction = 1 / (head_x + head_y)
-        head_x = head_x * np.abs(correction)
-        head_y = head_y * np.abs(correction)
+        #head_x = head_x / np.sqrt(head_x)
+        #head_y = head_y / np.sqrt(head_y)
 
         #reinsert headings into population of those not at destination yet
         population[:,3][(population[:,11] == d) &
