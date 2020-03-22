@@ -256,8 +256,8 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
 
     #update out of bounds
     #define bounds arrays
-    _xbounds = np.array([[xbounds[0] - 0.02, xbounds[1] + 0.02]] * len(population))
-    _ybounds = np.array([[ybounds[0] - 0.02, ybounds[1] + 0.02]] * len(population))
+    _xbounds = np.array([[xbounds[0] + 0.02, xbounds[1] - 0.02]] * len(population))
+    _ybounds = np.array([[ybounds[0] + 0.02, ybounds[1] - 0.02]] * len(population))
     population = out_of_bounds(population, _xbounds, _ybounds)
 
     #update randoms
