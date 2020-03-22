@@ -272,7 +272,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
     #find new infections
     population = infect(population, pop_size, infection_range, infection_chance, frame, 
                         healthcare_capacity, verbose)
-    infected.append(len(population[population[:,6] == 1]))
+    infected_plot.append(len(population[population[:,6] == 1]))
 
     #recover and die
     population = recover_or_die(population, frame, recovery_duration, mortality_chance,
@@ -280,7 +280,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
                                 risk_increase, no_treatment_factor, age_dependent_risk,
                                 treatment_dependent_risk, treatment_factor, verbose)
 
-    deaths.append(len(population[population[:,6] == 3]))
+    fatalities_plot.append(len(population[population[:,6] == 3]))
 
     if visualise:
         #construct plot and visualise
@@ -288,53 +288,55 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
         ax1.clear()
         ax2.clear()
 
-        ax1.set_xlim(xbounds[0] - 0.1, xbounds[1] + 0.1)
-        ax1.set_ylim(ybounds[0] - 0.1, ybounds[1] + 0.1)
+        ax1.set_xlim(xbounds[0], xbounds[1])
+        ax1.set_ylim(ybounds[0], ybounds[1])
         
         healthy = population[population[:,6] == 0][:,1:3]
         ax1.scatter(healthy[:,0], healthy[:,1], color='gray', s = 2, label='healthy')
     
-        sick = population[population[:,6] == 1][:,1:3]
-        ax1.scatter(sick[:,0], sick[:,1], color='red', s = 2, label='infected')
+        infected = population[population[:,6] == 1][:,1:3]
+        ax1.scatter(infected[:,0], infected[:,1], color='red', s = 2, label='infected')
 
         immune = population[population[:,6] == 2][:,1:3]
         ax1.scatter(immune[:,0], immune[:,1], color='green', s = 2, label='immune')
     
-        dead = population[population[:,6] == 3][:,1:3]
-        ax1.scatter(dead[:,0], dead[:,1], color='black', s = 2, label='dead')
+        fatalities = population[population[:,6] == 3][:,1:3]
+        ax1.scatter(fatalities[:,0], fatalities[:,1], color='black', s = 2, label='fatalities')
         
     
         #add text descriptors
         ax1.text(xbounds[0], 
-                 ybounds[1] + ((ybounds[1] - ybounds[0]) / 8), 
-                 'timestep: %i healthy: %i, sick: %i immune: %i dead: %i' %(frame, 
-                                                                            len(healthy),
-                                                                            len(sick), 
-                                                                            len(immune), 
-                                                                            len(dead)),
-                                                                            fontsize = 8)
+                 ybounds[1] + ((ybounds[1] - ybounds[0]) / 100), 
+                 'timestep: %i, total: %i, healthy: %i infected: %i immune: %i fatalities: %i' %(frame,
+                                                                                              len(population),
+                                                                                              len(healthy), 
+                                                                                              len(infected), 
+                                                                                              len(immune), 
+                                                                                              len(fatalities)),
+                 fontsize=6)
     
         ax2.set_title('number of infected')
+        ax2.text(0, pop_size * 0.05, 
+                 'https://github.com/paulvangentcom/python-corona-simulation',
+                 fontsize=6, alpha=0.5)
         ax2.set_xlim(0, simulation_steps)
         ax2.set_ylim(0, pop_size + 100)
-        ax2.plot(infected, color='gray')
-        ax2.plot(deaths, color='black', label='deaths')
+        ax2.plot(infected_plot, color='gray')
+        ax2.plot(fatalities_plot, color='black', label='fatalities')
 
         if treatment_dependent_risk:
-            ax2.plot([healthcare_capacity for x in range(simulation_steps)], color='red', 
-                     label='healthcare capacity')
+            #ax2.plot([healthcare_capacity for x in range(simulation_steps)], color='red', 
+            #         label='healthcare capacity')
 
-            infected_arr = np.asarray(infected)
+            infected_arr = np.asarray(infected_plot)
             indices = np.argwhere(infected_arr >= healthcare_capacity)
 
             ax2.plot(indices, infected_arr[infected_arr >= healthcare_capacity], 
                      color='red')
 
+            #ax2.legend(loc = 1, fontsize = 6)
 
-
-            ax2.legend(loc = 1, fontsize = 6)
-
-        #plt.savefig('render/%i.png' %frame)
+        plt.savefig('render/%i.png' %frame)
 
     return population
 
@@ -351,7 +353,7 @@ if __name__ == '__main__':
     ybounds = [0, 1]
 
     visualise = True #whether to visualise the simulation 
-    verbose = True #whether to print infections, recoveries and deaths to the terminal
+    verbose = True #whether to print infections, recoveries and fatalities to the terminal
 
     #population parameters
     pop_size = 3300
@@ -370,7 +372,7 @@ if __name__ == '__main__':
     wander_range_y = 0.1
 
     #illness parameters
-    infection_range=0.01 #range surrounding sick patient that infections can take place
+    infection_range=0.01 #range surrounding infected patient that infections can take place
     infection_chance=0.03 #chance that an infection spreads to nearby healthy people each tick
     recovery_duration=(200, 500) #how many ticks it may take to recover from the illness
     mortality_chance=0.02 #global baseline chance of dying from the disease
@@ -419,8 +421,8 @@ if __name__ == '__main__':
     ax2.set_xlim(0, simulation_steps)
     ax2.set_ylim(0, pop_size + 100)
 
-    infected = []
-    deaths = []
+    infected_plot = []
+    fatalities_plot = []
     
     #define arguments for visualisation loop
     fargs = (population, destinations, pop_size, infection_range, infection_chance, 
