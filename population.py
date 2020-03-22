@@ -57,6 +57,14 @@ def initialize_population(pop_size, mean_age=45, max_age=105,
     population[:,2] = np.random.uniform(low = ybounds[0] + 0.05, high = ybounds[1] - 0.05, 
                                         size=(pop_size,))
 
+    #some will randomly exceed the distribution and be above 3 SD. 
+    #Clip to return inside boundaries
+    population[:,1] = np.clip(population[:,1], a_min = xbounds[0] + 0.05, 
+                              a_max = xbounds[1] - 0.05)
+    population[:,2] = np.clip(population[:,2], a_min = ybounds[0] + 0.05,
+                              a_max = ybounds[1] - 0.05)
+
+
     #initialize random headings -1 to 1
     population[:,3] = np.random.normal(loc = 0, scale = 1/3, 
                                        size=(pop_size,))
