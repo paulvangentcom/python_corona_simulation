@@ -19,7 +19,7 @@ Several example videos are included in the repository that highlight various sce
 
 *For reproducibility of all simulations, numpy's seed has been set to '100' in all simulations*
 
-## (#simple-infection-simulation)
+## Simple Infection Simulation
 As a first step I built a simulation of a population of randomly moving people. The people stay within the world bounds and each tick there's a 2% chance of them changing heading and speed. There's a 3% chance of becoming sick when getting close to an infected person, and a 2% chance of a fatal ending. [The video can be viewed here](videos/simple_simulation_01.mp4). 
 
 ![image of the simulation](images/simple_simulation.png)
