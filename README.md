@@ -10,11 +10,16 @@ Aside from that, I've worked with NumPy a lot but felt there was still much to l
 
 
 # Simulation runs
+
+## Index
+- [Simple infection simulation](#simple-infection-simulation)
+
+
 Several example videos are included in the repository that highlight various scenarios. First let's start with the examples comparable to the Washington Post article.
 
 *For reproducibility of all simulations, numpy's seed has been set to '100' in all simulations*
 
-## Simple infection simulation
+## (#simple-infection-simulation)
 As a first step I built a simulation of a population of randomly moving people. The people stay within the world bounds and each tick there's a 2% chance of them changing heading and speed. There's a 3% chance of becoming sick when getting close to an infected person, and a 2% chance of a fatal ending. [The video can be viewed here](videos/simple_simulation_01.mp4). 
 
 ![image of the simulation](images/simple_simulation.png)
@@ -67,12 +72,17 @@ In the simulation, people who are infected will choose to either self-isolate or
 The picture here is more complex, as factors such as population density and the percentage of people that break the voluntary quarantaine have a large effect. Let's run the simulation with three population densities ('high': 2000 people on a 1x1 area, 'medium': 2000 people on a 1.5x1.5 area, and 'low': 2000 people on 2x2 area), and let's simulate different compliance percentages:
 
 *High poopulation density*:
+
 ![high density graph](images/selfisolation_high.png)
 
+
 *Medium population density:*
-![medium density graph](images/selfisolation_medium.png
+
+![medium density graph](images/selfisolation_medium.png)
+
 
 *Low population density:*
+
 ![low population density[(images/selfisolation_low.png)
 
 
