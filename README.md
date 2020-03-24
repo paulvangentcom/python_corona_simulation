@@ -73,7 +73,7 @@ The picture here is more complex, as factors such as population density and the 
 
 *High poopulation density*:
 
-![high density graph](images/selfisolation_high.png)
+![high density graph](images/selfisolation_high.png | width=100)
 
 
 *Medium population density:*
@@ -83,7 +83,7 @@ The picture here is more complex, as factors such as population density and the 
 
 *Low population density:*
 
-![low population density[(images/selfisolation_low.png)
+![low population density](images/selfisolation_low.png)
 
 
 This shows an interaction between the density of the population -and thus how many people you come across in a given timespan-, and the percentage of infectious people present in the population. This makes a lot of sense too, as both affect your odds of running into an infected person. All the plots show a clear 'tipping point': after this number of infections, the virus spread starts accelerating. Reports have been going around that [even without symptoms you can still be contagious](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), and (remain contagious for quite some time after recovering](https://www.cbsnews.com/news/coronavirus-can-live-in-your-body-for-up-to-37-days-according-to-new-study/), which makes such a self-isolation scenario risky in the case of COVID-19.
