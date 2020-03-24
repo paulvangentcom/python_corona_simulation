@@ -58,10 +58,10 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
     population = update_positions(population)
     
     #find new infections
-    population = infect(population, pop_size, infection_range, infection_chance, frame, 
-                        healthcare_capacity, verbose, send_to_hospital = True,
-                        hospital_bounds = hospital_bounds, destinations = destinations,
-                        hospital_dest_no = 1)
+    population, destinations = infect(population, pop_size, infection_range, infection_chance, frame, 
+                                      healthcare_capacity, verbose, send_to_location = True,
+                                      location_bounds = hospital_bounds, destinations = destinations,
+                                      location_no = 1)
     #apply risk factor to healthcare worker pool
     if healthcare_worker_risk != 0: #if risk is not zero, affect workers
         workers = population[0:healthcare_workers]
@@ -92,7 +92,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
 
         if hospital_bounds != None:
             build_hospital(hospital_bounds[0], hospital_bounds[2],
-                                 hospital_bounds[1], hospital_bounds[3], ax1)
+                           hospital_bounds[1], hospital_bounds[3], ax1)
         
         healthy = population[population[:,6] == 0][:,1:3]
         ax1.scatter(healthy[:healthcare_workers][:,0], 
@@ -224,14 +224,14 @@ if __name__ == '__main__':
     #place hospital on map x(-2, -1.5) y(-0.5, 0.5)
     #put hospital workers (first 50?) in their own bounds
     
-    population[0:healthcare_workers], \
-    destinations[0:healthcare_workers] = set_destination_bounds(population[0:healthcare_workers], 
-                                                                destinations[0:healthcare_workers],
-                                                                hospital_bounds[0],
-                                                                hospital_bounds[1],
-                                                                hospital_bounds[2],
-                                                                hospital_bounds[3],
-                                                                dest_no=1)
+    #population[0:healthcare_workers], \
+    #destinations[0:healthcare_workers] = set_destination_bounds(population[0:healthcare_workers], 
+    #                                                            destinations[0:healthcare_workers],
+    #                                                            hospital_bounds[0],
+    #                                                            hospital_bounds[1],
+    #                                                            hospital_bounds[2],
+    #                                                            hospital_bounds[3],
+    #                                                            dest_no=1)
 
     #define figure
     fig = plt.figure(figsize=(5,7))

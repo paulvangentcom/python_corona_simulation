@@ -8,8 +8,9 @@ import numpy as np
 from motion import get_motion_parameters
 
 def infect(population, pop_size, infection_range, infection_chance, frame, 
-           healthcare_capacity, verbose, send_to_hospital=False,
-           hospital_bounds=[], destinations=[], hospital_dest_no=1):
+           healthcare_capacity, verbose, send_to_location=False,
+           location_bounds=[], destinations=[], location_no=1, location_odds=1.0,
+           traveling_infects=True):
     '''finds new infections'''
 
     #find new infections
@@ -25,25 +26,30 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
                               patient[1] + infection_range, patient[2] + infection_range]
 
             #find healthy people surrounding infected patient
-            indices = np.int32(population[:,0][(infection_zone[0] < population[:,1]) & 
-                                               (population[:,1] < infection_zone[2]) &
-                                               (infection_zone[1] < population [:,2]) & 
-                                               (population[:,2] < infection_zone[3]) &
-                                               (population[:,6] == 0)])
+            if traveling_infects or patient[11] == 0:
+                indices = np.int32(population[:,0][(infection_zone[0] < population[:,1]) & 
+                                                   (population[:,1] < infection_zone[2]) &
+                                                   (infection_zone[1] < population [:,2]) & 
+                                                   (population[:,2] < infection_zone[3]) &
+                                                   (population[:,6] == 0)])
+            else:
+                indices = []
+
             for idx in indices:
                 #roll die to see if healthy person will be infected
                 if np.random.random() < infection_chance:
                     population[idx][6] = 1
                     population[idx][8] = frame
                     if len(population[population[:,10] == 1]) <= healthcare_capacity:
-                        population[idx][10] = 1
-                        if send_to_hospital:
-                                #send to hospital
+                        if send_to_location:
+                            #send to location if die roll is positive
+                            if np.random.uniform() <= location_odds:
+                                population[idx][10] = 1
                                 population[idx],\
                                 destinations[idx] = go_to_location(population[idx],
                                                                    destinations[idx],
-                                                                   hospital_bounds, 
-                                                                   dest_no=hospital_dest_no)
+                                                                   location_bounds, 
+                                                                   dest_no=location_no)
                     new_infections.append(idx)
 
     else:
@@ -56,25 +62,34 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
 
             if person[6] == 0: #if person is not already infected, find if infected are nearby
                 #find infected nearby healthy person
-                if len(population[:,6][(infection_zone[0] < population[:,1]) & 
-                                       (population[:,1] < infection_zone[2]) &
-                                       (infection_zone[1] < population [:,2]) & 
-                                       (population[:,2] < infection_zone[3]) &
-                                       (population[:,6] == 1)]) > 0:
+                if traveling_infects:
+                    poplen = len(population[:,6][(infection_zone[0] < population[:,1]) & 
+                                 (population[:,1] < infection_zone[2]) &
+                                 (infection_zone[1] < population [:,2]) & 
+                                 (population[:,2] < infection_zone[3]) &
+                                 (population[:,6] == 1)])
+                else:
+                    poplen = len(population[:,6][(infection_zone[0] < population[:,1]) & 
+                                 (population[:,1] < infection_zone[2]) &
+                                 (infection_zone[1] < population [:,2]) & 
+                                 (population[:,2] < infection_zone[3]) &
+                                 (population[:,6] == 1) &
+                                 (population[:,11] == 0)])
 
-                    if np.random.random() < infection_chance:
+                    if np.random.random() <= infection_chance:
                         #roll die to see if healthy person will be infected
                         population[np.int32(person[0])][6] = 1
                         population[np.int32(person[0])][8] = frame
                         if len(population[population[:,10] == 1]) <= healthcare_capacity:
-                            population[np.int32(person[0])][10] = 1
-                            if send_to_hospital:
-                                #send to hospital
-                                population[np.int32(person[0])],\
-                                destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
-                                                                                   destinations[np.int32(person[0])],
-                                                                                   hospital_bounds, 
-                                                                                   dest_no=hospital_dest_no)
+                            if send_to_location:
+                                #send to location and add to treatment if die roll is positive
+                                if np.random.uniform() < location_odds:
+                                    population[np.int32(person[0])][10] = 1
+                                    population[np.int32(person[0])],\
+                                    destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
+                                                                                       destinations[np.int32(person[0])],
+                                                                                       location_bounds, 
+                                                                                       dest_no=location_no)
 
 
                         new_infections.append(np.int32(person[0]))
@@ -82,7 +97,10 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
     if len(new_infections) > 0 and verbose:
         print('at timestep %i these people got sick: %s' %(frame, new_infections))
 
-    return population
+    if len(destinations) == 0:
+        return population
+    else:
+        return population, destinations
 
 
 def recover_or_die(population, frame, recovery_duration, mortality_chance, 
@@ -236,15 +254,15 @@ def healthcare_infection_correction(worker_population, healthcare_risk_factor=0.
 
 
 
-def go_to_location(patient, destination, hospital_bounds, dest_no=1):
+def go_to_location(patient, destination, location_bounds, dest_no=1):
     '''sends patient to hospital
 
     '''
 
-    x_center, y_center, x_wander, y_wander = get_motion_parameters(hospital_bounds[0],
-                                                                   hospital_bounds[1],
-                                                                   hospital_bounds[2],
-                                                                   hospital_bounds[3])
+    x_center, y_center, x_wander, y_wander = get_motion_parameters(location_bounds[0],
+                                                                   location_bounds[1],
+                                                                   location_bounds[2],
+                                                                   location_bounds[3])
     patient[13] = x_wander
     patient[14] = y_wander
     
