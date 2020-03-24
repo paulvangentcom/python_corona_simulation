@@ -10,7 +10,7 @@ healthcare_infection_correction
 from motion import update_positions, out_of_bounds, update_randoms,\
 set_destination, check_at_destination, keep_at_destination, get_motion_parameters
 from population import initialize_population, initialize_destination_matrix,\
-set_destination_bounds
+set_destination_bounds, save_data
 
 
 def update(frame, population, destinations, pop_size, infection_range=0.01, 
@@ -160,6 +160,7 @@ if __name__ == '__main__':
     ###############################
     #set simulation parameters
     simulation_steps = 5000 #total simulation steps performed
+    save_population = True #whether to dump population to data/population_{num}.npy
     #size of the simulated world in coordinates
     xbounds = [0.3, 1.3] 
     ybounds = [0, 1]
@@ -278,6 +279,8 @@ if __name__ == '__main__':
                 print('\n-----stopping-----\n')
                 print('total dead: %i' %len(population[population[:,6] == 3]))
                 print('total immune: %i' %len(population[population[:,6] == 2]))
+                if save_population:
+                    save_data(population, infected_plot, fatalities_plot)
                 sys.exit(0)
             sys.stdout.write('\r')
             sys.stdout.write('%i: healthy: %i, infected: %i, immune: %i, in treatment: %i, \
@@ -291,3 +294,6 @@ dead: %i, of total: %i' %(i, len(population[population[:,6] == 0]),
         print('\n-----stopping after all infected recovered or died-----\n')
         print('total dead: %i' %len(population[population[:,6] == 3]))
         print('total immune: %i' %len(population[population[:,6] == 2]))
+
+    if save_population:
+        save_data(population, infected_plot, fatalities_plot)

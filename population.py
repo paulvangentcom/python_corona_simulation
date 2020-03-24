@@ -3,6 +3,9 @@ this file contains functions that help initialize the population
 parameters for the simulation
 '''
 
+from glob import glob
+import os
+
 import numpy as np
 
 from motion import get_motion_parameters
@@ -127,3 +130,13 @@ def set_destination_bounds(population, destinations, xmin, ymin, xmax, ymax,
     population[:,12] = 1 #set destination reached
 
     return population, destinations
+
+def save_data(population, infected, fatalities):
+    '''dumps simulation data to disk
+    
+    ''' 
+    num_files = len(glob('data/*'))
+    os.makedirs('data/%i' %num_files)
+    np.save('data/%i/population.npy' %num_files, population)
+    np.save('data/%i/infected.npy' %num_files, infected)
+    np.save('data/%i/fatalities.npy' %num_files, fatalities)

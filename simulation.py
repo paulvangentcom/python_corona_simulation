@@ -9,7 +9,9 @@ from infection import infect, recover_or_die, compute_mortality
 from motion import update_positions, out_of_bounds, update_randoms,\
 set_destination, check_at_destination, keep_at_destination, get_motion_parameters
 from population import initialize_population, initialize_destination_matrix,\
-set_destination_bounds
+set_destination_bounds, save_data
+
+np.random.seed(100)
 
 
 def update(frame, population, destinations, pop_size, infection_range=0.01, 
@@ -150,6 +152,7 @@ if __name__ == '__main__':
     ###############################
     #set simulation parameters
     simulation_steps = 10000 #total simulation steps performed
+    save_population = True #whether to dump population to data/population_{num}.npy
     #size of the simulated world in coordinates
     xbounds = [0.1, 1.1] 
     ybounds = [0, 1]
@@ -157,8 +160,8 @@ if __name__ == '__main__':
     x_plot = [0, 1.1]
     y_plot = [0, 1]
 
-    visualise = True #whether to visualise the simulation 
-    verbose = True #whether to print infections, recoveries and deaths to the terminal
+    visualise = False #whether to visualise the simulation 
+    verbose = False #whether to print infections, recoveries and deaths to the terminal
 
     #population parameters
     pop_size = 2000
@@ -183,7 +186,7 @@ if __name__ == '__main__':
 
     #self isolation
     self_isolate=True #whether infected people will self-isolate
-    self_isolate_proportion = 0.7 #proportion of infected
+    self_isolate_proportion = 0 #proportion of infected
     isolation_bounds = [0.01, 0.01, 0.1, 0.99] #[xmin, ymin, xmax, ymax]
 
     #healthcare parameters
@@ -196,7 +199,7 @@ if __name__ == '__main__':
     risk_age = 55 #age where mortality risk starts increasing
     critical_age = 75 #age at and beyond which mortality risk reaches maximum
     critical_mortality_chance = 0.1 #maximum mortality risk for older age
-    treatment_dependent_risk = False #whether risk is affected by treatment
+    treatment_dependent_risk = True #whether risk is affected by treatment
     #whether risk between risk and critical age increases 'linear' or 'quadratic'
     risk_increase = 'quadratic' 
     
@@ -255,6 +258,8 @@ if __name__ == '__main__':
                 print('\n-----stopping-----\n')
                 print('total dead: %i' %len(population[population[:,6] == 3]))
                 print('total immune: %i' %len(population[population[:,6] == 2]))
+                if save_population:
+                    save_data(population, infected_plot, fatalities_plot)
                 sys.exit(0)
             sys.stdout.write('\r')
             sys.stdout.write('%i: healthy: %i, infected: %i, immune: %i, in treatment: %i, \
@@ -268,4 +273,6 @@ dead: %i, of total: %i' %(i, len(population[population[:,6] == 0]),
         print('\n-----stopping after all sick recovered or died-----\n')
         print('total dead: %i' %len(population[population[:,6] == 3]))
         print('total immune: %i' %len(population[population[:,6] == 2]))
-    
+
+    if save_population:
+        save_data(population, infected_plot, fatalities_plot)
