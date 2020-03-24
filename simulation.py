@@ -11,6 +11,7 @@ set_destination, check_at_destination, keep_at_destination, get_motion_parameter
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data
 
+#set seed for reproducibility
 np.random.seed(100)
 
 
@@ -22,7 +23,8 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
            risk_increase='quadratic', no_treatment_factor=3, 
            treatment_factor=0.5, healthcare_capacity=250, age_dependent_risk=True, 
            treatment_dependent_risk=True, visualise=True, verbose=True,
-           self_isolate=True, self_isolate_proportion=0.6, isolation_bounds=[0, 0, 0.1, 0.1]):
+           self_isolate=True, self_isolate_proportion=0.6, isolation_bounds=[0, 0, 0.1, 0.1],
+           traveling_infects=True):
 
     #add one infection to jumpstart
     if frame == 50:
@@ -64,7 +66,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
                                       healthcare_capacity, verbose, send_to_location = self_isolate,
                                       location_bounds = isolation_bounds, destinations = destinations,
                                       location_no = 1, location_odds = self_isolate_proportion,
-                                      traveling_infects = False)
+                                      traveling_infects = traveling_infects)
    
 
     infected_plot.append(len(population[population[:,6] == 1]))
@@ -89,7 +91,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
         ax1.set_xlim(x_plot[0], x_plot[1])
         ax1.set_ylim(y_plot[0], y_plot[1])
 
-        if isolation_bounds != None:
+        if self_isolate and isolation_bounds != None:
             build_hospital(isolation_bounds[0], isolation_bounds[2],
                            isolation_bounds[1], isolation_bounds[3], ax1,
                            addcross = False)
@@ -140,7 +142,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
             ax2.plot(indices, infected_arr[infected_arr >= healthcare_capacity], 
                      color='red')
 
-        #plt.savefig('render/%i.png' %frame)
+        plt.savefig('render/%i.png' %frame)
 
     return population
 
@@ -152,7 +154,7 @@ if __name__ == '__main__':
     ###############################
     #set simulation parameters
     simulation_steps = 10000 #total simulation steps performed
-    save_population = True #whether to dump population to data/population_{num}.npy
+    save_population = False #whether to dump population to data/population_{num}.npy
     #size of the simulated world in coordinates
     xbounds = [0.1, 1.1] 
     ybounds = [0, 1]
@@ -160,8 +162,8 @@ if __name__ == '__main__':
     x_plot = [0, 1.1]
     y_plot = [0, 1]
 
-    visualise = False #whether to visualise the simulation 
-    verbose = False #whether to print infections, recoveries and deaths to the terminal
+    visualise = True #whether to visualise the simulation 
+    verbose = True #whether to print infections, recoveries and fatalities to the terminal
 
     #population parameters
     pop_size = 2000
@@ -185,9 +187,10 @@ if __name__ == '__main__':
     mortality_chance=0.02 #global baseline chance of dying from the disease
 
     #self isolation
-    self_isolate=True #whether infected people will self-isolate
-    self_isolate_proportion = 0 #proportion of infected
+    self_isolate = True #whether infected people will self-isolate
+    self_isolate_proportion = 0.8 #proportion of infected
     isolation_bounds = [0.01, 0.01, 0.1, 0.99] #[xmin, ymin, xmax, ymax]
+    traveling_infects = False #Whether those traveling to isolation can still infect others
 
     #healthcare parameters
     healthcare_capacity = 300 #capacity of the healthcare system
@@ -238,7 +241,7 @@ if __name__ == '__main__':
              risk_increase, no_treatment_factor, treatment_factor, 
              healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
              visualise, verbose, self_isolate, self_isolate_proportion,
-             isolation_bounds,)
+             isolation_bounds,traveling_infects,)
 
     #start animation loop through matplotlib visualisation
     if visualise:
@@ -253,7 +256,7 @@ if __name__ == '__main__':
                                 risk_increase, no_treatment_factor, treatment_factor, 
                                 healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
                                 visualise, verbose, self_isolate, self_isolate_proportion,
-                                isolation_bounds)
+                                isolation_bounds, traveling_infects)
             if len(population[population[:,6] == 1]) == 0 and i > 100:
                 print('\n-----stopping-----\n')
                 print('total dead: %i' %len(population[population[:,6] == 3]))
