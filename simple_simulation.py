@@ -47,9 +47,9 @@ def initialize_population(pop_size, mean_age=45, max_age=105,
     population[:,0] = [x for x in range(pop_size)]
 
     #initialize random coordinates
-    population[:,1] = np.random.uniform(low = xbounds[0] - 0.05, high = xbounds[1] + 0.05, 
+    population[:,1] = np.random.uniform(low = xbounds[0] + 0.05, high = xbounds[1] - 0.05, 
                                         size = (pop_size,))
-    population[:,2] = np.random.uniform(low = ybounds[0] - 0.05, high = ybounds[1] + 0.05, 
+    population[:,2] = np.random.uniform(low = ybounds[0] + 0.05, high = ybounds[1] - 0.05, 
                                         size=(pop_size,))
 
     #initialize random headings -1 to 1
@@ -262,10 +262,10 @@ def recover_or_die(population, frame, recovery_duration, mortality_chance):
     return population
 
 
-def update(frame, population, infection_range=0.01, infection_chance=0.05, 
+def update(frame, population, infection_range=0.01, infection_chance=0.03, 
            recovery_duration=(200, 500), mortality_chance=0.02,
            xbounds=[0.02, 0.98], ybounds=[0.02, 0.98], wander_range=0.05,
-           visualise=True):
+           visualise=True, infected_plot = []):
 
     #add one infection to jumpstart
     if frame == 50:
@@ -274,8 +274,8 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
 
     #update out of bounds
     #define bounds arrays
-    _xbounds = np.array([[xbounds[0] - 0.02, xbounds[1] + 0.02]] * len(population))
-    _ybounds = np.array([[ybounds[0] - 0.02, ybounds[1] + 0.02]] * len(population))
+    _xbounds = np.array([[xbounds[0] + 0.02, xbounds[1] - 0.02]] * len(population))
+    _ybounds = np.array([[ybounds[0] + 0.02, ybounds[1] - 0.02]] * len(population))
     population = out_of_bounds(population, _xbounds, _ybounds)
 
     #update randoms
@@ -289,7 +289,7 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
     
     #find new infections
     population = infect(population, infection_range, infection_chance, frame)
-    infected.append(len(population[population[:,6] == 1]))
+    infected_plot.append(len(population[population[:,6] == 1]))
 
     #recover and die
     population = recover_or_die(population, frame, recovery_duration, mortality_chance)
@@ -302,30 +302,43 @@ def update(frame, population, infection_range=0.01, infection_chance=0.05,
         ax1.clear()
         ax2.clear()
 
-        ax1.set_xlim(xbounds[0] - 0.1, xbounds[1] + 0.1)
-        ax1.set_ylim(ybounds[0] - 0.1, ybounds[1] + 0.1)
+        ax1.set_xlim(xbounds[0] - 0.02, xbounds[1] + 0.02)
+        ax1.set_ylim(ybounds[0] - 0.02, ybounds[1] + 0.02)
 
         healthy = population[population[:,6] == 0][:,1:3]
         ax1.scatter(healthy[:,0], healthy[:,1], color='gray', s = 2, label='healthy')
     
-        sick = population[population[:,6] == 1][:,1:3]
-        ax1.scatter(sick[:,0], sick[:,1], color='red', s = 2, label='infected')
+        infected = population[population[:,6] == 1][:,1:3]
+        ax1.scatter(infected[:,0], infected[:,1], color='red', s = 2, label='infected')
 
         immune = population[population[:,6] == 2][:,1:3]
         ax1.scatter(immune[:,0], immune[:,1], color='green', s = 2, label='immune')
     
-        dead = population[population[:,6] == 3][:,1:3]
-        ax1.scatter(dead[:,0], dead[:,1], color='black', s = 2, label='dead')
+        fatalities = population[population[:,6] == 3][:,1:3]
+        ax1.scatter(fatalities[:,0], fatalities[:,1], color='black', s = 2, label='fatalities')
     
         #add text descriptors
         ax1.text(xbounds[0], 
-                 ybounds[1] + ((ybounds[1] - ybounds[0]) / 8), 
-                 'timestep: %i sick: %i immune: %i dead: %i' %(frame, len(sick), len(immune), len(dead)))
+                 ybounds[1] + 0.03, 
+                 'timestep: %i, total: %i, healthy: %i infected: %i immune: %i fatalities: %i' %(frame,
+                                                                                              len(population),
+                                                                                              len(healthy), 
+                                                                                              len(infected), 
+                                                                                              len(immune), 
+                                                                                              len(fatalities)),
+                 fontsize=6)
     
         ax2.set_title('number of infected')
-        ax2.set_xlim(0, simulation_steps)
+        ax2.text(0, pop_size * 0.05, 
+                 'https://github.com/paulvangentcom/python-corona-simulation',
+                 fontsize=6, alpha=0.5)
+        #ax2.set_xlim(0, simulation_steps)
         ax2.set_ylim(0, pop_size + 100)
-        ax2.plot(infected, color='gray')
+        ax2.plot(infected_plot, color='gray')
+
+        np.save('infectedarray.npy', np.asarray(infected_plot))
+
+        plt.savefig('render/%s.png' %frame)
 
 
 
@@ -333,10 +346,9 @@ if __name__ == '__main__':
 
     #set simulation parameters
     pop_size = 2000
-    simulation_steps = 1500
+    simulation_steps = 10000
     xbounds = [0, 1] 
     ybounds = [0, 1]
-
 
     population = initialize_population(pop_size)
 
@@ -346,15 +358,15 @@ if __name__ == '__main__':
 
     ax1 = fig.add_subplot(spec[0,0])
     plt.title('infection simulation')
-    plt.xlim(xbounds[0] - 0.1, xbounds[1] + 0.1)
-    plt.ylim(ybounds[0] - 0.1, ybounds[1] + 0.1)
+    plt.xlim(xbounds[0], xbounds[1])
+    plt.ylim(ybounds[0], ybounds[1])
 
     ax2 = fig.add_subplot(spec[1,0])
     ax2.set_title('number of infected')
     ax2.set_xlim(0, simulation_steps)
     ax2.set_ylim(0, pop_size + 100)
 
-    infected = []
+    
     
     #start animation loop through matplotlib visualisation
     animation = FuncAnimation(fig, update, fargs = (population,), frames = simulation_steps, interval = 33)

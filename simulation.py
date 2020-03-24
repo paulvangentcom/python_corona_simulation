@@ -25,8 +25,8 @@ def update(frame, population, pop_size, infection_range=0.01, infection_chance=0
 
     #update out of bounds
     #define bounds arrays
-    _xbounds = np.array([[xbounds[0] - 0.02, xbounds[1] + 0.02]] * len(population))
-    _ybounds = np.array([[ybounds[0] - 0.02, ybounds[1] + 0.02]] * len(population))
+    _xbounds = np.array([[xbounds[0] + 0.02, xbounds[1] - 0.02]] * len(population))
+    _ybounds = np.array([[ybounds[0] + 0.02, ybounds[1] - 0.02]] * len(population))
     population = out_of_bounds(population, _xbounds, _ybounds)
 
     #update randoms
@@ -41,7 +41,7 @@ def update(frame, population, pop_size, infection_range=0.01, infection_chance=0
     #find new infections
     population = infect(population, pop_size, infection_range, infection_chance, frame, 
                         healthcare_capacity, verbose)
-    infected.append(len(population[population[:,6] == 1]))
+    infected_plot.append(len(population[population[:,6] == 1]))
 
     #recover and die
     population = recover_or_die(population, frame, recovery_duration, mortality_chance,
@@ -49,7 +49,7 @@ def update(frame, population, pop_size, infection_range=0.01, infection_chance=0
                                 risk_increase, no_treatment_factor, age_dependent_risk,
                                 treatment_dependent_risk, treatment_factor, verbose)
 
-    deaths.append(len(population[population[:,6] == 3]))
+    fatalities_plot.append(len(population[population[:,6] == 3]))
 
     if visualise:
         #construct plot and visualise
@@ -57,51 +57,54 @@ def update(frame, population, pop_size, infection_range=0.01, infection_chance=0
         ax1.clear()
         ax2.clear()
 
-        ax1.set_xlim(xbounds[0] - 0.1, xbounds[1] + 0.1)
-        ax1.set_ylim(ybounds[0] - 0.1, ybounds[1] + 0.1)
+        ax1.set_xlim(xbounds[0], xbounds[1])
+        ax1.set_ylim(ybounds[0], ybounds[1])
         
         healthy = population[population[:,6] == 0][:,1:3]
         ax1.scatter(healthy[:,0], healthy[:,1], color='gray', s = 2, label='healthy')
     
-        sick = population[population[:,6] == 1][:,1:3]
-        ax1.scatter(sick[:,0], sick[:,1], color='red', s = 2, label='infected')
+        infected = population[population[:,6] == 1][:,1:3]
+        ax1.scatter(infected[:,0], infected[:,1], color='red', s = 2, label='infected')
 
         immune = population[population[:,6] == 2][:,1:3]
         ax1.scatter(immune[:,0], immune[:,1], color='green', s = 2, label='immune')
     
-        dead = population[population[:,6] == 3][:,1:3]
-        ax1.scatter(dead[:,0], dead[:,1], color='black', s = 2, label='dead')
+        fatalities = population[population[:,6] == 3][:,1:3]
+        ax1.scatter(fatalities[:,0], fatalities[:,1], color='black', s = 2, label='dead')
         
     
         #add text descriptors
         ax1.text(xbounds[0], 
-                 ybounds[1] + ((ybounds[1] - ybounds[0]) / 8), 
-                 'timestep: %i healthy: %i, sick: %i immune: %i dead: %i' %(frame, 
-                                                                            len(healthy),
-                                                                            len(sick), 
-                                                                            len(immune), 
-                                                                            len(dead)),
-                                                                            fontsize = 8)
+                 ybounds[1] + ((ybounds[1] - ybounds[0]) / 100), 
+                 'timestep: %i, total: %i, healthy: %i infected: %i immune: %i fatalities: %i' %(frame,
+                                                                                              len(population),
+                                                                                              len(healthy), 
+                                                                                              len(infected), 
+                                                                                              len(immune), 
+                                                                                              len(fatalities)),
+                 fontsize=6)
     
         ax2.set_title('number of infected')
-        ax2.set_xlim(0, simulation_steps)
+        ax2.text(0, pop_size * 0.05, 
+                 'https://github.com/paulvangentcom/python-corona-simulation',
+                 fontsize=6, alpha=0.5)
+        #ax2.set_xlim(0, simulation_steps)
         ax2.set_ylim(0, pop_size + 100)
-        ax2.plot(infected, color='gray')
-        ax2.plot(deaths, color='black', label='deaths')
 
         if treatment_dependent_risk:
-            ax2.plot([healthcare_capacity for x in range(simulation_steps)], color='red', 
-                     label='healthcare capacity')
-
-            infected_arr = np.asarray(infected)
+            infected_arr = np.asarray(infected_plot)
             indices = np.argwhere(infected_arr >= healthcare_capacity)
 
+            ax2.plot([healthcare_capacity for x in range(len(infected_plot))], color='red', 
+                     label='healthcare capacity')
+
+        ax2.plot(infected_plot, color='gray')
+        ax2.plot(fatalities_plot, color='black', label='fatalities')
+        ax2.legend(loc = 1, fontsize = 6)
+
+        if treatment_dependent_risk:
             ax2.plot(indices, infected_arr[infected_arr >= healthcare_capacity], 
                      color='red')
-
-
-
-            ax2.legend(loc = 1, fontsize = 6)
 
         #plt.savefig('render/%i.png' %frame)
 
@@ -114,7 +117,7 @@ if __name__ == '__main__':
     ##### SETTABLE PARAMETERS #####
     ###############################
     #set simulation parameters
-    simulation_steps = 5000 #total simulation steps performed
+    simulation_steps = 10000 #total simulation steps performed
     #size of the simulated world in coordinates
     xbounds = [0, 1] 
     ybounds = [0, 1]
@@ -124,7 +127,7 @@ if __name__ == '__main__':
 
     #population parameters
     pop_size = 2000
-    mean_age=45
+    mean_age=55
     max_age=105
 
     #motion parameters
@@ -146,6 +149,7 @@ if __name__ == '__main__':
     #healthcare parameters
     healthcare_capacity = 300 #capacity of the healthcare system
     treatment_factor = 0.5 #when in treatment, affect risk by this factor
+    no_treatment_factor = 3 #risk increase factor to use if healthcare system is full
 
     #risk parameters
     age_dependent_risk = True #whether risk increases with age
@@ -155,7 +159,7 @@ if __name__ == '__main__':
     treatment_dependent_risk = True #whether risk is affected by treatment
     #whether risk between risk and critical age increases 'linear' or 'quadratic'
     risk_increase = 'quadratic' 
-    no_treatment_factor = 3 #risk increase factor to use if healthcare system is full
+    
    
     ######################################
     ##### END OF SETTABLE PARAMETERS #####
@@ -170,16 +174,16 @@ if __name__ == '__main__':
 
     ax1 = fig.add_subplot(spec[0,0])
     plt.title('infection simulation')
-    plt.xlim(xbounds[0] - 0.1, xbounds[1] + 0.1)
-    plt.ylim(ybounds[0] - 0.1, ybounds[1] + 0.1)
+    plt.xlim(xbounds[0], xbounds[1])
+    plt.ylim(ybounds[0], ybounds[1])
 
     ax2 = fig.add_subplot(spec[1,0])
     ax2.set_title('number of infected')
-    ax2.set_xlim(0, simulation_steps)
+    #ax2.set_xlim(0, simulation_steps)
     ax2.set_ylim(0, pop_size + 100)
 
-    infected = []
-    deaths = []
+    infected_plot = []
+    fatalities_plot = []
     
     #define arguments for visualisation loop
     fargs = (population, pop_size, infection_range, infection_chance, 
