@@ -43,8 +43,8 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
                     if len(population[population[:,10] == 1]) <= healthcare_capacity:
                         if send_to_location:
                             #send to location if die roll is positive
+                            population[idx][10] = 1
                             if np.random.uniform() <= location_odds:
-                                population[idx][10] = 1
                                 population[idx],\
                                 destinations[idx] = go_to_location(population[idx],
                                                                    destinations[idx],
@@ -83,8 +83,8 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
                         if len(population[population[:,10] == 1]) <= healthcare_capacity:
                             if send_to_location:
                                 #send to location and add to treatment if die roll is positive
+                                population[np.int32(person[0])][10] = 1
                                 if np.random.uniform() < location_odds:
-                                    population[np.int32(person[0])][10] = 1
                                     population[np.int32(person[0])],\
                                     destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
                                                                                        destinations[np.int32(person[0])],
