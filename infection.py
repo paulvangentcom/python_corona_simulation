@@ -41,15 +41,17 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
                     population[idx][6] = 1
                     population[idx][8] = frame
                     if len(population[population[:,10] == 1]) <= healthcare_capacity:
+                        population[idx][10] = 1
                         if send_to_location:
                             #send to location if die roll is positive
-                            population[idx][10] = 1
                             if np.random.uniform() <= location_odds:
                                 population[idx],\
                                 destinations[idx] = go_to_location(population[idx],
                                                                    destinations[idx],
                                                                    location_bounds, 
                                                                    dest_no=location_no)
+                        else:
+                            pass
                     new_infections.append(idx)
 
     else:
@@ -75,15 +77,16 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
                                  (population[:,2] < infection_zone[3]) &
                                  (population[:,6] == 1) &
                                  (population[:,11] == 0)])
-
+                
+                if poplen > 0:
                     if np.random.random() <= infection_chance:
                         #roll die to see if healthy person will be infected
                         population[np.int32(person[0])][6] = 1
                         population[np.int32(person[0])][8] = frame
                         if len(population[population[:,10] == 1]) <= healthcare_capacity:
+                            population[np.int32(person[0])][10] = 1
                             if send_to_location:
                                 #send to location and add to treatment if die roll is positive
-                                population[np.int32(person[0])][10] = 1
                                 if np.random.uniform() < location_odds:
                                     population[np.int32(person[0])],\
                                     destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
