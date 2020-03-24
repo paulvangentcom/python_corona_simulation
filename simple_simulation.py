@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+#set seed for reproducibility
+np.random.seed(100)
 
 def initialize_population(pop_size, mean_age=45, max_age=105,
                           xbounds = [0, 1], ybounds = [0, 1]):
@@ -335,8 +337,6 @@ def update(frame, population, infection_range=0.01, infection_chance=0.03,
         #ax2.set_xlim(0, simulation_steps)
         ax2.set_ylim(0, pop_size + 100)
         ax2.plot(infected_plot, color='gray')
-
-        np.save('infectedarray.npy', np.asarray(infected_plot))
 
         plt.savefig('render/%s.png' %frame)
 
