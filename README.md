@@ -73,7 +73,7 @@ The picture here is more complex, as factors such as population density and the 
 
 *High poopulation density*:
 
-![high density graph](images/selfisolation_high.png | width=100)
+<img scr="images/selfisolation_high.png" alt="high density graph" width="500">
 
 
 *Medium population density:*
