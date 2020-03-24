@@ -5,8 +5,11 @@ new infections, recoveries, and deaths
 
 import numpy as np
 
+from motion import get_motion_parameters
+
 def infect(population, pop_size, infection_range, infection_chance, frame, 
-           healthcare_capacity, verbose):
+           healthcare_capacity, verbose, send_to_hospital=False,
+           hospital_bounds=[], destinations=[], hospital_dest_no=1):
     '''finds new infections'''
 
     #find new infections
@@ -34,6 +37,13 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
                     population[idx][8] = frame
                     if len(population[population[:,10] == 1]) <= healthcare_capacity:
                         population[idx][10] = 1
+                        if send_to_hospital:
+                                #send to hospital
+                                population[idx],\
+                                destinations[idx] = go_to_location(population[idx],
+                                                                   destinations[idx],
+                                                                   hospital_bounds, 
+                                                                   dest_no=hospital_dest_no)
                     new_infections.append(idx)
 
     else:
@@ -58,6 +68,15 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
                         population[np.int32(person[0])][8] = frame
                         if len(population[population[:,10] == 1]) <= healthcare_capacity:
                             population[np.int32(person[0])][10] = 1
+                            if send_to_hospital:
+                                #send to hospital
+                                population[np.int32(person[0])],\
+                                destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
+                                                                                   destinations[np.int32(person[0])],
+                                                                                   hospital_bounds, 
+                                                                                   dest_no=hospital_dest_no)
+
+
                         new_infections.append(np.int32(person[0]))
 
     if len(new_infections) > 0 and verbose:
@@ -191,3 +210,47 @@ def compute_mortality(age, mortality_chance, risk_age=50,
     elif age >= critical_age:
         #simply return the maximum mortality chance
         return critical_mortality_chance
+
+
+def healthcare_infection_correction(worker_population, healthcare_risk_factor=0.2):
+    '''corrects infection to healthcare population.
+
+    Takes the healthcare risk factor and adjusts the sick healthcare workers
+    by reducing (if < 0) ir increasing (if > 0) sick healthcare workers
+
+
+    '''
+
+    if healthcare_risk_factor < 0:
+        #set 1 - healthcare_risk_factor workers to non sick
+        sick_workers = worker_population[:,6][worker_population[:,6] == 1]
+        cure_vector = np.random.uniform((len(sick_workers)))
+        sick_workers[:,6][cure_vector >= healthcare_risk_factor] = 0
+    elif healthcare_risk_factor > 0:
+        #TODO: make proportion of extra workers sick
+        pass
+    else:
+        pass #if no changed risk, do nothing
+
+    return worker_population
+
+
+
+def go_to_location(patient, destination, hospital_bounds, dest_no=1):
+    '''sends patient to hospital
+
+    '''
+
+    x_center, y_center, x_wander, y_wander = get_motion_parameters(hospital_bounds[0],
+                                                                   hospital_bounds[1],
+                                                                   hospital_bounds[2],
+                                                                   hospital_bounds[3])
+    patient[13] = x_wander
+    patient[14] = y_wander
+    
+    destination[(dest_no - 1) * 2] = x_center
+    destination[((dest_no - 1) * 2) + 1] = y_center
+
+    patient[11] = dest_no #set destination active
+
+    return patient, destination
