@@ -5,6 +5,8 @@ parameters for the simulation
 
 import numpy as np
 
+from motion import get_motion_parameters
+
 def initialize_population(pop_size, mean_age=45, max_age=105,
                           xbounds = [0, 1], ybounds = [0, 1]):
     '''initialized the population for the simulation
@@ -89,3 +91,38 @@ def initialize_destination_matrix(pop_size, total_destinations):
     destinations = np.zeros((pop_size, total_destinations * 2))
 
     return destinations
+
+
+def set_destination_bounds(population, destinations, xmin, ymin, xmax, ymax,
+                           dest_no=1):
+    '''teleports all persons within limits
+
+    Function that takes the population and coordinates,
+    teleports everyone there, sets destination active and
+    destination as reached
+
+    Keyword arguments
+    -----------------
+    population : ndarray
+
+    '''
+
+    #teleport
+    population[:,1] = np.random.uniform(low = xmin, high = xmax, size = len(population))
+    population[:,2] = np.random.uniform(low = ymin, high = ymax, size = len(population))
+
+    #get parameters
+    x_center, y_center, x_wander, y_wander = get_motion_parameters(xmin, ymin, xmax, ymax)
+
+    #set destination centers
+    destinations[:,(dest_no - 1) * 2] = x_center
+    destinations[:,((dest_no - 1) * 2) + 1] = y_center
+
+    #set wander bounds
+    population[:,13] = x_wander
+    population[:,14] = y_wander
+
+    population[:,11] = dest_no #set destination active
+    population[:,12] = 1 #set destination reached
+
+    return population, destinations

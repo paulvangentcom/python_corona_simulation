@@ -34,6 +34,7 @@ def out_of_bounds(population, xbounds, ybounds):
     #update headings and positions where out of bounds
     #update x heading
     #determine number of elements that need to be updated
+
     shp = population[:,3][(population[:,1] <= xbounds[:,0]) &
                           (population[:,3] < 0)].shape
     population[:,3][(population[:,1] <= xbounds[:,0]) &
@@ -166,7 +167,7 @@ def check_at_destination(population, destinations, wander_factor=2.5):
             #insert random headings and speeds for those at destination
             at_dest = update_randoms(at_dest, len(at_dest), 1, 1)
 
-            at_dest[:,5] = 0.001
+            #at_dest[:,5] = 0.001
 
             #reinsert into population
             population[(np.abs(population[:,1] - dest_x) < (population[:,13] * wander_factor)) & 
@@ -252,3 +253,17 @@ def reset_destinations(population, ids=[]):
 
     
     pass
+
+
+def get_motion_parameters(xmin, ymin, xmax, ymax):
+    '''gets destination center and wander ranges
+
+    '''
+
+    x_center = xmin + ((xmax - xmin) / 2)
+    y_center = ymin + ((ymax - ymin) / 2)
+
+    x_wander = (xmax - xmin) / 2
+    y_wander = (ymax - ymin) / 2
+
+    return x_center, y_center, x_wander, y_wander
