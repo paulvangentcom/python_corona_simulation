@@ -73,7 +73,7 @@ The picture here is more complex, as factors such as population density and the 
 
 *High poopulation density*:
 
-<img src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_high.png" alt="high density graph" width="600" align="center">
+<img src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_high.png" alt="high density graph" width="600" align="middle">
 
 
 *Medium population density:*
