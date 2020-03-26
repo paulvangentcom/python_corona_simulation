@@ -14,17 +14,17 @@ set_destination_bounds, save_data
 #set seed for reproducibility
 np.random.seed(100)
 
-
 def update(frame, population, destinations, pop_size, infection_range=0.01, 
-           infection_chance=0.03, recovery_duration=(200, 500), mortality_chance=0.02,
+           infection_chance=0.03, speed=0.01, recovery_duration=(200, 500), mortality_chance=0.02,
            xbounds=[0.02, 0.98], ybounds=[0.02, 0.98], x_plot=[0, 1], 
            y_plot=[0, 1], wander_range=0.05, risk_age=55, 
            critical_age=75, critical_mortality_chance=0.1,
            risk_increase='quadratic', no_treatment_factor=3, 
-           treatment_factor=0.5, healthcare_capacity=250, age_dependent_risk=True, 
-           treatment_dependent_risk=True, visualise=True, verbose=True,
+           treatment_factor=0.5, healthcare_capacity=250, age_dependent_risk=False, 
+           treatment_dependent_risk=False, visualise=False, verbose=False,
            self_isolate=True, self_isolate_proportion=0.6, isolation_bounds=[0, 0, 0.1, 0.1],
-           traveling_infects=True):
+           traveling_infects=False, lockdown=False, lockdown_percentage=0.1, 
+           lockdown_vector=[]):
 
     #add one infection to jumpstart
     if frame == 50:
@@ -52,9 +52,25 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
         population[population[:,11] == 0] = out_of_bounds(population[population[:,11] == 0], 
                                                           _xbounds, _ybounds)
 
-    #update randoms
-    population = update_randoms(population, pop_size)
+    
+    if lockdown:
+        if len(infected_plot) == 0:
+            mx = 0
+        else:
+            mx = np.max(infected_plot)
 
+        if len(population[population[:,6] == 1]) >= len(population) * lockdown_percentage or\
+           mx >= (len(population) * lockdown_percentage):
+            #set speeds of complying people to 0
+            population[:,5][lockdown_vector == 0] = 0
+        else:
+            #update randoms
+            population = update_randoms(population, pop_size, speed=speed)
+    else:
+        #update randoms
+        population = update_randoms(population, pop_size, speed=speed)
+
+        
     #for dead ones: set speed and heading to 0
     population[:,3:5][population[:,6] == 3] = 0
 
@@ -154,12 +170,12 @@ if __name__ == '__main__':
     ###############################
     #set simulation parameters
     simulation_steps = 10000 #total simulation steps performed
-    save_population = False #whether to dump population to data/population_{num}.npy
+    save_population = True #whether to dump population to data/population_{num}.npy
     #size of the simulated world in coordinates
-    xbounds = [0.1, 1.1] 
+    xbounds = [0, 1] 
     ybounds = [0, 1]
 
-    x_plot = [0, 1.1]
+    x_plot = [0, 1]
     y_plot = [0, 1]
 
     visualise = True #whether to visualise the simulation 
@@ -169,6 +185,7 @@ if __name__ == '__main__':
     pop_size = 2000
     mean_age=55
     max_age=105
+    speed=0.01
 
     #motion parameters
     mean_speed = 0.01 # the mean speed (defined as heading * speed)
@@ -187,16 +204,23 @@ if __name__ == '__main__':
     mortality_chance=0.02 #global baseline chance of dying from the disease
 
     #self isolation
-    self_isolate = True #whether infected people will self-isolate
-    self_isolate_proportion = 0.8 #proportion of infected
+    self_isolate = False #whether infected people will self-isolate
+    self_isolate_proportion = 0.85 #proportion of infected
     isolation_bounds = [0.01, 0.01, 0.1, 0.99] #[xmin, ymin, xmax, ymax]
     traveling_infects = False #Whether those traveling to isolation can still infect others
+
+    #lock down
+    lockdown = True #whether to implement a lockdown
+    lockdown_percentage = 0.1 #after this proportion is infected, lock-down begins
+    lockdown_compliance = 0.95 #fraction of the population that will obey the lockdown
+    lockdown_vector = np.zeros((pop_size,))
+    #lockdown vector is 1 for those not complying
+    lockdown_vector[np.random.uniform(size=(pop_size,)) >= lockdown_compliance] = 1
 
     #healthcare parameters
     healthcare_capacity = 300 #capacity of the healthcare system
     treatment_factor = 0.5 #when in treatment, affect risk by this factor
     no_treatment_factor = 3 #risk increase factor to use if healthcare system is full
-
     #risk parameters
     age_dependent_risk = True #whether risk increases with age
     risk_age = 55 #age where mortality risk starts increasing
@@ -210,7 +234,7 @@ if __name__ == '__main__':
     ######################################
     ##### END OF SETTABLE PARAMETERS #####
     ######################################
-    
+
     #initialise population
     population = initialize_population(pop_size, mean_age, max_age, xbounds, ybounds)
 
@@ -235,13 +259,14 @@ if __name__ == '__main__':
     fatalities_plot = []
     
     #define arguments for visualisation loop
-    fargs = (population, destinations, pop_size, infection_range, infection_chance, 
+    fargs = (population, destinations, pop_size, infection_range, infection_chance, speed,
              recovery_duration, mortality_chance, xbounds, ybounds, x_plot, y_plot,
              wander_range, risk_age, critical_age, critical_mortality_chance,
              risk_increase, no_treatment_factor, treatment_factor, 
              healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
              visualise, verbose, self_isolate, self_isolate_proportion,
-             isolation_bounds,traveling_infects,)
+             isolation_bounds,traveling_infects, lockdown, lockdown_percentage, 
+             lockdown_vector,)
 
     #start animation loop through matplotlib visualisation
     if visualise:
@@ -250,13 +275,14 @@ if __name__ == '__main__':
     else:
         #alternatively dry run simulation without visualising
         for i in range(simulation_steps):
-            population = update(i, population, destinations, pop_size, infection_range, infection_chance, 
+            population = update(i, population, destinations, pop_size, infection_range, infection_chance, speed
                                 recovery_duration, mortality_chance, xbounds, ybounds, x_plot, y_plot,
                                 wander_range, risk_age, critical_age, critical_mortality_chance,
                                 risk_increase, no_treatment_factor, treatment_factor, 
                                 healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
                                 visualise, verbose, self_isolate, self_isolate_proportion,
-                                isolation_bounds, traveling_infects)
+                                isolation_bounds, traveling_infects, lockdown, lockdown_percentage,
+                                lockdown_vector)
             if len(population[population[:,6] == 1]) == 0 and i > 100:
                 print('\n-----stopping-----\n')
                 print('total dead: %i' %len(population[population[:,6] == 3]))
