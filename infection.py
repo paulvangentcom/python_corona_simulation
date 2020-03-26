@@ -10,7 +10,7 @@ from motion import get_motion_parameters
 def infect(population, pop_size, infection_range, infection_chance, frame, 
            healthcare_capacity, verbose, send_to_location=False,
            location_bounds=[], destinations=[], location_no=1, location_odds=1.0,
-           traveling_infects=True):
+           traveling_infects=False):
     '''finds new infections'''
 
     #find new infections
@@ -57,6 +57,9 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
     else:
         #if more than half are infected slice based in healthy people (to speed up computation)
         healthy_previous_step = population[population[:,6] == 0]
+        sick_previous_step = population[population[:,6] == 1]
+        
+        
         for person in healthy_previous_step:
             #define infecftion range around healthy person
             infection_zone = [person[1] - infection_range, person[2] - infection_range,
@@ -65,21 +68,21 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
             if person[6] == 0: #if person is not already infected, find if infected are nearby
                 #find infected nearby healthy person
                 if traveling_infects:
-                    poplen = len(population[:,6][(infection_zone[0] < population[:,1]) & 
-                                 (population[:,1] < infection_zone[2]) &
-                                 (infection_zone[1] < population [:,2]) & 
-                                 (population[:,2] < infection_zone[3]) &
-                                 (population[:,6] == 1)])
+                    poplen = len(sick_previous_step[:,6][(infection_zone[0] < sick_previous_step[:,1]) & 
+                                 (sick_previous_step[:,1] < infection_zone[2]) &
+                                 (infection_zone[1] < sick_previous_step [:,2]) & 
+                                 (sick_previous_step[:,2] < infection_zone[3]) &
+                                 (sick_previous_step[:,6] == 1)])
                 else:
-                    poplen = len(population[:,6][(infection_zone[0] < population[:,1]) & 
-                                 (population[:,1] < infection_zone[2]) &
-                                 (infection_zone[1] < population [:,2]) & 
-                                 (population[:,2] < infection_zone[3]) &
-                                 (population[:,6] == 1) &
-                                 (population[:,11] == 0)])
+                    poplen = len(sick_previous_step[:,6][(infection_zone[0] < sick_previous_step[:,1]) & 
+                                 (sick_previous_step[:,1] < infection_zone[2]) &
+                                 (infection_zone[1] < sick_previous_step [:,2]) & 
+                                 (sick_previous_step[:,2] < infection_zone[3]) &
+                                 (sick_previous_step[:,6] == 1) &
+                                 (sick_previous_step[:,11] == 0)])
                 
                 if poplen > 0:
-                    if np.random.random() <= infection_chance:
+                    if np.random.random() < (infection_chance * poplen):
                         #roll die to see if healthy person will be infected
                         population[np.int32(person[0])][6] = 1
                         population[np.int32(person[0])][8] = frame

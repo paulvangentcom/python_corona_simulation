@@ -167,7 +167,14 @@ def update_randoms(population, heading_update_chance=0.02,
 
 
 def infect(population, infection_range, infection_chance, frame):
-    '''finds new infections'''
+    '''finds new infections
+    
+    
+    Keyword arguments
+    -----------------
+
+
+    '''
 
     #find new infections
     infected_previous_step = population[population[:,6] == 1]
@@ -197,6 +204,7 @@ def infect(population, infection_range, infection_chance, frame):
     else:
         #if more than half are infected slice based in healthy people (to speed up computation)
         healthy_previous_step = population[population[:,6] == 0]
+        sick_previous_step = population[population[:,6] == 1]
         for person in healthy_previous_step:
             #define infecftion range around healthy person
             infection_zone = [person[1] - infection_range, person[2] - infection_range,
@@ -204,13 +212,14 @@ def infect(population, infection_range, infection_chance, frame):
 
             if person[6] == 0: #if person is not already infected, find if infected are nearby
                 #find infected nearby healthy person
-                if len(population[:,6][(infection_zone[0] < population[:,1]) & 
-                                       (population[:,1] < infection_zone[2]) &
-                                       (infection_zone[1] < population [:,2]) & 
-                                       (population[:,2] < infection_zone[3]) &
-                                       (population[:,6] == 1)]) > 0:
+                poplen = len(sick_previous_step[:,6][(infection_zone[0] < sick_previous_step[:,1]) & 
+                                              (sick_previous_step[:,1] < infection_zone[2]) &
+                                              (infection_zone[1] < sick_previous_step [:,2]) & 
+                                              (sick_previous_step[:,2] < infection_zone[3]) &
+                                              (sick_previous_step[:,6] == 1)])
 
-                    if np.random.random() < infection_chance:
+                if poplen > 0:
+                    if np.random.random() < (infection_chance * poplen):
                         #roll die to see if healthy person will be infected
                         population[np.int32(person[0])][6] = 1
                         population[np.int32(person[0])][8] = frame
