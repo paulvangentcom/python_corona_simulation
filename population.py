@@ -11,7 +11,8 @@ import numpy as np
 from motion import get_motion_parameters
 
 def initialize_population(pop_size, mean_age=45, max_age=105,
-                          xbounds = [0, 1], ybounds = [0, 1]):
+                          xbounds=[0, 1], ybounds=[0, 1],
+                          speed=0.01):
     '''initialized the population for the simulation
 
     the population matrix for this simulation has the following columns:
@@ -69,7 +70,7 @@ def initialize_population(pop_size, mean_age=45, max_age=105,
                                        size=(pop_size,))
 
     #initialize random speeds
-    population[:,5] = np.random.normal(0.01, 0.01/3)
+    population[:,5] = np.random.normal(speed, speed / 3)
 
     #initalize ages
     std_age = (max_age - mean_age) / 3
