@@ -14,10 +14,10 @@ Aside from that, I've worked with NumPy a lot but felt there was still much to l
 ## Index
 - [Simple infection simulation](#simple-infection-simulation)
 - [Simulating Age Effects and Health Care Capacity](#simulating-age-effects-and-health-care-capacity)
-	- [Case: 'Business As Usual'](#case:-'business-as-usual')
-	- [Case: 'Reduced Interaction'](#case:-'reduced-interaction')
-	- [Case: 'Lock-Down'](#case:-'lock-down')
-	- [Case: 'Self-Isolation'](#case:-'self-isolation')
+	- [Case: 'Business As Usual'](#case-'business-as-usual')
+	- [Case: 'Reduced Interaction'](#case-'reduced-interaction')
+	- [Case: 'Lock-Down'](#case-'lock-down')
+	- [Case: 'Self-Isolation'](#case-'self-isolation')
 	- [Self-Isolation in Detail](#self-isolation-in-detail)
 	
 	
