@@ -124,9 +124,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#extra folders
 tmp/
-data/plot_helper.ipynb
-test.ipynb
-data/plot_helper.ipynb
+#extra folders
+
 data/plot_helper.ipynb
