@@ -158,7 +158,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
             ax2.plot(indices, infected_arr[infected_arr >= healthcare_capacity], 
                      color='red')
 
-        plt.savefig('render/%i.png' %frame)
+        #plt.savefig('render/%i.png' %frame)
 
     return population
 
@@ -210,7 +210,7 @@ if __name__ == '__main__':
     traveling_infects = False #Whether those traveling to isolation can still infect others
 
     #lock down
-    lockdown = True #whether to implement a lockdown
+    lockdown = False #whether to implement a lockdown
     lockdown_percentage = 0.1 #after this proportion is infected, lock-down begins
     lockdown_compliance = 0.95 #fraction of the population that will obey the lockdown
     lockdown_vector = np.zeros((pop_size,))
@@ -242,18 +242,19 @@ if __name__ == '__main__':
     destinations = initialize_destination_matrix(pop_size, 1)
 
     #define figure
-    fig = plt.figure(figsize=(5,7))
-    spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
+    if visualise:
+        fig = plt.figure(figsize=(5,7))
+        spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
 
-    ax1 = fig.add_subplot(spec[0,0])
-    plt.title('infection simulation')
-    plt.xlim(xbounds[0], xbounds[1])
-    plt.ylim(ybounds[0], ybounds[1])
+        ax1 = fig.add_subplot(spec[0,0])
+        plt.title('infection simulation')
+        plt.xlim(xbounds[0], xbounds[1])
+        plt.ylim(ybounds[0], ybounds[1])
 
-    ax2 = fig.add_subplot(spec[1,0])
-    ax2.set_title('number of infected')
-    #ax2.set_xlim(0, simulation_steps)
-    ax2.set_ylim(0, pop_size + 100)
+        ax2 = fig.add_subplot(spec[1,0])
+        ax2.set_title('number of infected')
+        #ax2.set_xlim(0, simulation_steps)
+        ax2.set_ylim(0, pop_size + 100)
 
     infected_plot = []
     fatalities_plot = []
@@ -274,8 +275,9 @@ if __name__ == '__main__':
         plt.show()
     else:
         #alternatively dry run simulation without visualising
-        for i in range(simulation_steps):
-            population = update(i, population, destinations, pop_size, infection_range, infection_chance, speed
+        i = 0
+        while i < simulation_steps:
+            population = update(i, population, destinations, pop_size, infection_range, infection_chance, speed,
                                 recovery_duration, mortality_chance, xbounds, ybounds, x_plot, y_plot,
                                 wander_range, risk_age, critical_age, critical_mortality_chance,
                                 risk_increase, no_treatment_factor, treatment_factor, 
@@ -289,7 +291,8 @@ if __name__ == '__main__':
                 print('total immune: %i' %len(population[population[:,6] == 2]))
                 if save_population:
                     save_data(population, infected_plot, fatalities_plot)
-                sys.exit(0)
+                i = simulation_steps + 1
+
             sys.stdout.write('\r')
             sys.stdout.write('%i: healthy: %i, infected: %i, immune: %i, in treatment: %i, \
 dead: %i, of total: %i' %(i, len(population[population[:,6] == 0]),
@@ -298,6 +301,8 @@ dead: %i, of total: %i' %(i, len(population[population[:,6] == 0]),
                           len(population[population[:,10] == 1]),
                           len(population[population[:,6] == 3]),
                           pop_size))
+
+            i += 1
 
         print('\n-----stopping after all sick recovered or died-----\n')
         print('total dead: %i' %len(population[population[:,6] == 3]))
