@@ -11,7 +11,56 @@ def infect(population, pop_size, infection_range, infection_chance, frame,
            healthcare_capacity, verbose, send_to_location=False,
            location_bounds=[], destinations=[], location_no=1, location_odds=1.0,
            traveling_infects=False):
-    '''finds new infections'''
+    '''finds new infections.
+    
+    Function that finds new infections in an area around infected persens
+    defined by infection_range, and infects others with chance infection_chance
+    
+    Keyword arguments
+    -----------------
+    population : ndarray
+        array containing all data on the population
+
+    pop_size : int
+        the number if individuals in the population
+    
+    infection_range : float
+        the radius around each infected person where transmission of virus can take place
+
+    infection_chance : float
+        the odds that the virus infects someone within range (range 0 to 1)
+
+    frame : int
+        the current timestep of the simulation
+
+    healthcare_capacity : int
+        the number of places available in the healthcare system
+
+    verbose : bool
+        whether to report illness events
+
+    send_to_location : bool
+        whether to give infected people a destination
+
+    location_bounds : list
+        the location bounds where the infected person is sent to and can roam
+        within (xmin, ymin, xmax, ymax)
+
+    destinations : list or ndarray
+        the destinations vector containing destinations for each individual in the population.
+        Needs to be of same length as population
+
+    location_no : int
+        the location number, used as index for destinations array if multiple possible
+        destinations are defined
+
+    location_odds: float
+        the odds that someone goes to a location or not. Can be used to simulate non-compliance
+        to for example self-isolation.
+
+    traveling_infects : bool
+        whether infected people heading to a destination can still infect others on the way there
+    '''
 
     #find new infections
     infected_previous_step = population[population[:,6] == 1]
@@ -115,6 +164,48 @@ def recover_or_die(population, frame, recovery_duration, mortality_chance,
                    treatment_dependent_risk, treatment_factor, verbose):
     '''see whether to recover or die
 
+
+    Keyword arguments
+    -----------------
+    population : ndarray
+        array containing all data on the population
+
+    frame : int
+        the current timestep of the simulation
+
+    recovery_duration : tuple
+        lower and upper bounds of duration of recovery, in simulation steps
+
+    mortality_chance : float
+        the odds that someone dies in stead of recovers (between 0 and 1)
+
+    risk_age : int or flaot
+        the age from which mortality risk starts increasing
+
+    critical_age: int or float
+        the age where mortality risk equals critical_mortality_change
+
+    critical_mortality_chance : float
+        the heightened odds that an infected person has a fatal ending
+
+    risk_increase : string
+        can be 'quadratic' or 'linear', determines whether the mortality risk
+        between the at risk age and the critical age increases linearly or
+        exponentially
+
+    no_treatment_factor : int or float
+        defines a change in mortality odds if someone cannot get treatment. Can
+        be larger than one to increase risk, or lower to decrease it.
+
+    treatment_dependent_risk : bool
+        whether availability of treatment influences patient risk
+
+    treatment_factor : int or float
+        defines a change in mortality odds if someone is in treatment. Can
+        be larger than one to increase risk, or lower to decrease it.
+
+    verbose : bool
+        whether to report to terminal the recoveries and deaths for each simulation step
     '''
 
     #find sick people
@@ -242,7 +333,16 @@ def healthcare_infection_correction(worker_population, healthcare_risk_factor=0.
     Takes the healthcare risk factor and adjusts the sick healthcare workers
     by reducing (if < 0) ir increasing (if > 0) sick healthcare workers
 
+    Keyword arguments
+    -----------------
+    worker_population : ndarray
+        the array containing all variables related to the healthcare population.
+        Is a subset of the 'population' matrix.
 
+    healthcare_risk_factor : int or float
+        if other than one, defines the change in odds of contracting an infection.
+        Can be used to simulate healthcare personell having extra protections in place (< 1)
+        or being more at risk due to exposure, fatigue, or other factors (> 1)
     '''
 
     if healthcare_risk_factor < 0:
@@ -261,7 +361,29 @@ def healthcare_infection_correction(worker_population, healthcare_risk_factor=0.
 
 
 def go_to_location(patient, destination, location_bounds, dest_no=1):
-    '''sends patient to hospital
+    '''sends patient to defined location
+
+    Function that takes a patient an destination, and sets the location
+    as active for that patient.
+
+    Keyword arguments
+    -----------------
+    patient : 1d array
+        1d array of the patient data, is a row from population matrix
+
+    destination : 1d array
+        1d array of the destination data, is a row from destination matrix
+
+    location_bounds : list or tuple
+        defines bounds for the location the patient will be roam in when sent
+        there. format: [xmin, ymin, xmax, ymax]
+
+    dest_no : int
+        the location number, used as index for destinations array if multiple possible
+        destinations are defined`.
+
+
+    TODO: vectorize
 
     '''
 

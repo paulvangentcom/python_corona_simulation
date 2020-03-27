@@ -14,7 +14,7 @@ def update_positions(population):
     Keyword arguments
     -----------------
     population : ndarray
-        the array numpy containing all the population information
+        the array containing all the population information
     '''
 
     #update positions
@@ -28,8 +28,17 @@ def update_positions(population):
 
 def out_of_bounds(population, xbounds, ybounds):
     '''checks which people are about to go out of bounds and corrects
+
+    Function that updates headings of individuals that are about to 
+    go outside of the world boundaries.
     
-    
+    Keyword arguments
+    -----------------
+    population : ndarray
+        the array containing all the population information
+
+    xbounds, ybounds : list or tuple
+        contains the lower and upper bounds of the world [min, max]
     '''
     #update headings and positions where out of bounds
     #update x heading
@@ -74,7 +83,35 @@ def out_of_bounds(population, xbounds, ybounds):
 def update_randoms(population, pop_size, heading_update_chance=0.02, 
                    speed_update_chance=0.02, heading_multiplication=1,
                    speed_multiplication=1, speed=0.01):
-    '''updates random states such as heading and speed'''
+    '''updates random states such as heading and speed
+    
+    Function that randomized the headings and speeds for population members
+    with settable odds.
+
+    Keyword arguments
+    -----------------
+    population : ndarray
+        the array containing all the population information
+    
+    pop_size : int
+        the size of the population
+
+    heading_update_chance : float
+        the odds of updating the heading of each member, each time step
+
+    speed_update_chance : float
+        the oodds of updating the speed of each member, each time step
+
+    heading_multiplication : int or float
+        factor to multiply heading with (default headings are between -1 and 1)
+
+    speed_multiplication : int or float
+        factor to multiply speed with (default speeds are between 0.0001 and 0.05
+
+    speed : int or float
+        mean speed of population members, speeds will be taken from gaussian distribution
+        with mean 'speed' and sd 'speed / 3'
+    '''
 
     #randomly update heading
     #x
@@ -109,6 +146,14 @@ def set_destination(population, destinations):
 
     Sets the destination of population if destination marker is not 0.
     Updates headings and speeds as well.
+
+    Keyword arguments
+    -----------------
+    population : ndarray
+        the array containing all the population information
+
+    destinations : ndarray
+        the array containing all destinations information
     '''
     
     #how many destinations are active
@@ -140,12 +185,24 @@ def set_destination(population, destinations):
     return population
 
 
-def check_at_destination(population, destinations, wander_factor=2.5):
+def check_at_destination(population, destinations, wander_factor=1.5):
     '''check who is at their destination already
 
     Takes subset of population with active destination and
     tests who is at the required coordinates. Updates at destination
     column for people at destination.    
+
+    Keyword arguments
+    -----------------
+    population : ndarray
+        the array containing all the population information
+
+    destinations : ndarray
+        the array containing all destinations information
+
+    wander_factor : int or float
+        defines how far outside of 'wander range' the destination reached
+        is triggered
     '''
 
     #how many destinations are active
@@ -183,6 +240,18 @@ def keep_at_destination(population, destinations, wander_factor=1):
 
     Function that keeps those who have been marked as arrived at their
     destination within their respective wander ranges
+
+    Keyword arguments
+    -----------------
+    population : ndarray
+        the array containing all the population information
+
+    destinations : ndarray
+        the array containing all destinations information
+
+    wander_factor : int or float
+        defines how far outside of 'wander range' the destination reached
+        is triggered
     ''' 
 
     #how many destinations are active
@@ -241,6 +310,17 @@ def keep_at_destination(population, destinations, wander_factor=1):
 
 def reset_destinations(population, ids=[]):
     '''clears destination markers
+
+    Function that clears all active destination markers from the population
+
+    Keyword arguments
+    -----------------
+    population : ndarray
+        the array containing all the population information
+
+    ids : ndarray or list
+        array containing the id's of the population members that need their
+        destinations reset
     '''
     
     
@@ -257,6 +337,14 @@ def reset_destinations(population, ids=[]):
 
 def get_motion_parameters(xmin, ymin, xmax, ymax):
     '''gets destination center and wander ranges
+
+    Function that returns geometric parameters of the destination
+    that the population members have set.
+
+    Keyword arguments:
+    ------------------
+        xmin, ymin, xmax, ymax : int or float
+        lower and upper bounds of the destination area set.
 
     '''
 

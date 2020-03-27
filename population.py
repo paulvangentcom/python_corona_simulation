@@ -88,8 +88,19 @@ def initialize_population(pop_size, mean_age=45, max_age=105,
 
 
 def initialize_destination_matrix(pop_size, total_destinations):
-    '''intialized the destination matrix
+    '''intializes the destination matrix
 
+    function that initializes the destination matrix used to
+    define individual location and roam zones for population members
+
+    Keyword arguments
+    -----------------
+    pop_size : int
+        the size of the population
+
+    total_destinations : int
+        the number of destinations to maintain in the matrix. Set to more than
+        one if for example people can go to work, supermarket, home, etc.
     '''
 
     destinations = np.zeros((pop_size, total_destinations * 2))
@@ -108,7 +119,20 @@ def set_destination_bounds(population, destinations, xmin, ymin, xmax, ymax,
     Keyword arguments
     -----------------
     population : ndarray
+        the array containing all the population information
 
+    destinations : ndarray
+        the array containing all the destination information
+
+    xmin, ymin, xmax, ymax : int or float
+        define the bounds on both axes where the individual can roam within
+        after reaching the defined area
+
+    dest_no : int
+        the destination number to set as active (if more than one)
+
+    teleport : bool
+        whether to instantly teleport individuals to the defined locations
     '''
 
     #teleport
@@ -134,7 +158,21 @@ def set_destination_bounds(population, destinations, xmin, ymin, xmax, ymax,
 
 def save_data(population, infected, fatalities):
     '''dumps simulation data to disk
-    
+
+    Function that dumps the simulation data to specific files on the disk.
+    Saves final state of the population matrix, the array of infected over time,
+    and the array of fatalities over time
+
+    Keyword arguments
+    -----------------
+    population : ndarray
+        the array containing all the population information
+
+    infected : list or ndarray
+        the array containing data of infections over time
+
+    fatalities : list or ndarray
+        the array containing data of fatalities over time
     ''' 
     num_files = len(glob('data/*'))
     os.makedirs('data/%i' %num_files)
