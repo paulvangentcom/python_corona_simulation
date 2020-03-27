@@ -1,14 +1,12 @@
-# Python Corona Simulation
+# Python COVID-19 ('Corona Virus') Simulation
 
 ![covid-19 sim!](images/covidsim.gif)
 
 After seeing [this article](https://www.washingtonpost.com/graphics/2020/world/corona-simulator/) in the Washington Post I started wondering how such simulations might be done in Python, and indeed if I could expand upon the idea to make them more realistic and fun to play with.
 
-For a moment I thought about writing the simualation itself in pure Python, with matplotlib as visualisation tool. However it quickly became a design goal to be able to simulate large populations as well. 
+For a moment I thought about writing the simualation itself in pure Python, with matplotlib as visualisation tool. However for large interacting populations, required computations scale quickly. Speeding up means reducing the operations to vector and matrix computations, something that can be done extremely efficiently through [NumPy](https://numpy.org/), which uses both a fast backend written in C, as well as makes use of hardware acceleration features like SIMD (single instruction, multiple data), which enables many operations on data arrays in relatively few clock cycles.
 
-For large interacting populations, computations can be reduced to vector and matrix operations, something that can be done extremely efficiently through NumPy, which uses both a fast backend written in C, as well as makes use of hardware acceleration features like SIMD (single instruction, multiple data), where many computations can be done on data arrays in relatively few clock cycles.
-
-Aside from that, I've worked with NumPy a lot but felt there was still much to learn, so the challenge became: build such a simulation and improve upon it *using only NumPy* for the computations and matplotlib for the visualisation.
+Aside from that, I've worked with NumPy a lot but felt there was still much to learn, so the challenge became: build such a simulation and improve upon it **using only NumPy** for the computations and matplotlib for the visualisation.
 
 
 # Simulation runs
@@ -23,16 +21,17 @@ Aside from that, I've worked with NumPy a lot but felt there was still much to l
 	- [Self-Isolation in Detail](#self-isolation-in-detail)
 	
 	
-*For reproducibility of all simulations, numpy's seed has been set to '100' in all simulations*
+**For reproducibility of all simulations, numpy's seed has been set to '100' unless otherwise specified**
 
-And keep in mind:
-
+And keep in mind that in no way is there a guarantee that the simulation will be accurate:
 ![reality](images/george_e_p_box.jpg)
 
 ## Simple Infection Simulation
-As a first step I built a simulation of a population of randomly moving people. The people stay within the world bounds and each tick there's a 2% chance of them changing heading and speed. There's a 3% chance of becoming sick when getting close to an infected person, and a 2% chance of a fatal ending. [The video can be viewed here](http://www.paulvangent.com/corona/Simple_Simulation.mp4). 
+As a first step I built a simulation of a population of randomly moving people. The people stay within the world bounds and each tick there's a 2% chance of them changing heading and speed. There's a 3% chance of becoming sick when getting close to an infected person, and a 2% chance of a fatal ending. **Click the image to view the video**
 
-![image of the simulation](images/horizontal/simple_simulation.png)
+<a href="http://www.paulvangent.com/covid/Simple_Simulation.mp4">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/simple_simulation.png" alt="image of the simuation">
+</a>
 
 See [simple_simulation.py](simple_simulation.py) for the code.
 
@@ -97,25 +96,25 @@ The picture here is more complex, as factors such as population density and the 
 
 *High population density*:
 
-<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_high_100r.png" alt="high density graph" width="600">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_high_100r.png" alt="high density graph" width="700">
 
 *Medium population density:*
 
-<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_medium_100r.png" alt="medium density graph" width="600">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_medium_100r.png" alt="medium density graph" width="700">
 
 *Low population density:*
 
-<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_low_100r.png" alt="medium density graph" width="600">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_low_100r.png" alt="medium density graph" width="700">
 
 
-This illustrates the interaction between the density of the population (and thus how many people you come across per time unit), and the percentage of infectious people present in the population. This is what you would expect, as both of these factors affect your odds of running into an infected person. Notice how the plots show a clear 'tipping point': after 'n' number of infections, the virus spread starts accelerating. Reports have been going around that [even without symptoms you can still be contagious](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), and [remain contagious for quite some time after recovering](https://www.cbsnews.com/news/coronavirus-can-live-in-your-body-for-up-to-37-days-according-to-new-study/), which makes such a self-isolation scenario risky in the case of COVID-19.
+This illustrates the interaction between the density of the population (and thus how many people you come across per time unit), and the percentage of infectious people present in the population. This is what you would expect, as both of these factors affect your odds of running into an infected person. Notice how the plots show a clear 'tipping point': after 'n' number of infections, the virus spread starts accelerating. The peak amounf ot infections strongly depends on how many people obey the self-isolation rules. However, reports have been going around that [even without symptoms you can still be contagious](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), and [remain contagious for quite some time after recovering](https://www.cbsnews.com/news/coronavirus-can-live-in-your-body-for-up-to-37-days-according-to-new-study/), which makes such a self-isolation scenario risky in the case of COVID-19.
 
 
 
 
 ## Simulating Health Care Workers
-But this is not the whole story, as healthcare is staffed by healthcare workers. Once the number of cases explodes, healthcare workers suffer from long working hours. This compromises their immune system and leads to more exposure. Once healthcare workers get sick, the already overwhelmed healthcare system _reduces_ in capacity.
-
+But this is not the whole story, as healthcare is staffed by healthcare workers. Once the number of cases explodes, healthcare workers suffer from long working hours. This compromises their immune system and leads to more exposure. Once healthcare workers start getting sick, the already overwhelmed healthcare system reduces in capacity, exacerbating the problems.
+	
 *WORK ONGOING AT THIS POINT*
 
 
