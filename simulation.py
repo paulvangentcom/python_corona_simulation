@@ -61,6 +61,8 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
 
         if len(population[population[:,6] == 1]) >= len(population) * lockdown_percentage or\
            mx >= (len(population) * lockdown_percentage):
+            #reduce speed of all members of society
+            population[:,5] = np.clip(population[:,5], a_min = None, a_max = 0.001)
             #set speeds of complying people to 0
             population[:,5][lockdown_vector == 0] = 0
         else:
