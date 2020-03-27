@@ -126,3 +126,6 @@ dmypy.json
 
 #extra folders
 tmp/
+data/plot_helper.ipynb
+test.ipynb
+data/plot_helper.ipynb
