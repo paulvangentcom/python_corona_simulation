@@ -13,11 +13,19 @@ Aside from that, I've worked with NumPy a lot but felt there was still much to l
 
 ## Index
 - [Simple infection simulation](#simple-infection-simulation)
-
-
-Several example videos are included in the repository that highlight various scenarios. First let's start with the examples comparable to the Washington Post article.
-
+- [Simulating Age Effects and Health Care Capacity](#simulating-age-effects-and-health-care-capacity)
+	- [Case: 'Business As Usual'](#case:-'business-as-usual')
+	- [Case: 'Reduced Interaction'](#case:-'reduced-interaction')
+	- [Case: 'Lock-Down'](#case:-'lock-down')
+	- [Case: 'Self-Isolation'](#case:-'self-isolation')
+	- [Self-Isolation in Detail](#self-isolation-in-detail)
+	
+	
 *For reproducibility of all simulations, numpy's seed has been set to '100' in all simulations*
+
+And keep in mind:
+
+![reality](images/george_e_p_box.jpg)
 
 ## Simple Infection Simulation
 As a first step I built a simulation of a population of randomly moving people. The people stay within the world bounds and each tick there's a 2% chance of them changing heading and speed. There's a 3% chance of becoming sick when getting close to an infected person, and a 2% chance of a fatal ending. [The video can be viewed here](videos/simple_simulation_01.mp4). 
@@ -76,7 +84,7 @@ In such a situation repeated lock-downs seem inevitable if the infection keeps r
 
 ### Case: 'Self-Isolation'
 
-Another approach is self-isolation: instructing people who have symptoms to stay at home. This was the initial approach the Dutch government had taken and is the approach in many countries that are not locked down. How effective is such a measure, especially given that not everybody will (or can) follow it? It turns out people can be infectious to others without manifesting symptoms, which further complicates such a 'stay home if you feel ill' scenario.
+Another approach is self-isolation: instructing people who have symptoms to stay at home. This was the initial approach the Dutch government had taken and is the approach in many countries that are not locked down. How effective is such a measure, especially given that not everybody will (or can) follow it? [It turns out people can be infectious to others without manifesting symptoms](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), which further complicates such a 'stay home if you feel ill' scenario.
 
 In the simulation, people who are infected will choose to either self-isolate or not (the odds can be set). In the video below, those traveling to the isolation area can not infect others anymore, to simulate that these people are aware of their infection and will take precautions not to infect others:
 
@@ -98,7 +106,7 @@ The picture here is more complex, as factors such as population density and the 
 <img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_low_100r.png" alt="medium density graph" width="600">
 
 
-This illustrates the interaction between the density of the population (and thus how many people you come across per time unit), and the percentage of infectious people present in the population. This makes a lot of sense too, as both affect your odds of running into an infected person. All the plots show a clear 'tipping point': after this number of infections, the virus spread starts accelerating. Reports have been going around that [even without symptoms you can still be contagious](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), and (remain contagious for quite some time after recovering](https://www.cbsnews.com/news/coronavirus-can-live-in-your-body-for-up-to-37-days-according-to-new-study/), which makes such a self-isolation scenario risky in the case of COVID-19.
+This illustrates the interaction between the density of the population (and thus how many people you come across per time unit), and the percentage of infectious people present in the population. This is what you would expect, as both of these factors affect your odds of running into an infected person. Notice how the plots show a clear 'tipping point': after 'n' number of infections, the virus spread starts accelerating. Reports have been going around that [even without symptoms you can still be contagious](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), and (remain contagious for quite some time after recovering](https://www.cbsnews.com/news/coronavirus-can-live-in-your-body-for-up-to-37-days-according-to-new-study/), which makes such a self-isolation scenario risky in the case of COVID-19.
 
 
 
