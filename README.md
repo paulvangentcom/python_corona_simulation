@@ -1,5 +1,7 @@
 # Python Corona Simulation
 
+![covid-19 sim!](images/covidsim.gif)
+
 After seeing [this article](https://www.washingtonpost.com/graphics/2020/world/corona-simulator/) in the Washington Post I started wondering how such simulations might be done in Python, and indeed if I could expand upon the idea to make them more realistic and fun to play with.
 
 For a moment I thought about writing the simualation itself in pure Python, with matplotlib as visualisation tool. However it quickly became a design goal to be able to simulate large populations as well. 
@@ -28,9 +30,9 @@ And keep in mind:
 ![reality](images/george_e_p_box.jpg)
 
 ## Simple Infection Simulation
-As a first step I built a simulation of a population of randomly moving people. The people stay within the world bounds and each tick there's a 2% chance of them changing heading and speed. There's a 3% chance of becoming sick when getting close to an infected person, and a 2% chance of a fatal ending. [The video can be viewed here](videos/simple_simulation_01.mp4). 
+As a first step I built a simulation of a population of randomly moving people. The people stay within the world bounds and each tick there's a 2% chance of them changing heading and speed. There's a 3% chance of becoming sick when getting close to an infected person, and a 2% chance of a fatal ending. [The video can be viewed here](http://www.paulvangent.com/corona/Simple_Simulation.mp4). 
 
-![image of the simulation](images/simple_simulation.png)
+![image of the simulation](images/horizontal/simple_simulation.png)
 
 See [simple_simulation.py](simple_simulation.py) for the code.
 
@@ -50,7 +52,7 @@ Reality is of course more complex. Let's incorporate increasing risks with age, 
 - when _not_ in medial treatment: mortality chance increases threefold. 
 	- ***note*** that this affects the elderly disproportionally as their baseline risk is already higher to start with.
 
-### Case: 'Business As Usual'
+### Case 'Business As Usual'
 
 See [simulation.py](simulation.py) for the code and settable parameters.
 
@@ -60,7 +62,7 @@ As you can see in the simulation still below, the healthcare system becomes comp
 
 ![image of simulation](images/lowcapacity_fastmovement.png)
 
-### Case: 'Reduced Interaction'
+### Case 'Reduced Interaction'
 
 The second simulation has the same settings, but to simulate people staying at home whenever possible and only going out when they have to, mobilty is greatly reduced. [See the video here](videos/Simulation_lowcapacity_limitedmovement.mp4).
 
@@ -69,7 +71,7 @@ As you can see in this simulation, while at some point healthcare capacity was o
 ![image of the simulation](images/lowcapacity_slowmovement.png)
 
 
-### Case: 'Lock-Down'
+### Case 'Lock-Down'
 Let's simulate a lock-down once 5% of the population is infected. Because some professions are considered critical and these people will still be on the move and in contact with other people. Besides that, because people are people, no lock-down will be perfect. To simulate this, we will make 90% of the people stop moving once locked-down, the remaining 10% will move with substantially reduced speed to simulate them being more cautious.
 
 
@@ -82,7 +84,7 @@ However, if the lock down is lifted and a new case is introduced, a potential de
 
 In such a situation repeated lock-downs seem inevitable if the infection keeps returning.
 
-### Case: 'Self-Isolation'
+### Case 'Self-Isolation'
 
 Another approach is self-isolation: instructing people who have symptoms to stay at home. This was the initial approach the Dutch government had taken and is the approach in many countries that are not locked down. How effective is such a measure, especially given that not everybody will (or can) follow it? [It turns out people can be infectious to others without manifesting symptoms](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), which further complicates such a 'stay home if you feel ill' scenario.
 
@@ -106,7 +108,7 @@ The picture here is more complex, as factors such as population density and the 
 <img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_low_100r.png" alt="medium density graph" width="600">
 
 
-This illustrates the interaction between the density of the population (and thus how many people you come across per time unit), and the percentage of infectious people present in the population. This is what you would expect, as both of these factors affect your odds of running into an infected person. Notice how the plots show a clear 'tipping point': after 'n' number of infections, the virus spread starts accelerating. Reports have been going around that [even without symptoms you can still be contagious](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), and (remain contagious for quite some time after recovering](https://www.cbsnews.com/news/coronavirus-can-live-in-your-body-for-up-to-37-days-according-to-new-study/), which makes such a self-isolation scenario risky in the case of COVID-19.
+This illustrates the interaction between the density of the population (and thus how many people you come across per time unit), and the percentage of infectious people present in the population. This is what you would expect, as both of these factors affect your odds of running into an infected person. Notice how the plots show a clear 'tipping point': after 'n' number of infections, the virus spread starts accelerating. Reports have been going around that [even without symptoms you can still be contagious](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), and [remain contagious for quite some time after recovering](https://www.cbsnews.com/news/coronavirus-can-live-in-your-body-for-up-to-37-days-according-to-new-study/), which makes such a self-isolation scenario risky in the case of COVID-19.
 
 
 
