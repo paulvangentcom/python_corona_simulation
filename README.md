@@ -61,34 +61,44 @@ As you can see in this simulation, while at some point healthcare capacity was o
 ![image of the simulation](images/lowcapacity_slowmovement.png)
 
 
+### Case: 'Lock-Down'
+Let's simulate a lock-down once 5% of the population is infected. Because some professions are considered critical and these people will still be on the move and in contact with other people. Besides that, because people are people, no lock-down will be perfect. To simulate this, we will make 90% of the people stop moving once locked-down, the remaining 10% will move with substantially reduced speed to simulate them being more cautious.
+
+
+
+Notice that once locked-down, the number of infections still increases for some time. This happens because of some of the healthy people will be locked into the same household with infected people, and thus become infected relatively quickly as well. If one of the moving population members (perhaps a mail man or someone delivering groceries) infects one of a cluster of people locked down together, the disease might spread. This leads to small and isolated outbreaks, which are contained very well through the lock-down.
+
+However, if the lock down is lifted and a new case is introduced, a potential deadly situation quickly develops if no adequeate measures are taken:
+
+![reinfection](images/lockdown_reinfection.png)
+
+In such a situation repeated lock-downs seem inevitable if the infection keeps returning.
+
 ### Case: 'Self-Isolation'
 
-Another approach is self-isolation: instructing people who have symptoms to stay at home. This was the initial approach the Dutch government had taken and is the approach in many countries that are not locked down. How effective is such a measure, especially given that not everybody will (or can) follow it, and that people can be infectious to others without manifesting symptoms?
+Another approach is self-isolation: instructing people who have symptoms to stay at home. This was the initial approach the Dutch government had taken and is the approach in many countries that are not locked down. How effective is such a measure, especially given that not everybody will (or can) follow it? It turns out people can be infectious to others without manifesting symptoms, which further complicates such a 'stay home if you feel ill' scenario.
 
 In the simulation, people who are infected will choose to either self-isolate or not (the odds can be set). In the video below, those traveling to the isolation area can not infect others anymore, to simulate that these people are aware of their infection and will take precautions not to infect others:
 
 
+### Self-Isolation in Detail
 
-The picture here is more complex, as factors such as population density and the percentage of people that break the voluntary quarantaine have a large effect. Let's run the simulation with three population densities ('high': 2000 people on a 1x1 area, 'medium': 2000 people on a 1.5x1.5 area, and 'low': 2000 people on 2x2 area), and let's simulate different compliance percentages:
+The picture here is more complex, as factors such as population density and the percentage of people that break the voluntary quarantaine have a large effect. Let's run the simulation with three population densities ('high': 2000 people on a 1x1 area, 'medium': 2000 people on a 1.5x1.5 area, and 'low': 2000 people on 2x2 area), and let's simulate different compliance percentages. Because the situation is based on randomness, let's do a monte carlo simulation with 100 iterations (increases soon) for each setting, so that we can be reasonably confident of our estimates:
 
-*High poopulation density*:
+*High population density*:
 
-<img src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_high.png" alt="high density graph" width="600" align="middle">
-
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_high_100r.png" alt="high density graph" width="600">
 
 *Medium population density:*
 
-![medium density graph](images/selfisolation_medium.png)
-
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_medium_100r.png" alt="medium density graph" width="600">
 
 *Low population density:*
 
-![low population density](images/selfisolation_low.png)
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/selfisolation_low_100r.png" alt="medium density graph" width="600">
 
 
-This shows an interaction between the density of the population -and thus how many people you come across in a given timespan-, and the percentage of infectious people present in the population. This makes a lot of sense too, as both affect your odds of running into an infected person. All the plots show a clear 'tipping point': after this number of infections, the virus spread starts accelerating. Reports have been going around that [even without symptoms you can still be contagious](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), and (remain contagious for quite some time after recovering](https://www.cbsnews.com/news/coronavirus-can-live-in-your-body-for-up-to-37-days-according-to-new-study/), which makes such a self-isolation scenario risky in the case of COVID-19.
-
-
+This illustrates the interaction between the density of the population (and thus how many people you come across per time unit), and the percentage of infectious people present in the population. This makes a lot of sense too, as both affect your odds of running into an infected person. All the plots show a clear 'tipping point': after this number of infections, the virus spread starts accelerating. Reports have been going around that [even without symptoms you can still be contagious](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), and (remain contagious for quite some time after recovering](https://www.cbsnews.com/news/coronavirus-can-live-in-your-body-for-up-to-37-days-according-to-new-study/), which makes such a self-isolation scenario risky in the case of COVID-19.
 
 
 
@@ -97,27 +107,6 @@ This shows an interaction between the density of the population -and thus how ma
 But this is not the whole story, as healthcare is staffed by healthcare workers. Once the number of cases explodes, healthcare workers suffer from long working hours. This compromises their immune system and leads to more exposure. Once healthcare workers get sick, the already overwhelmed healthcare system _reduces_ in capacity.
 
 *WORK ONGOING AT THIS POINT*
-
-
-
-
-
-# What happens if we re-infect both populations?
-
-
-
-
-
-
-#Advanced simuation runs
-Now let's move on to the fun part.
-
-First let's simulate some path planning where two groups choose to remain in close proximity to each other, while 75% of the rest practices social distancing like before.
-
-[]
-
-
-Rather than simulate healthcare capacity behind the scenes, let's simulate an actual hospital location. Sick people will go there if capacity remains but not if it's full. There will also be healthcare workers (the squares). Within the hospital, infection risks are greatly reduced (5x less than general population) but still possible. Other parameters remain the same
 
 
 
