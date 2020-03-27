@@ -95,7 +95,7 @@ In such a situation repeated lock-downs seem inevitable if the infection keeps r
 
 Another approach is self-isolation: instructing people who have symptoms to stay at home. This was the initial approach the Dutch government had taken and is the approach in many countries that are not locked down. How effective is such a measure, especially given that not everybody will (or can) follow it? [It turns out people can be infectious to others without manifesting symptoms](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), which further complicates such a 'stay home if you feel ill' scenario.
 
-In the simulation, people who are infected will choose to either self-isolate or not (the odds can be set). Those traveling to the isolation area can not infect others anymore, to simulate that these people are aware of their infection and will take precautions not to infect others. **Click the image to view the video.**
+In the simulation, people who are infected will self-isolate. Those traveling to the isolation area can not infect others anymore, to simulate that these people are aware of their infection and will take precautions not to infect others. **Click the image to view the video.**
 
 <a href="http://www.paulvangent.com/covid/Self_Isolation.mp4">
 <img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/self-isolation.png" alt="image of the simuation">
@@ -104,7 +104,7 @@ In the simulation, people who are infected will choose to either self-isolate or
 
 ### Self-Isolation in Detail
 
-The picture here is more complex, as factors such as population density and the percentage of people that break the voluntary quarantaine have a large effect. Let's run the simulation with three population densities ('high': 2000 people on a 1x1 area, 'medium': 2000 people on a 1.5x1.5 area, and 'low': 2000 people on 2x2 area), and let's simulate different compliance percentages. Because the situation is based on randomness, let's do a monte carlo simulation with 100 iterations (increases soon) for each setting, so that we can be reasonably confident of our estimates:
+The picture here is more complex, as factors such as population density and the percentage of people that break the voluntary quarantaine have a large effect. Let's run the simulation with three population densities ('high': 2000 people on a 1x1 area, 'medium': 2000 people on a 1.5x1.5 area, and 'low': 2000 people on 2x2 area), and let's simulate different compliance percentages. Because the situation is based on randomness, let's do a monte carlo simulation with 100 iterations for each setting, so that we can be reasonably confident in our estimates:
 
 *High population density*:
 
