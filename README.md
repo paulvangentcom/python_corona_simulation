@@ -35,11 +35,11 @@ As a first step I built a simulation of a population of randomly moving people. 
 
 See [simple_simulation.py](simple_simulation.py) for the code.
 
-As you can see the virus managed to spread really quickly and almost got infected. In this simulation run one person got lucky and never got infected. 
+As you can see the virus managed to spread really quickly and almost got infected. In the end there were 44 fatalities, which is expected with a mortality rate of 2%.
 
 
 ## Simulating Age Effects and Health Care Capacity
-Reality is of course more complex. Let's incorporate increasing risks with age, as well as a simple representation of a limited capacity healthcare system. Both affect mortality during a pandemic: the elderly are vulnerable, and once the healthcare system becomes overwhelmed a lot of people start dying. The following parameters are active (all are or course settable):
+Reality is of course more complex. Let's incorporate increasing risks with age, as well as a simple representation of a limited capacity healthcare system. Both affect mortality during a pandemic: the elderly are vulnerable, and once the healthcare system becomes overwhelmed a lot of people are at increased risk of dying due to lack of treatment. The following parameters are active (all are or course settable):
 
 - the population's age follows a gaussian with a mean 55, SD of 1/3 the mean, and max of 105
 - population consists of 2000 individuals
@@ -55,31 +55,39 @@ Reality is of course more complex. Let's incorporate increasing risks with age, 
 
 See [simulation.py](simulation.py) for the code and settable parameters.
 
-The first simuation run shows a population that simply keeps doing their normal thing and moving around, [find the video here](videos/Simulation_lowcapacity_fastmovement.mp4)
+The first simuation run shows a population that simply keeps doing their normal thing and moving around. **Click the image to view the video.**
 
-As you can see in the simulation still below, the healthcare system becomes completely overwhelmed, leading to 175 dead (8.75% of the population). Three got lucky and escaped infection by pure chance.
+As you can see in the simulation still below, the healthcare system becomes completely overwhelmed, leading to 215 fatalities (10.75% of the population). 
 
-![image of simulation](images/lowcapacity_fastmovement.png)
+<a href="http://www.paulvangent.com/covid/LimitedHealthcare_FastSpread.mp4">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/lowcapacity_fastmovement.png" alt="image of the simuation">
+</a>
 
 ### Case 'Reduced Interaction'
 
-The second simulation has the same settings, but to simulate people staying at home whenever possible and only going out when they have to, mobilty is greatly reduced. [See the video here](videos/Simulation_lowcapacity_limitedmovement.mp4).
+The second simulation has the same settings, but to simulate people staying at home whenever possible and only going out when they have to, mobilty is greatly reduced. **Click the image to view the video.**
 
-As you can see in this simulation, while at some point healthcare capacity was overasked, the effects on mortality remain low at 58 dead in this run (2.9%). That's a little over 3x less dead.
+As you can see in this simulation, while at some point healthcare capacity was overasked, the effects on mortality remain low at 58 fatal endings in this run (2.9%). That's almost 4x less fatalities.
 
-![image of the simulation](images/lowcapacity_slowmovement.png)
+<a href="http://www.paulvangent.com/covid/LimitedHealthcare_SlowMobility.mp4">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/lowcapacity_slowmovement.png" alt="image of the simuation">
+</a>
 
 
 ### Case 'Lock-Down'
-Let's simulate a lock-down once 5% of the population is infected. Because some professions are considered critical and these people will still be on the move and in contact with other people. Besides that, because people are people, no lock-down will be perfect. To simulate this, we will make 90% of the people stop moving once locked-down, the remaining 10% will move with substantially reduced speed to simulate them being more cautious.
+Let's simulate a lock-down once 5% of the population is infected. To simulate this, we will make 90% of the people stop moving once locked-down, the remaining 10% will move with substantially reduced speed to simulate them being more cautious. This 10% represents the professions that are considered critical to society: these people will still be on the move and in contact with other people even in a lock-down. Another part of the 10% comes from people being people, meaning no lock-down will be perfect as there will always be those breaking quarantine. **Click the image to view the video.**
 
-
+<a href="http://www.paulvangent.com/covid/LimitedHealthcare_SlowMobility.mp4">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/lowcapacity_slowmovement.png" alt="image of the simuation">
+</a>
 
 Notice that once locked-down, the number of infections still increases for some time. This happens because of some of the healthy people will be locked into the same household with infected people, and thus become infected relatively quickly as well. If one of the moving population members (perhaps a mail man or someone delivering groceries) infects one of a cluster of people locked down together, the disease might spread. This leads to small and isolated outbreaks, which are contained very well through the lock-down.
 
 However, if the lock down is lifted and a new case is introduced, a potential deadly situation quickly develops if no adequeate measures are taken:
 
-![reinfection](images/lockdown_reinfection.png)
+<a href="http://www.paulvangent.com/covid/lockdown_90percent_reinfect.mp4">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/lockdown_reinfection.png" alt="image of the simuation">
+</a>
 
 In such a situation repeated lock-downs seem inevitable if the infection keeps returning.
 
@@ -87,7 +95,11 @@ In such a situation repeated lock-downs seem inevitable if the infection keeps r
 
 Another approach is self-isolation: instructing people who have symptoms to stay at home. This was the initial approach the Dutch government had taken and is the approach in many countries that are not locked down. How effective is such a measure, especially given that not everybody will (or can) follow it? [It turns out people can be infectious to others without manifesting symptoms](https://edition.cnn.com/2020/03/14/health/coronavirus-asymptomatic-spread/index.html), which further complicates such a 'stay home if you feel ill' scenario.
 
-In the simulation, people who are infected will choose to either self-isolate or not (the odds can be set). In the video below, those traveling to the isolation area can not infect others anymore, to simulate that these people are aware of their infection and will take precautions not to infect others:
+In the simulation, people who are infected will choose to either self-isolate or not (the odds can be set). Those traveling to the isolation area can not infect others anymore, to simulate that these people are aware of their infection and will take precautions not to infect others. **Click the image to view the video.**
+
+<a href="http://www.paulvangent.com/covid/Self_Isolation.mp4">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/self-isolation.png" alt="image of the simuation">
+</a>
 
 
 ### Self-Isolation in Detail
