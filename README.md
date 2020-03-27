@@ -77,8 +77,8 @@ As you can see in this simulation, while at some point healthcare capacity was o
 ### Case 'Lock-Down'
 Let's simulate a lock-down once 5% of the population is infected. To simulate this, we will make 90% of the people stop moving once locked-down, the remaining 10% will move with substantially reduced speed to simulate them being more cautious. This 10% represents the professions that are considered critical to society: these people will still be on the move and in contact with other people even in a lock-down. Another part of the 10% comes from people being people, meaning no lock-down will be perfect as there will always be those breaking quarantine. **Click the image to view the video.**
 
-<a href="http://www.paulvangent.com/covid/LimitedHealthcare_SlowMobility.mp4">
-<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/lowcapacity_slowmovement.png" alt="image of the simuation">
+<a href="http://www.paulvangent.com/covid/lockdown_90percent.mp4">
+<img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/lockdown_90percent.png" alt="image of the simuation">
 </a>
 
 Notice that once locked-down, the number of infections still increases for some time. This happens because of some of the healthy people will be locked into the same household with infected people, and thus become infected relatively quickly as well. If one of the moving population members (perhaps a mail man or someone delivering groceries) infects one of a cluster of people locked down together, the disease might spread. This leads to small and isolated outbreaks, which are contained very well through the lock-down.
