@@ -131,4 +131,12 @@ But this is not the whole story, as healthcare is staffed by healthcare workers.
 
 
 
+# TO-DO
+[ ] Plot S-I-R parameters
+[ ] Add mechanic where recovered still carry viral load for settable period
+[ ] Add Healthcare workers and simulate effects on healthcare effectiveness when they fall ill
+[ ] Add method for people to become reinfected with settable odds 
+[ ] Add plotting method that splits outcome according to age
+[ ] Implement S-I-R modeling to compare to agent-based approach
+[ ] Add scenario where the elderly are quarantined first when infections happen.
 
