@@ -1,4 +1,4 @@
-fimport sys
+import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,12 +9,12 @@ from infection import infect, recover_or_die, compute_mortality
 from motion import update_positions, out_of_bounds, update_randoms,\
 set_destination, check_at_destination, keep_at_destination, get_motion_parameters
 from population import initialize_population, initialize_destination_matrix,\
-set_destination_bounds, save_data
+set_destination_bounds, save_data, population_trackers
 
 #set seed for reproducibility
 np.random.seed(100)
 
-def update(frame, population, destinations, pop_size, infection_range=0.01, 
+def update(frame, population, pop_tracker, destinations, pop_size, infection_range=0.01, 
            infection_chance=0.03, speed=0.01, recovery_duration=(200, 500), mortality_chance=0.02,
            xbounds=[0.02, 0.98], ybounds=[0.02, 0.98], x_plot=[0, 1], 
            y_plot=[0, 1], wander_range=0.05, risk_age=55, 
@@ -24,7 +24,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
            treatment_dependent_risk=False, visualise=False, verbose=False,
            self_isolate=True, self_isolate_proportion=0.6, isolation_bounds=[0, 0, 0.1, 0.1],
            traveling_infects=False, lockdown=False, lockdown_percentage=0.1, 
-           lockdown_vector=[]):
+           lockdown_vector=[], plot_style='default'):
 
     #add one infection to jumpstart
     if frame == 50:
@@ -87,7 +87,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
                                       traveling_infects = traveling_infects)
    
 
-    infected_plot.append(len(population[population[:,6] == 1]))
+    #infected_plot.append(len(population[population[:,6] == 1]))
 
     #recover and die
     population = recover_or_die(population, frame, recovery_duration, mortality_chance,
@@ -98,7 +98,9 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
     #send cured back to population
     population[:,11][population[:,6] == 2] = 0
 
-    fatalities_plot.append(len(population[population[:,6] == 3]))
+    #fatalities_plot.append(len(population[population[:,6] == 3]))
+
+    pop_tracker.update_counts(population)
 
     if visualise:
         #construct plot and visualise
@@ -114,6 +116,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
                            isolation_bounds[1], isolation_bounds[3], ax1,
                            addcross = False)
         
+        #plot population segments
         healthy = population[population[:,6] == 0][:,1:3]
         ax1.scatter(healthy[:,0], healthy[:,1], color='gray', s = 2, label='healthy')
     
@@ -143,23 +146,31 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
                  'https://github.com/paulvangentcom/python-corona-simulation',
                  fontsize=6, alpha=0.5)
         #ax2.set_xlim(0, simulation_steps)
-        ax2.set_ylim(0, pop_size + 100)
+        ax2.set_ylim(0, pop_size + 200)
 
         if treatment_dependent_risk:
-            infected_arr = np.asarray(infected_plot)
+            infected_arr = np.asarray(pop_tracker.infectious)
             indices = np.argwhere(infected_arr >= healthcare_capacity)
 
-            ax2.plot([healthcare_capacity for x in range(len(infected_plot))], color='red', 
-                     label='healthcare capacity')
+            ax2.plot([healthcare_capacity for x in range(len(pop_tracker.infectious))], 
+                     color='red', label='healthcare capacity')
 
-        ax2.plot(infected_plot, color='gray')
-        ax2.plot(fatalities_plot, color='black', label='fatalities')
-        ax2.legend(loc = 1, fontsize = 6)
+        if plot_style.lower() == 'default':
+            ax2.plot(pop_tracker.infectious, color='gray')
+            ax2.plot(pop_tracker.fatalities, color='black', label='fatalities')
+        elif plot_style.lower() == 'sir':
+            ax2.plot(pop_tracker.infectious, color='gray')
+            ax2.plot(pop_tracker.fatalities, color='black', label='fatalities')
+            ax2.plot(pop_tracker.susceptible, color='blue', label='susceptible')
+            ax2.plot(pop_tracker.recovered, color='green', label='recovered')
+        else:
+            raise ValueError('incorrect plot_style specified, use \'sir\' or \'default\'')
 
         if treatment_dependent_risk:
             ax2.plot(indices, infected_arr[infected_arr >= healthcare_capacity], 
                      color='red')
 
+        ax2.legend(loc = 'best', fontsize = 6)
         #plt.savefig('render/%i.png' %frame)
 
     return population
@@ -172,7 +183,7 @@ if __name__ == '__main__':
     ###############################
     #set simulation parameters
     simulation_steps = 10000 #total simulation steps performed
-    save_population = True #whether to dump population to data/population_{num}.npy
+    save_population = False #whether to dump population to data/population_{num}.npy
     #size of the simulated world in coordinates
     xbounds = [0, 1] 
     ybounds = [0, 1]
@@ -182,12 +193,14 @@ if __name__ == '__main__':
 
     visualise = True #whether to visualise the simulation 
     verbose = True #whether to print infections, recoveries and fatalities to the terminal
+    plot_style = 'SIR' #whether to plot SIR parameters ('sir') or just infections and mortalities ('default')
 
     #population parameters
     pop_size = 2000
     mean_age=55
     max_age=105
     speed=0.01
+    pop_tracker = population_trackers()
 
     #motion parameters
     mean_speed = 0.01 # the mean speed (defined as heading * speed)
@@ -259,17 +272,20 @@ if __name__ == '__main__':
         ax2.set_ylim(0, pop_size + 100)
 
     infected_plot = []
+    susceptible_plot = []
+    recovered_plot = []
     fatalities_plot = []
     
     #define arguments for visualisation loop
-    fargs = (population, destinations, pop_size, infection_range, infection_chance, speed,
-             recovery_duration, mortality_chance, xbounds, ybounds, x_plot, y_plot,
-             wander_range, risk_age, critical_age, critical_mortality_chance,
+    fargs = (population, pop_tracker, destinations, pop_size, infection_range, 
+             infection_chance, speed, recovery_duration, mortality_chance, 
+             xbounds, ybounds, x_plot, y_plot, wander_range, risk_age, 
+             critical_age, critical_mortality_chance,
              risk_increase, no_treatment_factor, treatment_factor, 
              healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
              visualise, verbose, self_isolate, self_isolate_proportion,
              isolation_bounds,traveling_infects, lockdown, lockdown_percentage, 
-             lockdown_vector,)
+             lockdown_vector, plot_style,)
 
     #start animation loop through matplotlib visualisation
     if visualise:
@@ -279,14 +295,15 @@ if __name__ == '__main__':
         #alternatively dry run simulation without visualising
         i = 0
         while i < simulation_steps:
-            population = update(i, population, destinations, pop_size, infection_range, infection_chance, speed,
-                                recovery_duration, mortality_chance, xbounds, ybounds, x_plot, y_plot,
-                                wander_range, risk_age, critical_age, critical_mortality_chance,
-                                risk_increase, no_treatment_factor, treatment_factor, 
-                                healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
-                                visualise, verbose, self_isolate, self_isolate_proportion,
-                                isolation_bounds, traveling_infects, lockdown, lockdown_percentage,
-                                lockdown_vector)
+            population, pop_tracker = update(i, population, pop_tracker, destinations, pop_size, infection_range, 
+                                             infection_chance, speed, recovery_duration, mortality_chance, 
+                                             xbounds, ybounds, x_plot, y_plot, wander_range, risk_age, 
+                                             critical_age, critical_mortality_chance,
+                                             risk_increase, no_treatment_factor, treatment_factor, 
+                                             healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
+                                             visualise, verbose, self_isolate, self_isolate_proportion,
+                                             isolation_bounds,traveling_infects, lockdown, lockdown_percentage, 
+                                             lockdown_vector,plot_style)
             if len(population[population[:,6] == 1]) == 0 and i > 100:
                 print('\n-----stopping-----\n')
                 print('total dead: %i' %len(population[population[:,6] == 3]))

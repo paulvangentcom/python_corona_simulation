@@ -138,7 +138,8 @@ But this is not the whole story, as healthcare is staffed by healthcare workers.
 - [ ] refactor methods away into classes to make codebase less unwieldy
 - [ ] Add CuPy compatibility mode to utilize CUDA (NVidia GPU) for computations
 - [ ] Add NumBa support to speed up simulations without GPU
-- [ ] Plot S-I-R parameters
+- [X] Plot S-I-R parameters
+- [ ] Beautify plotting
 - [ ] Add travel behaviour (work, groceries, school)
 - [ ] Add mechanic where recovered still carry viral load for settable period
 - [ ] Prioritise health care based on risk profiles once capacity is reached
