@@ -133,6 +133,7 @@ But this is not the whole story, as healthcare is staffed by healthcare workers.
 
 # TO-DO
 [ ] Plot S-I-R parameters
+[ ] Add travel behaviour (work, groceries, school)
 [ ] Add mechanic where recovered still carry viral load for settable period
 [ ] Add Healthcare workers and simulate effects on healthcare effectiveness when they fall ill
 [ ] Add method for people to become reinfected with settable odds 
