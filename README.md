@@ -26,6 +26,9 @@ Aside from that, I've worked with NumPy a lot but felt there was still much to l
 And keep in mind that in no way is there a guarantee that the simulation will be accurate:
 ![reality](images/george_e_p_box.jpg)
 
+## Summary video
+A video highlighting some of the scenarios [can be viewed here](http://www.paulvangent.com/covid/Covid_Compilation_reinfection.mp4)
+
 ## Simple Infection Simulation
 As a first step I built a simulation of a population of randomly moving people. The people stay within the world bounds and each tick there's a 2% chance of them changing heading and speed. There's a 3% chance of becoming sick when getting close to an infected person, and a 2% chance of a fatal ending. **Click the image to view the video**
 
