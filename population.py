@@ -23,7 +23,7 @@ def initialize_population(pop_size, mean_age=45, max_age=105,
     3 : current heading in x direction
     4 : current heading in y direction
     5 : current speed
-    6 : current state (0=healthy, 1=sick, 2=immune, 3=dead)
+    6 : current state (0=healthy, 1=sick, 2=immune, 3=dead, 4=immune but infectious)
     7 : age
     8 : infected_since (frame the person got infected)
     9 : recovery vector (used in determining when someone recovers or dies)
@@ -179,3 +179,37 @@ def save_data(population, infected, fatalities):
     np.save('data/%i/population.npy' %num_files, population)
     np.save('data/%i/infected.npy' %num_files, infected)
     np.save('data/%i/fatalities.npy' %num_files, fatalities)
+
+
+class population_trackers():
+    '''class used to track population parameters
+
+    Can track population parameters over time that can then be used
+    to compute statistics or to visualise. 
+
+    TODO: track age cohorts here as well
+    '''
+    def __init__(self):
+        self.susceptible = []
+        self.infectious = []
+        self.recovered = []
+        self.fatalities = []
+
+        #PLACEHOLDER - whether recovered individual can be reinfected
+        self.reinfect = False 
+
+    def update_counts(self, population):
+        '''docstring
+        '''
+        pop_size = population.shape[0]
+        self.infectious.append(len(population[population[:,6] == 1]))
+        self.recovered.append(len(population[population[:,6] == 2]))
+        self.fatalities.append(len(population[population[:,6] == 3]))
+
+        if self.reinfect:
+            self.susceptible.append(pop_size - (self.infectious[-1] +
+                                                self.fatalities[-1]))
+        else:
+            self.susceptible.append(pop_size - (self.infectious[-1] +
+                                                self.recovered[-1] +
+                                                self.fatalities[-1]))
