@@ -14,6 +14,19 @@ set_destination_bounds, save_data, population_trackers
 #set seed for reproducibility
 np.random.seed(100)
 
+class simulation():
+    #init, run, visualise
+    def __init__(self, *args, **kwargs):
+        #inits
+        self.visualise = True
+        self.verbose = True
+        
+
+
+    def run(self, population):
+
+
+
 def update(frame, population, pop_tracker, destinations, pop_size, infection_range=0.01, 
            infection_chance=0.03, speed=0.01, recovery_duration=(200, 500), mortality_chance=0.02,
            xbounds=[0.02, 0.98], ybounds=[0.02, 0.98], x_plot=[0, 1], 
@@ -196,7 +209,7 @@ if __name__ == '__main__':
     plot_style = 'SIR' #whether to plot SIR parameters ('sir') or just infections and mortalities ('default')
 
     #population parameters
-    pop_size = 2000
+    pop_size=2000
     mean_age=55
     max_age=105
     speed=0.01
@@ -295,15 +308,15 @@ if __name__ == '__main__':
         #alternatively dry run simulation without visualising
         i = 0
         while i < simulation_steps:
-            population, pop_tracker = update(i, population, pop_tracker, destinations, pop_size, infection_range, 
-                                             infection_chance, speed, recovery_duration, mortality_chance, 
-                                             xbounds, ybounds, x_plot, y_plot, wander_range, risk_age, 
-                                             critical_age, critical_mortality_chance,
-                                             risk_increase, no_treatment_factor, treatment_factor, 
-                                             healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
-                                             visualise, verbose, self_isolate, self_isolate_proportion,
-                                             isolation_bounds,traveling_infects, lockdown, lockdown_percentage, 
-                                             lockdown_vector,plot_style)
+            population = update(i, population, pop_tracker, destinations, pop_size, infection_range, 
+                                infection_chance, speed, recovery_duration, mortality_chance, 
+                                xbounds, ybounds, x_plot, y_plot, wander_range, risk_age, 
+                                critical_age, critical_mortality_chance,
+                                risk_increase, no_treatment_factor, treatment_factor, 
+                                healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
+                                visualise, verbose, self_isolate, self_isolate_proportion,
+                                isolation_bounds,traveling_infects, lockdown, lockdown_percentage, 
+                                lockdown_vector,plot_style)
             if len(population[population[:,6] == 1]) == 0 and i > 100:
                 print('\n-----stopping-----\n')
                 print('total dead: %i' %len(population[population[:,6] == 3]))

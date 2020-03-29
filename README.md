@@ -148,4 +148,4 @@ But this is not the whole story, as healthcare is staffed by healthcare workers.
 - [ ] Add plotting method that splits outcome according to age
 - [ ] Implement S-I-R modeling to compare to agent-based approach
 - [ ] Add scenario where the elderly are quarantined first when infections happen (u/ColCrabs & u/rataktaktaruken)
-
+- [ ] Speed up plotting
