@@ -1,3 +1,4 @@
+import os
 import sys
 
 import numpy as np
@@ -347,7 +348,7 @@ def update(frame, population, infection_range=0.01, infection_chance=0.03,
         ax2.set_ylim(0, pop_size + 100)
         ax2.plot(infected_plot, color='gray')
 
-        plt.savefig('render/%s.png' %frame)
+        #plt.savefig('render/%s.png' %frame)
 
 
 
@@ -375,7 +376,10 @@ if __name__ == '__main__':
     ax2.set_xlim(0, simulation_steps)
     ax2.set_ylim(0, pop_size + 100)
 
-    
+    #create render folder if doesn't exist
+    if not os.path.exists('render/'):
+        os.makedirs('render/')
+           
     
     #start animation loop through matplotlib visualisation
     animation = FuncAnimation(fig, update, fargs = (population,), frames = simulation_steps, interval = 33)

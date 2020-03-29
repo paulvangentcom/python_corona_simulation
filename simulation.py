@@ -1,3 +1,4 @@
+import os
 import sys
 
 import numpy as np
@@ -239,6 +240,10 @@ if __name__ == '__main__':
     ######################################
     ##### END OF SETTABLE PARAMETERS #####
     ######################################
+
+    #create render folder if doesn't exist
+    if not os.path.exists('render/'):
+        os.makedirs('render/')
 
     #initialise population
     population = initialize_population(pop_size, mean_age, max_age, xbounds, ybounds)

@@ -1,3 +1,4 @@
+import os
 import sys
 
 import numpy as np
@@ -336,7 +337,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
 
             #ax2.legend(loc = 1, fontsize = 6)
 
-        plt.savefig('render/%i.png' %frame)
+        #plt.savefig('render/%i.png' %frame)
 
     return population
 
@@ -403,9 +404,9 @@ if __name__ == '__main__':
     #initialize destination matrix
     destinations = initialize_destination_matrix(pop_size, 1)
 
-   
-
-    #place hospital on map
+    #create render folder if doesn't exist
+    if not os.path.exists('render/'):
+        os.makedirs('render/')
 
     #define figure
     fig = plt.figure(figsize=(5,7))
