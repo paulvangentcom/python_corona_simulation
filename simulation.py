@@ -16,6 +16,8 @@ np.random.seed(100)
 
 class simulation():
     #init, run, visualise
+    
+    #TODO: if lockdown or otherwise stopped: destination -1 means no motion
     def __init__(self, *args, **kwargs):
         #inits
         self.visualise = True
@@ -24,6 +26,29 @@ class simulation():
 
 
     def run(self, population):
+        #check destinations if active
+
+
+        #keep at destinations if active
+        
+
+        #out of bounds
+
+        
+        #set randoms
+
+        #update speeds of no motion destinations and dead ones
+
+        
+        #find infections
+
+
+        #recover or die
+
+
+        #send cured back to population if self isolation active
+        #perhaps put in recover or die class
+
 
 
 
