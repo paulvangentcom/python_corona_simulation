@@ -89,7 +89,7 @@ However, if the lock down is lifted and a new case is introduced, a potential de
 <img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/lockdown_reinfection.png" alt="image of the simuation">
 </a>
 
-In such a situation repeated lock-downs seem inevitable if the infection keeps returning.
+**In such a situation repeated lock-downs seem inevitable if the infection keeps returning.**
 
 ### Case 'Self-Isolation'
 
