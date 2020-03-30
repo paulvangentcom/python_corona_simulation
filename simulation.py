@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+from config import configuration, config_error
 from environment import build_hospital
 from infection import infect, recover_or_die, compute_mortality
 from motion import update_positions, out_of_bounds, update_randoms,\
@@ -19,36 +20,114 @@ class simulation():
     
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
     def __init__(self, *args, **kwargs):
-        #inits
-        self.visualise = True
-        self.verbose = True
-        
+        #load default config data
+        self.config = configuration()
+        self.frame = 0
 
+        #initialize default population
+        self.population = initialize_population(self.config.pop_size, self.config.mean_age, 
+                                                self.config.max_age, self.config.xbounds, 
+                                                self.config.ybounds)
 
-    def run(self, population):
+        self.pop_tracker = population_trackers()
+
+        #initalise destinations vector
+        self.destinations = initialize_destination_matrix(self.config.pop_size, 1)
+
+    def tstep(self):
+        '''
+        takes a time step in the simulation
+        '''
+
         #check destinations if active
+        #define motion vectors if destinations active and not everybody is at destination
+        active_dests = len(self.population[self.population[:,11] != 0]) # look op this only once
 
+        if active_dests > 0 and len(self.population[self.population[:,12] == 0]) > 0:
+            self.population = set_destination(self.population, self.destinations)
+            self.population = check_at_destination(self.population, self.destinations, 
+                                              wander_factor = self.config.wander_factor_dest)
 
-        #keep at destinations if active
-        
+        if active_dests > 0 and len(self.population[self.population[:,12] == 1]) > 0:
+            #keep them at destination
+            self.population = keep_at_destination(self.population, self.destinations,
+                                                  self.config.wander_factor)
 
         #out of bounds
-
+        #define bounds arrays, excluding those who are marked as having a custom destination
+        if len(self.population[:,11] == 0) > 0:
+            _xbounds = np.array([[self.config.xbounds[0] + 0.02, self.config.xbounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
+            _ybounds = np.array([[self.config.ybounds[0] + 0.02, self.config.ybounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
+            self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0], 
+                                                          _xbounds, _ybounds)
         
         #set randoms
+        if self.config.lockdown:
+            if len(self.pop_tracker.infectious) == 0:
+                mx = 0
+            else:
+                mx = np.max(self.pop_tracker.infectious)
 
-        #update speeds of no motion destinations and dead ones
+            if len(self.population[self.population[:,6] == 1]) >= len(self.population) * self.config.lockdown_percentage or\
+               mx >= (len(self.population) * self.config.lockdown_percentage):
+                #reduce speed of all members of society
+                self.population[:,5] = np.clip(self.population[:,5], a_min = None, a_max = 0.001)
+                #set speeds of complying people to 0
+                self.population[:,5][self.lockdown_vector == 0] = 0
+            else:
+                #update randoms
+                self.population = update_randoms(self.population, self.config.pop_size, self.config.speed)
+        else:
+            #update randoms
+            self.population = update_randoms(self.population, self.config.pop_size, self.config.speed)
 
+
+        #for dead ones: set speed and heading to 0
+        self.population[:,3:5][self.population[:,6] == 3] = 0
         
-        #find infections
+        #update positions
+        self.population = update_positions(self.population)
 
+        #find new infections
+        self.population, self.destinations = infect(self.population, self.config.pop_size, self.config.infection_range, 
+                                                    self.config.infection_chance, self.frame, self.config.healthcare_capacity, 
+                                                    self.config.verbose, send_to_location = self.config.self_isolate, 
+                                                    location_bounds = self.config.isolation_bounds,  destinations = self.destinations, 
+                                                    location_no = 1, location_odds = self.config.self_isolate_proportion, 
+                                                    traveling_infects = self.config.traveling_infects)
+   
 
-        #recover or die
+        #infected_plot.append(len(population[population[:,6] == 1]))
 
+        #recover and die
+        self.population = recover_or_die(self.population, self.frame, self.config.recovery_duration, 
+                                         self.config.mortality_chance, self.config.risk_age, self.config.critical_age, 
+                                         self.config.critical_mortality_chance, self.config.risk_increase, 
+                                         self.config.no_treatment_factor, self.config.age_dependent_risk, self.config.treatment_dependent_risk, 
+                                         self.config.treatment_factor, self.config.verbose)
 
         #send cured back to population if self isolation active
         #perhaps put in recover or die class
+        #send cured back to population
+        self.population[:,11][self.population[:,6] == 2] = 0
 
+        #update population statistics
+        self.pop_tracker.update_counts(self.population)
+
+        #run callback
+        self.callback()
+
+        #update frame
+        self.frame += 1
+
+    def callback(self):
+        '''placeholder function that can be overwritten.
+
+        By ovewriting this method any custom behaviour can be implemented.
+        The method is called after every simulation timestep.
+        '''
+
+        pass
 
 
 
@@ -220,7 +299,7 @@ if __name__ == '__main__':
     ##### SETTABLE PARAMETERS #####
     ###############################
     #set simulation parameters
-    simulation_steps = 10000 #total simulation steps performed
+    simulation_steps = 10000 
     save_population = False #whether to dump population to data/population_{num}.npy
     #size of the simulated world in coordinates
     xbounds = [0, 1] 
