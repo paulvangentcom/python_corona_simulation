@@ -2,7 +2,7 @@
 
 ![covid-19 sim!](images/covidsim.gif)
 
-After seeing [this article](https://www.washingtonpost.com/graphics/2020/world/corona-simulator/) in the Washington Post I started wondering how such simulations might be done in Python, and indeed if I could expand upon the idea to make them more realistic and fun to play with.
+After seeing [this article](https://www.washingtonpost.com/graphics/2020/world/corona-simulator/) in the Washington Post I started wondering how such simulations might be done in Python, and indeed if I could expand upon the idea and make it more realistic.
 
 For a moment I thought about writing the simualation itself in pure Python, with matplotlib as visualisation tool. However for large interacting populations, required computations scale quickly. Speeding up means reducing the operations to vector and matrix computations, something that can be done extremely efficiently through [NumPy](https://numpy.org/), which uses both a fast backend written in C, as well as makes use of hardware acceleration features like SIMD (single instruction, multiple data), which enables many operations on data arrays in relatively few clock cycles.
 
@@ -22,9 +22,6 @@ Aside from that, I've worked with NumPy a lot but felt there was still much to l
 	
 	
 **For reproducibility of all simulations, numpy's seed has been set to '100' unless otherwise specified**
-
-And keep in mind that in no way is there a guarantee that the simulation will be accurate:
-![reality](images/george_e_p_box.jpg)
 
 ## Summary video
 A video highlighting some of the scenarios [can be viewed here](http://www.paulvangent.com/covid/Covid_Compilation_reinfection.mp4)
@@ -150,3 +147,6 @@ But this is not the whole story, as healthcare is staffed by healthcare workers.
 - [ ] Implement S-I-R modeling to compare to agent-based approach
 - [ ] Add scenario where the elderly are quarantined first when infections happen (u/ColCrabs & u/rataktaktaruken)
 - [ ] Speed up plotting
+
+
+![logo](images/Logo_TUDelft.jpg)
