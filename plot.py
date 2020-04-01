@@ -3,15 +3,21 @@ import matplotlib as mpl
 
 mpl.style.use('style.mplstyle')
 
+# healthy, infected, immune, dead
+personStateColors = ['#404040', '#ff0000', '#00ff00', '#000000']
+
+# sets graph title
 def ax2Title(ax2):
 	ax2.set_title('number of infected')
 
+# updates figure with common values across all simulations
 def figUpdate(ax1, ax2, x_plot, y_plot):
 	ax1.set_xlim(x_plot[0], x_plot[1])
 	ax1.set_ylim(y_plot[0], y_plot[1])
 	ax1.axis('off')
 	ax2Title(ax2)
 
+# initialises figure with common values across all simulations
 def figInit(xbounds, ybounds, pop_size):
 	fig = plt.figure(figsize=(5,7))
 	spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])

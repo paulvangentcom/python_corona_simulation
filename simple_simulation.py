@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from plot import figInit, figUpdate
+from plot import figInit, figUpdate, personStateColors
 
 #set seed for reproducibility
 np.random.seed(100)
@@ -318,16 +318,16 @@ def update(frame, population, infection_range=0.01, infection_chance=0.03,
         figUpdate(ax1, ax2, xbounds, ybounds)
 
         healthy = population[population[:,6] == 0][:,1:3]
-        ax1.scatter(healthy[:,0], healthy[:,1], color='gray', s = 2, label='healthy')
+        ax1.scatter(healthy[:,0], healthy[:,1], color=personStateColors[0], s = 2, label='healthy')
     
         infected = population[population[:,6] == 1][:,1:3]
-        ax1.scatter(infected[:,0], infected[:,1], color='red', s = 2, label='infected')
+        ax1.scatter(infected[:,0], infected[:,1], color=personStateColors[1], s = 2, label='infected')
 
         immune = population[population[:,6] == 2][:,1:3]
-        ax1.scatter(immune[:,0], immune[:,1], color='green', s = 2, label='immune')
+        ax1.scatter(immune[:,0], immune[:,1], color=personStateColors[2], s = 2, label='immune')
     
         fatalities = population[population[:,6] == 3][:,1:3]
-        ax1.scatter(fatalities[:,0], fatalities[:,1], color='black', s = 2, label='fatalities')
+        ax1.scatter(fatalities[:,0], fatalities[:,1], color=personStateColors[3], s = 2, label='fatalities')
     
         #add text descriptors
         ax1.text(xbounds[0], 

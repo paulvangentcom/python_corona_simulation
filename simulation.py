@@ -12,7 +12,7 @@ set_destination, check_at_destination, keep_at_destination, get_motion_parameter
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data
 
-from plot import figInit, figUpdate
+from plot import figInit, figUpdate, personStateColors
 
 #set seed for reproducibility
 np.random.seed(100)
@@ -118,16 +118,16 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
         
         #plot population segments
         healthy = population[population[:,6] == 0][:,1:3]
-        ax1.scatter(healthy[:,0], healthy[:,1], color='gray', s = 2, label='healthy')
+        ax1.scatter(healthy[:,0], healthy[:,1], color=personStateColors[0], s = 2, label='healthy')
     
         infected = population[population[:,6] == 1][:,1:3]
-        ax1.scatter(infected[:,0], infected[:,1], color='red', s = 2, label='infected')
+        ax1.scatter(infected[:,0], infected[:,1], color=personStateColors[1], s = 2, label='infected')
 
         immune = population[population[:,6] == 2][:,1:3]
-        ax1.scatter(immune[:,0], immune[:,1], color='green', s = 2, label='immune')
+        ax1.scatter(immune[:,0], immune[:,1], color=personStateColors[2], s = 2, label='immune')
     
         fatalities = population[population[:,6] == 3][:,1:3]
-        ax1.scatter(fatalities[:,0], fatalities[:,1], color='black', s = 2, label='dead')
+        ax1.scatter(fatalities[:,0], fatalities[:,1], color=personStateColors[3], s = 2, label='dead')
         
     
         #add text descriptors
