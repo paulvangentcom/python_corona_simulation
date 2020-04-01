@@ -12,6 +12,8 @@ set_destination, check_at_destination, keep_at_destination, get_motion_parameter
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data
 
+from plot import figInit, figUpdate
+
 #set seed for reproducibility
 np.random.seed(100)
 
@@ -104,12 +106,10 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
     
     if visualise:
         #construct plot and visualise
-        spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
         ax1.clear()
         ax2.clear()
 
-        ax1.set_xlim(x_plot[0], x_plot[1])
-        ax1.set_ylim(y_plot[0], y_plot[1])
+        figUpdate(ax1, ax2, x_plot, y_plot)
 
         if self_isolate and isolation_bounds != None:
             build_hospital(isolation_bounds[0], isolation_bounds[2],
@@ -141,7 +141,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
                                                                                               len(fatalities)),
                  fontsize=6)
     
-        ax2.set_title('number of infected')
+        
         ax2.text(0, pop_size * 0.05, 
                  'https://github.com/paulvangentcom/python-corona-simulation',
                  fontsize=6, alpha=0.5)
@@ -253,18 +253,7 @@ if __name__ == '__main__':
 
     #define figure
     if visualise:
-        fig = plt.figure(figsize=(5,7))
-        spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
-
-        ax1 = fig.add_subplot(spec[0,0])
-        plt.title('infection simulation')
-        plt.xlim(xbounds[0], xbounds[1])
-        plt.ylim(ybounds[0], ybounds[1])
-
-        ax2 = fig.add_subplot(spec[1,0])
-        ax2.set_title('number of infected')
-        #ax2.set_xlim(0, simulation_steps)
-        ax2.set_ylim(0, pop_size + 100)
+        fig, ax1, ax2 = figInit(xbounds, ybounds, pop_size)
 
     infected_plot = []
     fatalities_plot = []
