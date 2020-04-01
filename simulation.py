@@ -13,7 +13,7 @@ get_motion_parameters
 from path_planning import go_to_location, set_destination, check_at_destination,\
 keep_at_destination, reset_destinations
 from population import initialize_population, initialize_destination_matrix,\
-set_destination_bounds, save_data, population_trackers
+set_destination_bounds, save_data, Population_trackers
 from visualiser import build_fig, draw_tstep
 
 #set seed for reproducibility
@@ -33,7 +33,7 @@ class Simulation():
                                                 self.Config.max_age, self.Config.xbounds, 
                                                 self.Config.ybounds)
 
-        self.pop_tracker = population_trackers()
+        self.pop_tracker = Population_trackers()
 
         #initalise destinations vector
         self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)

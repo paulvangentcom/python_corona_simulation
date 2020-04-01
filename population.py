@@ -182,7 +182,7 @@ def save_data(population, infected, fatalities):
     np.save('data/%i/fatalities.npy' %num_files, fatalities)
 
 
-class population_trackers():
+class Population_trackers():
     '''class used to track population parameters
 
     Can track population parameters over time that can then be used
