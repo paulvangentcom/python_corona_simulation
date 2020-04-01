@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+from plot import figInit, figUpdate
+
 #set seed for reproducibility
 np.random.seed(100)
 
@@ -310,12 +312,10 @@ def update(frame, population, infection_range=0.01, infection_chance=0.03,
 
     if visualise:
         #construct plot and visualise
-        spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
         ax1.clear()
         ax2.clear()
 
-        ax1.set_xlim(xbounds[0] - 0.02, xbounds[1] + 0.02)
-        ax1.set_ylim(ybounds[0] - 0.02, ybounds[1] + 0.02)
+        figUpdate(ax1, ax2, xbounds, ybounds)
 
         healthy = population[population[:,6] == 0][:,1:3]
         ax1.scatter(healthy[:,0], healthy[:,1], color='gray', s = 2, label='healthy')
@@ -340,7 +340,6 @@ def update(frame, population, infection_range=0.01, infection_chance=0.03,
                                                                                               len(fatalities)),
                  fontsize=6)
     
-        ax2.set_title('number of infected')
         ax2.text(0, pop_size * 0.05, 
                  'https://github.com/paulvangentcom/python-corona-simulation',
                  fontsize=6, alpha=0.5)
