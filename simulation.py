@@ -4,35 +4,42 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from config import configuration, config_error
+from config import Configuration, config_error
 from environment import build_hospital
-from infection import infect, recover_or_die, compute_mortality
+from infection import find_nearby, infect, recover_or_die, compute_mortality,\
+healthcare_infection_correction
 from motion import update_positions, out_of_bounds, update_randoms,\
-set_destination, check_at_destination, keep_at_destination, get_motion_parameters
+get_motion_parameters
+from path_planning import go_to_location, set_destination, check_at_destination,\
+keep_at_destination, reset_destinations
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data, population_trackers
+from visualiser import build_fig, draw_tstep
 
 #set seed for reproducibility
 np.random.seed(100)
 
-class simulation():
+class Simulation():
     #init, run, visualise
     
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
     def __init__(self, *args, **kwargs):
         #load default config data
-        self.config = configuration()
+        self.Config = Configuration()
         self.frame = 0
 
         #initialize default population
-        self.population = initialize_population(self.config.pop_size, self.config.mean_age, 
-                                                self.config.max_age, self.config.xbounds, 
-                                                self.config.ybounds)
+        self.population = initialize_population(self.Config.pop_size, self.Config.mean_age, 
+                                                self.Config.max_age, self.Config.xbounds, 
+                                                self.Config.ybounds)
 
         self.pop_tracker = population_trackers()
 
         #initalise destinations vector
-        self.destinations = initialize_destination_matrix(self.config.pop_size, 1)
+        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
+
+        self.fig, self.spec, self.ax1, self.ax2 = build_fig(self.Config)
+
 
     def tstep(self):
         '''
@@ -46,40 +53,40 @@ class simulation():
         if active_dests > 0 and len(self.population[self.population[:,12] == 0]) > 0:
             self.population = set_destination(self.population, self.destinations)
             self.population = check_at_destination(self.population, self.destinations, 
-                                              wander_factor = self.config.wander_factor_dest)
+                                                   wander_factor = self.Config.wander_factor_dest)
 
         if active_dests > 0 and len(self.population[self.population[:,12] == 1]) > 0:
             #keep them at destination
             self.population = keep_at_destination(self.population, self.destinations,
-                                                  self.config.wander_factor)
+                                                  self.Config.wander_factor)
 
         #out of bounds
         #define bounds arrays, excluding those who are marked as having a custom destination
         if len(self.population[:,11] == 0) > 0:
-            _xbounds = np.array([[self.config.xbounds[0] + 0.02, self.config.xbounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
-            _ybounds = np.array([[self.config.ybounds[0] + 0.02, self.config.ybounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
+            _xbounds = np.array([[self.Config.xbounds[0] + 0.02, self.Config.xbounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
+            _ybounds = np.array([[self.Config.ybounds[0] + 0.02, self.Config.ybounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
             self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0], 
-                                                          _xbounds, _ybounds)
+                                                                        _xbounds, _ybounds)
         
         #set randoms
-        if self.config.lockdown:
+        if self.Config.lockdown:
             if len(self.pop_tracker.infectious) == 0:
                 mx = 0
             else:
                 mx = np.max(self.pop_tracker.infectious)
 
-            if len(self.population[self.population[:,6] == 1]) >= len(self.population) * self.config.lockdown_percentage or\
-               mx >= (len(self.population) * self.config.lockdown_percentage):
+            if len(self.population[self.population[:,6] == 1]) >= len(self.population) * self.Config.lockdown_percentage or\
+               mx >= (len(self.population) * self.Config.lockdown_percentage):
                 #reduce speed of all members of society
                 self.population[:,5] = np.clip(self.population[:,5], a_min = None, a_max = 0.001)
                 #set speeds of complying people to 0
                 self.population[:,5][self.lockdown_vector == 0] = 0
             else:
                 #update randoms
-                self.population = update_randoms(self.population, self.config.pop_size, self.config.speed)
+                self.population = update_randoms(self.population, self.Config.pop_size, self.Config.speed)
         else:
             #update randoms
-            self.population = update_randoms(self.population, self.config.pop_size, self.config.speed)
+            self.population = update_randoms(self.population, self.Config.pop_size, self.Config.speed)
 
 
         #for dead ones: set speed and heading to 0
@@ -89,22 +96,15 @@ class simulation():
         self.population = update_positions(self.population)
 
         #find new infections
-        self.population, self.destinations = infect(self.population, self.config.pop_size, self.config.infection_range, 
-                                                    self.config.infection_chance, self.frame, self.config.healthcare_capacity, 
-                                                    self.config.verbose, send_to_location = self.config.self_isolate, 
-                                                    location_bounds = self.config.isolation_bounds,  destinations = self.destinations, 
-                                                    location_no = 1, location_odds = self.config.self_isolate_proportion, 
-                                                    traveling_infects = self.config.traveling_infects)
-   
-
-        #infected_plot.append(len(population[population[:,6] == 1]))
+        self.population, self.destinations = infect(self.population, self.Config, self.frame, 
+                                                    send_to_location = self.Config.self_isolate, 
+                                                    location_bounds = self.Config.isolation_bounds,  
+                                                    destinations = self.destinations, 
+                                                    location_no = 1, 
+                                                    location_odds = self.Config.self_isolate_proportion)
 
         #recover and die
-        self.population = recover_or_die(self.population, self.frame, self.config.recovery_duration, 
-                                         self.config.mortality_chance, self.config.risk_age, self.config.critical_age, 
-                                         self.config.critical_mortality_chance, self.config.risk_increase, 
-                                         self.config.no_treatment_factor, self.config.age_dependent_risk, self.config.treatment_dependent_risk, 
-                                         self.config.treatment_factor, self.config.verbose)
+        self.population = recover_or_die(self.population, self.frame, self.Config)
 
         #send cured back to population if self isolation active
         #perhaps put in recover or die class
@@ -127,7 +127,11 @@ class simulation():
         The method is called after every simulation timestep.
         '''
 
-        pass
+        if self.frame == 50:
+            print('infecting person')
+            self.population[0][6] = 1
+            self.population[0][8] = 50
+            self.population[0][10] = 1
 
 
 
@@ -146,78 +150,9 @@ def update(frame, population, pop_tracker, destinations, pop_size, infection_ran
     #add one infection to jumpstart
     if frame == 50:
         population[0][6] = 1
-        population[0][8] = 75
+        population[0][8] = 50
         population[0][10] = 1
 
-    #define motion vectors if destinations active and not everybody is at destination
-    active_dests = len(population[population[:,11] != 0]) # look op this only once
-
-    if active_dests > 0 and len(population[population[:,12] == 0]) > 0:
-        population = set_destination(population, destinations)
-        population = check_at_destination(population, destinations, wander_factor = 1.5)
-
-    if active_dests > 0 and len(population[population[:,12] == 1]) > 0:
-        #keep them at destination
-        population = keep_at_destination(population, destinations,
-                                         wander_factor = 1)
-
-    #update out of bounds
-    #define bounds arrays, excluding those who are marked as having a custom destination
-    if len(population[:,11] == 0) > 0:
-        _xbounds = np.array([[xbounds[0] + 0.02, xbounds[1] - 0.02]] * len(population[population[:,11] == 0]))
-        _ybounds = np.array([[ybounds[0] + 0.02, ybounds[1] - 0.02]] * len(population[population[:,11] == 0]))
-        population[population[:,11] == 0] = out_of_bounds(population[population[:,11] == 0], 
-                                                          _xbounds, _ybounds)
-
-    
-    if lockdown:
-        if len(infected_plot) == 0:
-            mx = 0
-        else:
-            mx = np.max(infected_plot)
-
-        if len(population[population[:,6] == 1]) >= len(population) * lockdown_percentage or\
-           mx >= (len(population) * lockdown_percentage):
-            #reduce speed of all members of society
-            population[:,5] = np.clip(population[:,5], a_min = None, a_max = 0.001)
-            #set speeds of complying people to 0
-            population[:,5][lockdown_vector == 0] = 0
-        else:
-            #update randoms
-            population = update_randoms(population, pop_size, speed=speed)
-    else:
-        #update randoms
-        population = update_randoms(population, pop_size, speed=speed)
-
-        
-    #for dead ones: set speed and heading to 0
-    population[:,3:5][population[:,6] == 3] = 0
-
-    #update positions
-    population = update_positions(population)
-    
-    #find new infections
-    population, destinations = infect(population, pop_size, infection_range, infection_chance, frame, 
-                                      healthcare_capacity, verbose, send_to_location = self_isolate,
-                                      location_bounds = isolation_bounds, destinations = destinations,
-                                      location_no = 1, location_odds = self_isolate_proportion,
-                                      traveling_infects = traveling_infects)
-   
-
-    #infected_plot.append(len(population[population[:,6] == 1]))
-
-    #recover and die
-    population = recover_or_die(population, frame, recovery_duration, mortality_chance,
-                                risk_age, critical_age, critical_mortality_chance,
-                                risk_increase, no_treatment_factor, age_dependent_risk,
-                                treatment_dependent_risk, treatment_factor, verbose)
-
-    #send cured back to population
-    population[:,11][population[:,6] == 2] = 0
-
-    #fatalities_plot.append(len(population[population[:,6] == 3]))
-
-    pop_tracker.update_counts(population)
 
     if visualise:
         #construct plot and visualise
@@ -295,154 +230,12 @@ def update(frame, population, pop_tracker, destinations, pop_size, infection_ran
 
 if __name__ == '__main__':
 
-    ###############################
-    ##### SETTABLE PARAMETERS #####
-    ###############################
-    #set simulation parameters
-    simulation_steps = 10000 
-    save_population = False #whether to dump population to data/population_{num}.npy
-    #size of the simulated world in coordinates
-    xbounds = [0, 1] 
-    ybounds = [0, 1]
+    tstep = 2000
 
-    x_plot = [0, 1]
-    y_plot = [0, 1]
-
-    visualise = True #whether to visualise the simulation 
-    verbose = True #whether to print infections, recoveries and fatalities to the terminal
-    plot_style = 'SIR' #whether to plot SIR parameters ('sir') or just infections and mortalities ('default')
-
-    #population parameters
-    pop_size=2000
-    mean_age=55
-    max_age=105
-    speed=0.01
-    pop_tracker = population_trackers()
-
-    #motion parameters
-    mean_speed = 0.01 # the mean speed (defined as heading * speed)
-    std_speed = 0.01 / 3 #the standard deviation of the speed parameter
-    #the proportion of the population that practices social distancing, simulated
-    #by them standing still
-    proportion_distancing = 0
-    #when people have an active destination, the wander range defines the area
-    #surrounding the destination they will wander upon arriving
-    wander_range=0.05 
-
-    #illness parameters
-    infection_range=0.01 #range surrounding sick patient that infections can take place
-    infection_chance=0.03   #chance that an infection spreads to nearby healthy people each tick
-    recovery_duration=(200, 500) #how many ticks it may take to recover from the illness
-    mortality_chance=0.02 #global baseline chance of dying from the disease
-
-    #self isolation
-    self_isolate = False #whether infected people will self-isolate
-    self_isolate_proportion = 0.85 #proportion of infected
-    isolation_bounds = [0.01, 0.01, 0.1, 0.99] #[xmin, ymin, xmax, ymax]
-    traveling_infects = False #Whether those traveling to isolation can still infect others
-
-    #lock down
-    lockdown = False #whether to implement a lockdown
-    lockdown_percentage = 0.1 #after this proportion is infected, lock-down begins
-    lockdown_compliance = 0.95 #fraction of the population that will obey the lockdown
-    lockdown_vector = np.zeros((pop_size,))
-    #lockdown vector is 1 for those not complying
-    lockdown_vector[np.random.uniform(size=(pop_size,)) >= lockdown_compliance] = 1
-
-    #healthcare parameters
-    healthcare_capacity = 300 #capacity of the healthcare system
-    treatment_factor = 0.5 #when in treatment, affect risk by this factor
-    no_treatment_factor = 3 #risk increase factor to use if healthcare system is full
-    #risk parameters
-    age_dependent_risk = True #whether risk increases with age
-    risk_age = 55 #age where mortality risk starts increasing
-    critical_age = 75 #age at and beyond which mortality risk reaches maximum
-    critical_mortality_chance = 0.1 #maximum mortality risk for older age
-    treatment_dependent_risk = True #whether risk is affected by treatment
-    #whether risk between risk and critical age increases 'linear' or 'quadratic'
-    risk_increase = 'quadratic' 
+    sim = Simulation()
     
-   
-    ######################################
-    ##### END OF SETTABLE PARAMETERS #####
-    ######################################
 
-    #initialise population
-    population = initialize_population(pop_size, mean_age, max_age, xbounds, ybounds)
-
-    #initalise destinations vector
-    destinations = initialize_destination_matrix(pop_size, 1)
-
-    #define figure
-    if visualise:
-        fig = plt.figure(figsize=(5,7))
-        spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
-
-        ax1 = fig.add_subplot(spec[0,0])
-        plt.title('infection simulation')
-        plt.xlim(xbounds[0], xbounds[1])
-        plt.ylim(ybounds[0], ybounds[1])
-
-        ax2 = fig.add_subplot(spec[1,0])
-        ax2.set_title('number of infected')
-        #ax2.set_xlim(0, simulation_steps)
-        ax2.set_ylim(0, pop_size + 100)
-
-    infected_plot = []
-    susceptible_plot = []
-    recovered_plot = []
-    fatalities_plot = []
-    
-    #define arguments for visualisation loop
-    fargs = (population, pop_tracker, destinations, pop_size, infection_range, 
-             infection_chance, speed, recovery_duration, mortality_chance, 
-             xbounds, ybounds, x_plot, y_plot, wander_range, risk_age, 
-             critical_age, critical_mortality_chance,
-             risk_increase, no_treatment_factor, treatment_factor, 
-             healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
-             visualise, verbose, self_isolate, self_isolate_proportion,
-             isolation_bounds,traveling_infects, lockdown, lockdown_percentage, 
-             lockdown_vector, plot_style,)
-
-    #start animation loop through matplotlib visualisation
-    if visualise:
-        animation = FuncAnimation(fig, update, fargs = fargs, frames = simulation_steps, interval = 33)
-        plt.show()
-    else:
-        #alternatively dry run simulation without visualising
-        i = 0
-        while i < simulation_steps:
-            population = update(i, population, pop_tracker, destinations, pop_size, infection_range, 
-                                infection_chance, speed, recovery_duration, mortality_chance, 
-                                xbounds, ybounds, x_plot, y_plot, wander_range, risk_age, 
-                                critical_age, critical_mortality_chance,
-                                risk_increase, no_treatment_factor, treatment_factor, 
-                                healthcare_capacity, age_dependent_risk, treatment_dependent_risk, 
-                                visualise, verbose, self_isolate, self_isolate_proportion,
-                                isolation_bounds,traveling_infects, lockdown, lockdown_percentage, 
-                                lockdown_vector,plot_style)
-            if len(population[population[:,6] == 1]) == 0 and i > 100:
-                print('\n-----stopping-----\n')
-                print('total dead: %i' %len(population[population[:,6] == 3]))
-                print('total immune: %i' %len(population[population[:,6] == 2]))
-                if save_population:
-                    save_data(population, infected_plot, fatalities_plot)
-                i = simulation_steps + 1
-
-            sys.stdout.write('\r')
-            sys.stdout.write('%i: healthy: %i, infected: %i, immune: %i, in treatment: %i, \
-dead: %i, of total: %i' %(i, len(population[population[:,6] == 0]),
-                          len(population[population[:,6] == 1]),
-                          len(population[population[:,6] == 2]), 
-                          len(population[population[:,10] == 1]),
-                          len(population[population[:,6] == 3]),
-                          pop_size))
-
-            i += 1
-
-        print('\n-----stopping after all sick recovered or died-----\n')
-        print('total dead: %i' %len(population[population[:,6] == 3]))
-        print('total immune: %i' %len(population[population[:,6] == 2]))
-
-    if save_population:
-        save_data(population, infected_plot, fatalities_plot)
+    for t in range(tstep):
+        sim.tstep()
+        sys.stdout.write('\r')
+        sys.stdout.write('%i / %i' %(t, tstep))

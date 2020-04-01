@@ -7,17 +7,18 @@ import numpy as np
 class config_error(Exception):
     pass
 
-class configuration():
+class Configuration():
     def __init__(self, *args, **kwargs):
         #simulation variables
         self.verbose = False #whether to print infections, recoveries and fatalities to the terminal
         self.simulation_steps = 10000 #total simulation steps performed
         self.tstep = 0 #current simulation timestep
         self.save_data = True #whether to dump data
+        self.save_timesteps = True #dumps population data every time step
 
         #scenario flags
         self.traveling_infects = False
-        self.self_isolate = False
+        self.self_isolate = True
         self.lockdown = False
         self.lockdown_percentage = 0.1 #after this proportion is infected, lock-down begins
         self.lockdown_compliance = 0.95 #fraction of the population that will obey the lockdown        
