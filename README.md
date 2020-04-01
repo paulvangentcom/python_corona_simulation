@@ -124,13 +124,6 @@ This illustrates the interaction between the density of the population (and thus
 
 
 
-## Simulating Health Care Workers
-But this is not the whole story, as healthcare is staffed by healthcare workers. Once the number of cases explodes, healthcare workers suffer from long working hours. This compromises their immune system and leads to more exposure. Once healthcare workers start getting sick, the already overwhelmed healthcare system reduces in capacity, exacerbating the problems.
-	
-*WORK ONGOING AT THIS POINT*
-
-
-
 # TO-DO
 - [ ] refactor methods away into classes to make codebase less unwieldy
 - [ ] Make package + dependencies installable, add simple installation guide
