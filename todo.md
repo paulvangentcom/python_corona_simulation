@@ -1,7 +1,8 @@
 # TO-DO
 - [X] refactor methods away into classes to make codebase less unwieldy
 - [ ] Make package + dependencies installable, add simple installation guide
-- [ ] Add CuPy compatibility mode to utilize CUDA (NVidia GPU) for computations
+- ~~[ ] Add CuPy compatibility mode to utilize CUDA (NVidia GPU) for computations~~  
+note: CuPy created major slowdowns, likely due to the large number of relatively small matrix operations, each of which requires moving data to and from GPU.
 - [ ] Add NumBa support to speed up simulations without GPU
 - [X] Plot S-I-R parameters
 - [X] Beautify plotting
