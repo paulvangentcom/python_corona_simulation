@@ -196,7 +196,7 @@ def infect(population, Config, frame, send_to_location=False,
                         new_infections.append(np.int32(person[0]))
 
     if len(new_infections) > 0 and Config.verbose:
-        print('at timestep %i these people got sick: %s' %(frame, new_infections))
+        print('\nat timestep %i these people got sick: %s' %(frame, new_infections))
 
     if len(destinations) == 0:
         return population
@@ -298,9 +298,9 @@ def recover_or_die(population, frame, Config):
             recovered.append(np.int32(infected_people[infected_people[:,0] == idx][:,0][0]))
 
     if len(fatalities) > 0 and Config.verbose:
-        print('at timestep %i these people died: %s' %(frame, fatalities))
+        print('\nat timestep %i these people died: %s' %(frame, fatalities))
     if len(recovered) > 0 and Config.verbose:
-        print('at timestep %i these people recovered: %s' %(frame, recovered))
+        print('\nat timestep %i these people recovered: %s' %(frame, recovered))
 
     #put array back into population
     population[population[:,6] == 1] = infected_people

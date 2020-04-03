@@ -14,7 +14,7 @@ get_motion_parameters
 from path_planning import go_to_location, set_destination, check_at_destination,\
 keep_at_destination, reset_destinations
 from population import initialize_population, initialize_destination_matrix,\
-set_destination_bounds, save_data, Population_trackers
+set_destination_bounds, save_data, save_population, Population_trackers
 from visualiser import build_fig, draw_tstep, set_style
 
 #set seed for reproducibility
@@ -119,10 +119,19 @@ class Simulation():
         self.pop_tracker.update_counts(self.population)
 
         #visualise
-        draw_tstep(self.Config, self.population, self.pop_tracker, self.frame, 
-                   self.fig, self.spec, self.ax1, self.ax2)
-        
-
+        if self.Config.visualise:
+            draw_tstep(self.Config, self.population, self.pop_tracker, self.frame, 
+                       self.fig, self.spec, self.ax1, self.ax2)
+        else:
+            #report stuff to console
+            sys.stdout.write('\r')
+            sys.stdout.write('%i: healthy: %i, infected: %i, immune: %i, in treatment: %i, \
+dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop_tracker.infectious[-1],
+                          self.pop_tracker.recovered[-1], len(self.population[self.population[:,10] == 1]),
+                          self.pop_tracker.fatalities[-1], self.Config.pop_size))
+        #save popdata if required
+        if self.Config.save_pop and (self.frame % self.Config.save_pop_freq) == 0:
+            save_population(self.population, self.frame, self.Config.save_pop_folder)
         #run callback
         self.callback()
 
@@ -145,17 +154,33 @@ class Simulation():
 
 
     def run(self):
-        for t in range(self.Config.simulation_steps):
+        while self.frame < self.Config.simulation_steps:
             try:
                 sim.tstep()
-                sys.stdout.write('\r')
-                sys.stdout.write('%i / %i' %(t, self.Config.simulation_steps))
             except KeyboardInterrupt:
                 print('\nCTRL-C caught, exiting')
                 sys.exit(1)
 
+            #check whether to end if no infecious persons remain.
+            #check if self.frame is above some threshold to prevent early breaking when simulation
+            #starts initially with no infections.
+            if self.Config.endif_no_infections and self.frame >= 500:
+                if len(self.population[(self.population[:,6] == 1) | 
+                                       (self.population[:,6] == 4)]) == 0:
+                    self.frame = self.Config.simulation_steps
+
         if self.Config.save_data:
             save_data(self.population, self.pop_tracker)
+
+        #report outcomes
+        print('\n-----stopping-----\n')
+        print('total dead: %i' %len(self.population[self.population[:,6] == 3]))
+        print('total recovered: %i' %len(self.population[self.population[:,6] == 2]))
+        print('total infected: %i' %len(self.population[self.population[:,6] == 1]))
+        print('total infectious: %i' %len(self.population[(self.population[:,6] == 1) |
+                                                          (self.population[:,6] == 4)]))
+        print('total unaffected: %i' %len(self.population[self.population[:,6] == 0]))
+
 
 
 if __name__ == '__main__':
@@ -175,8 +200,8 @@ if __name__ == '__main__':
     #sim.Config.colorblind_type = 'deuteranopia'
 
     #set reduced interaction
-    sim.Config.set_reduced_interaction()
-    sim.population_init()
+    #sim.Config.set_reduced_interaction()
+    #sim.population_init()
 
     #set lockdown scenario
     #sim.Config.set_lockdown(lockdown_percentage = 0.1, lockdown_compliance = 0.95)

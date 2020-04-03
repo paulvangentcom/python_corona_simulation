@@ -11,7 +11,7 @@ class config_error(Exception):
 class Configuration():
     def __init__(self, *args, **kwargs):
         #simulation variables
-        self.verbose = False #whether to print infections, recoveries and fatalities to the terminal
+        self.verbose = True #whether to print infections, recoveries and fatalities to the terminal
         self.simulation_steps = 10000 #total simulation steps performed
         self.tstep = 0 #current simulation timestep
         self.save_data = False #whether to dump data at end of simulation
