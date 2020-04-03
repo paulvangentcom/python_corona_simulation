@@ -2,7 +2,7 @@
 
 ![covid-19 sim!](images/covidsim.gif)
 
-After seeing [this article](https://www.washingtonpost.com/graphics/2020/world/corona-simulator/) in the Washington Post I started wondering how such simulations might be done in Python, and indeed if I could expand upon the idea to make them more realistic and fun to play with.
+After seeing [this article](https://www.washingtonpost.com/graphics/2020/world/corona-simulator/) in the Washington Post I started wondering how such simulations might be done in Python, and indeed if I could expand upon the idea and make it more realistic.
 
 For a moment I thought about writing the simualation itself in pure Python, with matplotlib as visualisation tool. However for large interacting populations, required computations scale quickly. Speeding up means reducing the operations to vector and matrix computations, something that can be done extremely efficiently through [NumPy](https://numpy.org/), which uses both a fast backend written in C, as well as makes use of hardware acceleration features like SIMD (single instruction, multiple data), which enables many operations on data arrays in relatively few clock cycles.
 
@@ -22,9 +22,6 @@ Aside from that, I've worked with NumPy a lot but felt there was still much to l
 	
 	
 **For reproducibility of all simulations, numpy's seed has been set to '100' unless otherwise specified**
-
-And keep in mind that in no way is there a guarantee that the simulation will be accurate:
-![reality](images/george_e_p_box.jpg)
 
 ## Summary video
 A video highlighting some of the scenarios [can be viewed here](http://www.paulvangent.com/covid/Covid_Compilation_reinfection.mp4)
@@ -92,7 +89,7 @@ However, if the lock down is lifted and a new case is introduced, a potential de
 <img align="center" src="https://github.com/paulvangentcom/python_corona_simulation/blob/master/images/horizontal/lockdown_reinfection.png" alt="image of the simuation">
 </a>
 
-In such a situation repeated lock-downs seem inevitable if the infection keeps returning.
+**In such a situation repeated lock-downs seem inevitable if the infection keeps returning.**
 
 ### Case 'Self-Isolation'
 
@@ -127,25 +124,4 @@ This illustrates the interaction between the density of the population (and thus
 
 
 
-## Simulating Health Care Workers
-But this is not the whole story, as healthcare is staffed by healthcare workers. Once the number of cases explodes, healthcare workers suffer from long working hours. This compromises their immune system and leads to more exposure. Once healthcare workers start getting sick, the already overwhelmed healthcare system reduces in capacity, exacerbating the problems.
-	
-*WORK ONGOING AT THIS POINT*
-
-
-
-# TO-DO
-- [ ] refactor methods away into classes to make codebase less unwieldy
-- [ ] Add CuPy compatibility mode to utilize CUDA (NVidia GPU) for computations
-- [ ] Add NumBa support to speed up simulations without GPU
-- [X] Plot S-I-R parameters
-- [ ] Beautify plotting
-- [ ] Add travel behaviour (work, groceries, school)
-- [ ] Add mechanic where recovered still carry viral load for settable period
-- [ ] Prioritise health care based on risk profiles once capacity is reached
-- [ ] Add Healthcare workers and simulate effects on healthcare effectiveness when they fall ill
-- [ ] Add method for people to become reinfected with settable odds 
-- [ ] Add plotting method that splits outcome according to age
-- [ ] Implement S-I-R modeling to compare to agent-based approach
-- [ ] Add scenario where the elderly are quarantined first when infections happen (u/ColCrabs & u/rataktaktaruken)
-- [ ] Speed up plotting
+![logo](images/Logo_TUDelft.jpg)
