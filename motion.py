@@ -80,9 +80,9 @@ def out_of_bounds(population, xbounds, ybounds):
     return population
 
 
-def update_randoms(population, pop_size, heading_update_chance=0.02, 
+def update_randoms(population, Config, heading_update_chance=0.02, 
                     speed_update_chance=0.02, heading_multiplication=1,
-                    speed_multiplication=1, speed=0.01):
+                    speed_multiplication=1):
     '''updates random states such as heading and speed
     
     Function that randomized the headings and speeds for population members
@@ -115,22 +115,22 @@ def update_randoms(population, pop_size, heading_update_chance=0.02,
 
     #randomly update heading
     #x
-    update = np.random.random(size=(pop_size,))
+    update = np.random.random(size=(Config.pop_size,))
     shp = update[update <= heading_update_chance].shape
     population[:,3][update <= heading_update_chance] = np.random.normal(loc = 0, 
                                                         scale = 1/3,
                                                         size = shp) * heading_multiplication
     #y
-    update = np.random.random(size=(pop_size,))
+    update = np.random.random(size=(Config.pop_size,))
     shp = update[update <= heading_update_chance].shape
     population[:,4][update <= heading_update_chance] = np.random.normal(loc = 0, 
                                                         scale = 1/3,
                                                         size = shp) * heading_multiplication
     #randomize speeds
-    update = np.random.random(size=(pop_size,))
+    update = np.random.random(size=(Config.pop_size,))
     shp = update[update <= heading_update_chance].shape
-    population[:,5][update <= heading_update_chance] = np.random.normal(loc = speed, 
-                                                        scale = speed / 3,
+    population[:,5][update <= heading_update_chance] = np.random.normal(loc = Config.speed, 
+                                                        scale = Config.speed / 3,
                                                         size = shp) * speed_multiplication
 
     population[:,5] = np.clip(population[:,5], a_min=0.0001, a_max=0.05)

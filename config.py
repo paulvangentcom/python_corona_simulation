@@ -53,12 +53,12 @@ class Configuration():
         self.risk_increase = 'quadratic' #whether risk between risk and critical age increases 'linear' or 'quadratic'
         
         #movement variables
-        mean_speed = 0.01 # the mean speed (defined as heading * speed)
-        std_speed = 0.01 / 3 #the standard deviation of the speed parameter
+        #mean_speed = 0.01 # the mean speed (defined as heading * speed)
+        #std_speed = 0.01 / 3 #the standard deviation of the speed parameter
         #the proportion of the population that practices social distancing, simulated
         #by them standing still
         proportion_distancing = 0
-        self.speed = 0.01 #TODO: look up wth this is
+        self.speed = 0.01 #average speed of population
         #when people have an active destination, the wander range defines the area
         #surrounding the destination they will wander upon arriving
         self.wander_range = 0.05

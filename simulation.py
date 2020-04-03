@@ -18,7 +18,7 @@ set_destination_bounds, save_data, Population_trackers
 from visualiser import build_fig, draw_tstep, set_style
 
 #set seed for reproducibility
-np.random.seed(100)
+#np.random.seed(100)
 
 class Simulation():
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
@@ -42,7 +42,7 @@ class Simulation():
 
     def population_init(self):
         '''(re-)initializes population'''
-        self.population = initialize_population(self.Config.pop_size, self.Config.mean_age, 
+        self.population = initialize_population(self.Config, self.Config.mean_age, 
                                                 self.Config.max_age, self.Config.xbounds, 
                                                 self.Config.ybounds)
 
@@ -88,10 +88,10 @@ class Simulation():
                 self.population[:,5][self.Config.lockdown_vector == 0] = 0
             else:
                 #update randoms
-                self.population = update_randoms(self.population, self.Config.pop_size, self.Config.speed)
+                self.population = update_randoms(self.population, self.Config)
         else:
             #update randoms
-            self.population = update_randoms(self.population, self.Config.pop_size, self.Config.speed)
+            self.population = update_randoms(self.population, self.Config)
 
         #for dead ones: set speed and heading to 0
         self.population[:,3:5][self.population[:,6] == 3] = 0
