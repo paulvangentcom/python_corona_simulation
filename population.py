@@ -9,6 +9,7 @@ import os
 import numpy as np
 
 from motion import get_motion_parameters
+from utils import check_folder
 
 def initialize_population(Config, mean_age=45, max_age=105,
                           xbounds=[0, 1], ybounds=[0, 1]):
@@ -157,7 +158,7 @@ def set_destination_bounds(population, destinations, xmin, ymin,
     return population, destinations
 
 
-def save_data(population, infected, fatalities):
+def save_data(population, pop_tracker):
     '''dumps simulation data to disk
 
     Function that dumps the simulation data to specific files on the disk.
@@ -176,10 +177,11 @@ def save_data(population, infected, fatalities):
         the array containing data of fatalities over time
     ''' 
     num_files = len(glob('data/*'))
-    os.makedirs('data/%i' %num_files)
+    check_folder('data/%i' %num_files)
     np.save('data/%i/population.npy' %num_files, population)
-    np.save('data/%i/infected.npy' %num_files, infected)
-    np.save('data/%i/fatalities.npy' %num_files, fatalities)
+    np.save('data/%i/infected.npy' %num_files, pop_tacker.infectious)
+    np.save('data/%i/recovered.npy' %num_files, pop_tracker.recovered)
+    np.save('data/%i/fatalities.npy' %num_files, pop_tracker.fatalities)
 
 
 class Population_trackers():

@@ -154,6 +154,9 @@ class Simulation():
                 print('\nCTRL-C caught, exiting')
                 sys.exit(1)
 
+        if self.Config.save_data:
+            save_data(self.population, self.pop_tracker)
+
 
 if __name__ == '__main__':
 

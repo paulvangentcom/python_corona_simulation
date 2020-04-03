@@ -7,6 +7,7 @@ import matplotlib as mpl
 import numpy as np
 
 from environment import build_hospital
+from utils import check_folder
 
 def set_style(Config):
     '''sets the plot style
@@ -14,6 +15,7 @@ def set_style(Config):
     '''
     if Config.plot_style.lower() == 'dark':
         mpl.style.use('plot_styles/dark.mplstyle')
+
 
 def build_fig(Config, figsize=(5,7)):
     set_style(Config)
@@ -29,6 +31,8 @@ def build_fig(Config, figsize=(5,7)):
     ax2.set_title('number of infected')
     #ax2.set_xlim(0, simulation_steps)
     ax2.set_ylim(0, Config.pop_size + 100)
+
+    #if 
 
     return fig, spec, ax1, ax2
 
@@ -111,4 +115,8 @@ def draw_tstep(Config, population, pop_tracker, frame,
     plt.pause(0.0001)
 
     if Config.save_plot:
-        plt.savefig('render/%i.png' %frame)
+        try:
+            plt.savefig('%s/%i.png' %(Config.plot_path, frame))
+        except:
+            check_folder(Config.plot_path)
+            plt.savefig('%s/%i.png' %(Config.plot_path, frame))

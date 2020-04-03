@@ -36,6 +36,7 @@ class Configuration():
         self.x_plot = [0, 1] 
         self.y_plot = [0, 1]
         self.save_plot = False
+        self.plot_path = 'render/' #folder where plots are saved to
         self.plot_style = 'default' #can be default, dark, ...
         self.colorblind_mode = False
         #if colorblind is enabled, set type of colorblindness
