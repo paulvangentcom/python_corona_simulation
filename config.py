@@ -14,8 +14,10 @@ class Configuration():
         self.verbose = False #whether to print infections, recoveries and fatalities to the terminal
         self.simulation_steps = 10000 #total simulation steps performed
         self.tstep = 0 #current simulation timestep
-        self.save_data = True #whether to dump data
-        self.save_timesteps = True #dumps population data every time step
+        self.save_data = False #whether to dump data at end of simulation
+        self.save_pop = False #whether to save population matrix every 'save_pop_freq' timesteps
+        self.save_pop_freq = 10 #population data will be saved every 'n' timesteps. Default: 10
+        self.save_pop_folder = 'pop_data/' #folder to write population timestep data to
         self.endif_no_infections = True #whether to stop simulation if no infections remain
 
         #scenario flags
