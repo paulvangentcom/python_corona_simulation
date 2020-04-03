@@ -157,6 +157,7 @@ def set_destination_bounds(population, destinations, xmin, ymin,
 
     return population, destinations
 
+
 def save_data(population, infected, fatalities):
     '''dumps simulation data to disk
 

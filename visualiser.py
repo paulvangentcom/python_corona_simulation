@@ -3,12 +3,20 @@ contains all methods for visualisation tasks
 '''
 
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
 
 from environment import build_hospital
 
+def set_style(Config):
+    '''sets the plot style
+    
+    '''
+    if Config.plot_style.lower() == 'dark':
+        mpl.style.use('plot_styles/dark.mplstyle')
 
 def build_fig(Config, figsize=(5,7)):
+    set_style(Config)
     fig = plt.figure(figsize=(5,7))
     spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
 
@@ -28,6 +36,13 @@ def build_fig(Config, figsize=(5,7)):
 def draw_tstep(Config, population, pop_tracker, frame,
                fig, spec, ax1, ax2):
     #construct plot and visualise
+
+    #set plot style
+    set_style(Config)
+
+    #get color palettes
+    palette = Config.get_palette()
+
     spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
     ax1.clear()
     ax2.clear()
@@ -42,16 +57,16 @@ def draw_tstep(Config, population, pop_tracker, frame,
         
     #plot population segments
     healthy = population[population[:,6] == 0][:,1:3]
-    ax1.scatter(healthy[:,0], healthy[:,1], color='gray', s = 2, label='healthy')
+    ax1.scatter(healthy[:,0], healthy[:,1], color=palette[0], s = 2, label='healthy')
     
     infected = population[population[:,6] == 1][:,1:3]
-    ax1.scatter(infected[:,0], infected[:,1], color='red', s = 2, label='infected')
+    ax1.scatter(infected[:,0], infected[:,1], color=palette[1], s = 2, label='infected')
 
     immune = population[population[:,6] == 2][:,1:3]
-    ax1.scatter(immune[:,0], immune[:,1], color='green', s = 2, label='immune')
+    ax1.scatter(immune[:,0], immune[:,1], color=palette[2], s = 2, label='immune')
     
     fatalities = population[population[:,6] == 3][:,1:3]
-    ax1.scatter(fatalities[:,0], fatalities[:,1], color='black', s = 2, label='dead')
+    ax1.scatter(fatalities[:,0], fatalities[:,1], color=palette[3], s = 2, label='dead')
         
     
     #add text descriptors
@@ -79,20 +94,20 @@ def draw_tstep(Config, population, pop_tracker, frame,
         ax2.plot([Config.healthcare_capacity for x in range(len(pop_tracker.infectious))], 
                  color='red', label='healthcare capacity')
 
-    if Config.plot_style.lower() == 'default':
-        ax2.plot(pop_tracker.infectious, color='gray')
-        ax2.plot(pop_tracker.fatalities, color='black', label='fatalities')
-    elif Config.plot_style.lower() == 'sir':
-        ax2.plot(pop_tracker.infectious, color='gray')
-        ax2.plot(pop_tracker.fatalities, color='black', label='fatalities')
-        ax2.plot(pop_tracker.susceptible, color='blue', label='susceptible')
-        ax2.plot(pop_tracker.recovered, color='green', label='recovered')
+    if Config.plot_mode.lower() == 'default':
+        ax2.plot(pop_tracker.infectious, color=palette[1])
+        ax2.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
+    elif Config.plot_mode.lower() == 'sir':
+        ax2.plot(pop_tracker.infectious, color=palette[1])
+        ax2.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
+        ax2.plot(pop_tracker.susceptible, color=palette[0], label='susceptible')
+        ax2.plot(pop_tracker.recovered, color=palette[2], label='recovered')
     else:
         raise ValueError('incorrect plot_style specified, use \'sir\' or \'default\'')
 
     if Config.treatment_dependent_risk:
         ax2.plot(indices, infected_arr[infected_arr >= Config.healthcare_capacity], 
-                    color='red')
+                    color=palette[1])
 
     ax2.legend(loc = 'best', fontsize = 6)
     

@@ -7,6 +7,7 @@ import numpy as np
 class config_error(Exception):
     pass
 
+
 class Configuration():
     def __init__(self, *args, **kwargs):
         #simulation variables
@@ -30,11 +31,16 @@ class Configuration():
         
         #visualisation variables
         self.visualise = False #whether to visualise the simulation 
-        self.plot_style = 'default'
+        self.plot_mode = 'sir' #default or sir
         #size of the simulated world in coordinates
         self.x_plot = [0, 1] 
         self.y_plot = [0, 1]
         self.save_plot = False
+        self.plot_style = 'default' #can be default, dark, ...
+        self.colorblind_mode = False
+        #if colorblind is enabled, set type of colorblindness
+        #available: deuteranopia, protanopia, tritanopia. defauld=deuteranopia
+        self.colorblind_type = 'deuteranopia'
         
         #population variables
         self.pop_size = 2000
@@ -81,6 +87,32 @@ class Configuration():
         self.lockdown_vector = []
         
         
+    def get_palette(self):
+        '''returns appropriate color palette
+
+        Uses config.plot_style to determine which palette to pick, 
+        and changes palette to colorblind mode (config.colorblind_mode)
+        and colorblind type (config.colorblind_type) if required.
+
+        Palette colors are based on
+        https://venngage.com/blog/color-blind-friendly-palette/
+        '''
+
+        #palette colors are: [healthy, infected, immune, dead]
+        palettes = {'regular': {'default': ['gray', 'red', 'green', 'black'],
+                                'dark': ['#404040', '#ff0000', '#00ff00', '#000000']},
+                    'deuteranopia': {'default': ['gray', '#a50f15', '#08519c', 'black'],
+                                     'dark': ['#404040', '#fcae91', '#6baed6', '#000000']},
+                    'protanopia': {'default': ['gray', '#a50f15', '08519c', 'black'],
+                                   'dark': ['#404040', '#fcae91', '#6baed6', '#000000']},
+                    'tritanopia': {'default': ['gray', '#a50f15', '08519c', 'black'],
+                                   'dark': ['#404040', '#fcae91', '#6baed6', '#000000']}
+                    }
+
+        if self.colorblind_mode:
+            return palettes[self.colorblind_type.lower()][self.plot_style]
+        else:
+            return palettes['regular'][self.plot_style]
 
     def get(self, key):
         '''gets key value from config'''
@@ -89,14 +121,17 @@ class Configuration():
         except:
             raise config_error('key %s not present in config' %key)
 
+
     def set(self, key, value):
         '''sets key value in config'''
         self.__dict__[key] = value
+
 
     def read_from_file(self, path):
         '''reads config from filename'''
         #TODO: implement
         pass
+
 
     def set_lockdown(self, lockdown_percentage=0.1, lockdown_compliance=0.9):
         '''sets lockdown to active'''

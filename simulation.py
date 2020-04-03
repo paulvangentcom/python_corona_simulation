@@ -1,3 +1,4 @@
+import os
 import sys
 
 import numpy as np
@@ -14,14 +15,12 @@ from path_planning import go_to_location, set_destination, check_at_destination,
 keep_at_destination, reset_destinations
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data, Population_trackers
-from visualiser import build_fig, draw_tstep
+from visualiser import build_fig, draw_tstep, set_style
 
 #set seed for reproducibility
 np.random.seed(100)
 
 class Simulation():
-    #init, run, visualise
-    
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
     def __init__(self, *args, **kwargs):
         #load default config data
@@ -39,6 +38,8 @@ class Simulation():
         self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
 
         self.fig, self.spec, self.ax1, self.ax2 = build_fig(self.Config)
+
+        #set_style(self.Config)
 
 
     def tstep(self):
@@ -88,7 +89,6 @@ class Simulation():
             #update randoms
             self.population = update_randoms(self.population, self.Config.pop_size, self.Config.speed)
 
-
         #for dead ones: set speed and heading to 0
         self.population[:,3:5][self.population[:,6] == 3] = 0
         
@@ -125,6 +125,7 @@ class Simulation():
         #update frame
         self.frame += 1
 
+
     def callback(self):
         '''placeholder function that can be overwritten.
 
@@ -138,6 +139,7 @@ class Simulation():
             self.population[0][8] = 50
             self.population[0][10] = 1
 
+
     def run(self):
         for t in range(self.Config.simulation_steps):
             try:
@@ -145,7 +147,7 @@ class Simulation():
                 sys.stdout.write('\r')
                 sys.stdout.write('%i / %i' %(t, self.Config.simulation_steps))
             except KeyboardInterrupt:
-                print('\nCTRL-C caught, exciting')
+                print('\nCTRL-C caught, exiting')
                 sys.exit(1)
 
 
@@ -156,6 +158,14 @@ if __name__ == '__main__':
 
     #set number of simulation steps
     sim.Config.simulation_steps = 2000
+
+    #set color mode
+    sim.Config.plot_style = 'default' #can also be dark
+
+    #set colorblind mode if needed
+    #sim.Config.colorblind_mode = True
+    #set colorblind type (default deuteranopia)
+    #sim.Config.colorblind_type = 'deuteranopia'
 
     #run
     sim.run()
