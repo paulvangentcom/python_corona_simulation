@@ -58,7 +58,8 @@ class Simulation():
         if active_dests > 0 and len(self.population[self.population[:,12] == 0]) > 0:
             self.population = set_destination(self.population, self.destinations)
             self.population = check_at_destination(self.population, self.destinations, 
-                                                   wander_factor = self.Config.wander_factor_dest)
+                                                   wander_factor = self.Config.wander_factor_dest,
+                                                   speed = self.Config.speed)
 
         if active_dests > 0 and len(self.population[self.population[:,12] == 1]) > 0:
             #keep them at destination
@@ -88,10 +89,10 @@ class Simulation():
                 self.population[:,5][self.Config.lockdown_vector == 0] = 0
             else:
                 #update randoms
-                self.population = update_randoms(self.population, self.Config)
+                self.population = update_randoms(self.population, self.Config.pop_size, self.Config.speed)
         else:
             #update randoms
-            self.population = update_randoms(self.population, self.Config)
+            self.population = update_randoms(self.population, self.Config.pop_size, self.Config.speed)
 
         #for dead ones: set speed and heading to 0
         self.population[:,3:5][self.population[:,6] == 3] = 0
@@ -122,13 +123,14 @@ class Simulation():
         if self.Config.visualise:
             draw_tstep(self.Config, self.population, self.pop_tracker, self.frame, 
                        self.fig, self.spec, self.ax1, self.ax2)
-        else:
-            #report stuff to console
-            sys.stdout.write('\r')
-            sys.stdout.write('%i: healthy: %i, infected: %i, immune: %i, in treatment: %i, \
+
+        #report stuff to console
+        sys.stdout.write('\r')
+        sys.stdout.write('%i: healthy: %i, infected: %i, immune: %i, in treatment: %i, \
 dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop_tracker.infectious[-1],
-                          self.pop_tracker.recovered[-1], len(self.population[self.population[:,10] == 1]),
-                          self.pop_tracker.fatalities[-1], self.Config.pop_size))
+                        self.pop_tracker.recovered[-1], len(self.population[self.population[:,10] == 1]),
+                        self.pop_tracker.fatalities[-1], self.Config.pop_size))
+
         #save popdata if required
         if self.Config.save_pop and (self.frame % self.Config.save_pop_freq) == 0:
             save_population(self.population, self.frame, self.Config.save_pop_folder)
@@ -147,14 +149,18 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
         '''
 
         if self.frame == 50:
-            print('infecting person')
+            print('\ninfecting person')
             self.population[0][6] = 1
             self.population[0][8] = 50
             self.population[0][10] = 1
 
 
     def run(self):
-        while self.frame < self.Config.simulation_steps:
+        '''run simulation'''
+
+        i = 0
+        
+        while i < self.Config.simulation_steps:
             try:
                 sim.tstep()
             except KeyboardInterrupt:
@@ -167,13 +173,14 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
             if self.Config.endif_no_infections and self.frame >= 500:
                 if len(self.population[(self.population[:,6] == 1) | 
                                        (self.population[:,6] == 4)]) == 0:
-                    self.frame = self.Config.simulation_steps
+                    i = self.Config.simulation_steps
 
         if self.Config.save_data:
             save_data(self.population, self.pop_tracker)
 
         #report outcomes
         print('\n-----stopping-----\n')
+        print('total timesteps taken: %i' %self.frame)
         print('total dead: %i' %len(self.population[self.population[:,6] == 3]))
         print('total recovered: %i' %len(self.population[self.population[:,6] == 2]))
         print('total infected: %i' %len(self.population[self.population[:,6] == 1]))
@@ -189,7 +196,7 @@ if __name__ == '__main__':
     sim = Simulation()
 
     #set number of simulation steps
-    sim.Config.simulation_steps = 2000
+    sim.Config.simulation_steps = 20000
 
     #set color mode
     sim.Config.plot_style = 'default' #can also be dark

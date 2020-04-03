@@ -93,7 +93,7 @@ def set_destination(population, destinations):
     return population
 
 
-def check_at_destination(population, destinations, wander_factor=1.5):
+def check_at_destination(population, destinations, wander_factor=1.5, speed = 0.01):
     '''check who is at their destination already
 
     Takes subset of population with active destination and
@@ -130,7 +130,8 @@ def check_at_destination(population, destinations, wander_factor=1.5):
             #mark those as arrived
             at_dest[:,12] = 1
             #insert random headings and speeds for those at destination
-            at_dest = update_randoms(at_dest, len(at_dest), 1, 1)
+            at_dest = update_randoms(at_dest, pop_size = len(at_dest), speed = speed,
+                                     heading_update_chance = 1, speed_update_chance = 1)
 
             #at_dest[:,5] = 0.001
 

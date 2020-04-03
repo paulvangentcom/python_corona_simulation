@@ -32,7 +32,7 @@ class Configuration():
         self.ybounds = [0.02, 0.98]
         
         #visualisation variables
-        self.visualise = False #whether to visualise the simulation 
+        self.visualise = True #whether to visualise the simulation 
         self.plot_mode = 'sir' #default or sir
         #size of the simulated world in coordinates
         self.x_plot = [0, 1] 
