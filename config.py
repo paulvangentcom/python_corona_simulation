@@ -139,8 +139,8 @@ class Configuration():
         self.lockdown = True
 
         #fraction of the population that will obey the lockdown
-        self.lockdown_compliance = lockdown_compliance
-        self.lockdown_vector = np.zeros((pop_size,))
+        self.lockdown_percentage = lockdown_percentage
+        self.lockdown_vector = np.zeros((self.pop_size,))
         #lockdown vector is 1 for those not complying
-        self.lockdown_vector[np.random.uniform(size=(pop_size,)) >= lockdown_compliance] = 1
+        self.lockdown_vector[np.random.uniform(size=(self.pop_size,)) >= lockdown_compliance] = 1
 

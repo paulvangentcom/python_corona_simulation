@@ -81,7 +81,7 @@ class Simulation():
                 #reduce speed of all members of society
                 self.population[:,5] = np.clip(self.population[:,5], a_min = None, a_max = 0.001)
                 #set speeds of complying people to 0
-                self.population[:,5][self.lockdown_vector == 0] = 0
+                self.population[:,5][self.Config.lockdown_vector == 0] = 0
             else:
                 #update randoms
                 self.population = update_randoms(self.population, self.Config.pop_size, self.Config.speed)
@@ -167,5 +167,8 @@ if __name__ == '__main__':
     #set colorblind type (default deuteranopia)
     #sim.Config.colorblind_type = 'deuteranopia'
 
-    #run
+    #set lockdoan scenario
+    sim.Config.set_lockdown(lockdown_percentage = 0.1, lockdown_compliance = 0.95)
+
+    #run, hold CTRL+C in terminal to end scenario early
     sim.run()
