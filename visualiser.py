@@ -95,4 +95,9 @@ def draw_tstep(Config, population, pop_tracker, frame,
                     color='red')
 
     ax2.legend(loc = 'best', fontsize = 6)
-    #plt.savefig('render/%i.png' %frame)
+    
+    plt.draw()
+    plt.pause(0.0001)
+
+    if Config.save_plot:
+        plt.savefig('render/%i.png' %frame)

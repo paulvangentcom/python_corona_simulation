@@ -15,10 +15,11 @@ class Configuration():
         self.tstep = 0 #current simulation timestep
         self.save_data = True #whether to dump data
         self.save_timesteps = True #dumps population data every time step
+        self.endif_no_infections = True #whether to stop simulation if no infections remain
 
         #scenario flags
         self.traveling_infects = False
-        self.self_isolate = True
+        self.self_isolate = False
         self.lockdown = False
         self.lockdown_percentage = 0.1 #after this proportion is infected, lock-down begins
         self.lockdown_compliance = 0.95 #fraction of the population that will obey the lockdown        
@@ -33,6 +34,7 @@ class Configuration():
         #size of the simulated world in coordinates
         self.x_plot = [0, 1] 
         self.y_plot = [0, 1]
+        self.save_plot = False
         
         #population variables
         self.pop_size = 2000

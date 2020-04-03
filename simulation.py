@@ -114,6 +114,11 @@ class Simulation():
         #update population statistics
         self.pop_tracker.update_counts(self.population)
 
+        #visualise
+        draw_tstep(self.Config, self.population, self.pop_tracker, self.frame, 
+                   self.fig, self.spec, self.ax1, self.ax2)
+        
+
         #run callback
         self.callback()
 
@@ -133,109 +138,24 @@ class Simulation():
             self.population[0][8] = 50
             self.population[0][10] = 1
 
-
-
-def update(frame, population, pop_tracker, destinations, pop_size, infection_range=0.01, 
-           infection_chance=0.03, speed=0.01, recovery_duration=(200, 500), mortality_chance=0.02,
-           xbounds=[0.02, 0.98], ybounds=[0.02, 0.98], x_plot=[0, 1], 
-           y_plot=[0, 1], wander_range=0.05, risk_age=55, 
-           critical_age=75, critical_mortality_chance=0.1,
-           risk_increase='quadratic', no_treatment_factor=3, 
-           treatment_factor=0.5, healthcare_capacity=250, age_dependent_risk=False, 
-           treatment_dependent_risk=False, visualise=False, verbose=False,
-           self_isolate=True, self_isolate_proportion=0.6, isolation_bounds=[0, 0, 0.1, 0.1],
-           traveling_infects=False, lockdown=False, lockdown_percentage=0.1, 
-           lockdown_vector=[], plot_style='default'):
-
-    #add one infection to jumpstart
-    if frame == 50:
-        population[0][6] = 1
-        population[0][8] = 50
-        population[0][10] = 1
-
-
-    if visualise:
-        #construct plot and visualise
-        spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
-        ax1.clear()
-        ax2.clear()
-
-        ax1.set_xlim(x_plot[0], x_plot[1])
-        ax1.set_ylim(y_plot[0], y_plot[1])
-
-        if self_isolate and isolation_bounds != None:
-            build_hospital(isolation_bounds[0], isolation_bounds[2],
-                           isolation_bounds[1], isolation_bounds[3], ax1,
-                           addcross = False)
-        
-        #plot population segments
-        healthy = population[population[:,6] == 0][:,1:3]
-        ax1.scatter(healthy[:,0], healthy[:,1], color='gray', s = 2, label='healthy')
-    
-        infected = population[population[:,6] == 1][:,1:3]
-        ax1.scatter(infected[:,0], infected[:,1], color='red', s = 2, label='infected')
-
-        immune = population[population[:,6] == 2][:,1:3]
-        ax1.scatter(immune[:,0], immune[:,1], color='green', s = 2, label='immune')
-    
-        fatalities = population[population[:,6] == 3][:,1:3]
-        ax1.scatter(fatalities[:,0], fatalities[:,1], color='black', s = 2, label='dead')
-        
-    
-        #add text descriptors
-        ax1.text(x_plot[0], 
-                 y_plot[1] + ((y_plot[1] - y_plot[0]) / 100), 
-                 'timestep: %i, total: %i, healthy: %i infected: %i immune: %i fatalities: %i' %(frame,
-                                                                                              len(population),
-                                                                                              len(healthy), 
-                                                                                              len(infected), 
-                                                                                              len(immune), 
-                                                                                              len(fatalities)),
-                 fontsize=6)
-    
-        ax2.set_title('number of infected')
-        ax2.text(0, pop_size * 0.05, 
-                 'https://github.com/paulvangentcom/python-corona-simulation',
-                 fontsize=6, alpha=0.5)
-        #ax2.set_xlim(0, simulation_steps)
-        ax2.set_ylim(0, pop_size + 200)
-
-        if treatment_dependent_risk:
-            infected_arr = np.asarray(pop_tracker.infectious)
-            indices = np.argwhere(infected_arr >= healthcare_capacity)
-
-            ax2.plot([healthcare_capacity for x in range(len(pop_tracker.infectious))], 
-                     color='red', label='healthcare capacity')
-
-        if plot_style.lower() == 'default':
-            ax2.plot(pop_tracker.infectious, color='gray')
-            ax2.plot(pop_tracker.fatalities, color='black', label='fatalities')
-        elif plot_style.lower() == 'sir':
-            ax2.plot(pop_tracker.infectious, color='gray')
-            ax2.plot(pop_tracker.fatalities, color='black', label='fatalities')
-            ax2.plot(pop_tracker.susceptible, color='blue', label='susceptible')
-            ax2.plot(pop_tracker.recovered, color='green', label='recovered')
-        else:
-            raise ValueError('incorrect plot_style specified, use \'sir\' or \'default\'')
-
-        if treatment_dependent_risk:
-            ax2.plot(indices, infected_arr[infected_arr >= healthcare_capacity], 
-                     color='red')
-
-        ax2.legend(loc = 'best', fontsize = 6)
-        #plt.savefig('render/%i.png' %frame)
-
-    return population
+    def run(self):
+        for t in range(self.Config.simulation_steps):
+            try:
+                sim.tstep()
+                sys.stdout.write('\r')
+                sys.stdout.write('%i / %i' %(t, self.Config.simulation_steps))
+            except KeyboardInterrupt:
+                print('\nCTRL-C caught, exciting')
+                sys.exit(1)
 
 
 if __name__ == '__main__':
 
-    tstep = 2000
-
+    #initialize
     sim = Simulation()
-    
 
-    for t in range(tstep):
-        sim.tstep()
-        sys.stdout.write('\r')
-        sys.stdout.write('%i / %i' %(t, tstep))
+    #set number of simulation steps
+    sim.Config.simulation_steps = 2000
+
+    #run
+    sim.run()
