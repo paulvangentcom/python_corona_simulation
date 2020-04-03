@@ -80,7 +80,7 @@ class Configuration():
 
         #self isolation variables
         self.self_isolate_proportion = 0.6
-        self.isolation_bounds = [0, 0, 0.1, 0.1]
+        self.isolation_bounds = [0.02, 0.02, 0.1, 0.98]
         
         #lockdown variables
         self.lockdown_percentage = 0.1 
@@ -144,3 +144,20 @@ class Configuration():
         #lockdown vector is 1 for those not complying
         self.lockdown_vector[np.random.uniform(size=(self.pop_size,)) >= lockdown_compliance] = 1
 
+
+    def set_self_isolation(self, self_isolate_proportion=0.9,
+                           isolation_bounds = [0.02, 0.02, 0.09, 0.98],
+                           traveling_infects=False):
+        '''sets self-isolation scenario to active'''
+
+        self.self_isolate = True
+        self.isolation_bounds = isolation_bounds
+        self.self_isolate_proportion = self_isolate_proportion
+        #set roaming bounds to outside isolated area
+        self.xbounds = [0.1, 1.1]
+        self.ybounds = [0.02, 0.98]
+        #update plot bounds everything is shown
+        self.x_plot = [0, 1.1]
+        self.y_plot = [0, 1]
+        #update whether traveling agents also infect
+        self.traveling_infects = traveling_infects

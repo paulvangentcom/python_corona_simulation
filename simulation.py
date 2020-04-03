@@ -28,9 +28,7 @@ class Simulation():
         self.frame = 0
 
         #initialize default population
-        self.population = initialize_population(self.Config.pop_size, self.Config.mean_age, 
-                                                self.Config.max_age, self.Config.xbounds, 
-                                                self.Config.ybounds)
+        self.population_init()
 
         self.pop_tracker = Population_trackers()
 
@@ -41,6 +39,12 @@ class Simulation():
 
         #set_style(self.Config)
 
+
+    def population_init(self):
+        '''(re-)initializes population'''
+        self.population = initialize_population(self.Config.pop_size, self.Config.mean_age, 
+                                                self.Config.max_age, self.Config.xbounds, 
+                                                self.Config.ybounds)
 
     def tstep(self):
         '''
@@ -168,7 +172,13 @@ if __name__ == '__main__':
     #sim.Config.colorblind_type = 'deuteranopia'
 
     #set lockdoan scenario
-    sim.Config.set_lockdown(lockdown_percentage = 0.1, lockdown_compliance = 0.95)
+    #sim.Config.set_lockdown(lockdown_percentage = 0.1, lockdown_compliance = 0.95)
+
+    #set self-isolation scenario
+    sim.Config.set_self_isolation(self_isolate_proportion = 0.9,
+                                  isolation_bounds = [0.02, 0.02, 0.09, 0.98],
+                                  traveling_infects=False)
+    sim.population_init() #reinitialize population to enforce new roaming bounds
 
     #run, hold CTRL+C in terminal to end scenario early
     sim.run()
