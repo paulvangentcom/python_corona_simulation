@@ -161,3 +161,11 @@ class Configuration():
         self.y_plot = [0, 1]
         #update whether traveling agents also infect
         self.traveling_infects = traveling_infects
+
+
+    def set_reduced_interaction(self, speed = 0.001):
+        '''sets reduced interaction scenario to active'''
+
+        self.speed = speed
+
+

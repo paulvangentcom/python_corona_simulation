@@ -171,14 +171,18 @@ if __name__ == '__main__':
     #set colorblind type (default deuteranopia)
     #sim.Config.colorblind_type = 'deuteranopia'
 
-    #set lockdoan scenario
+    #set reduced interaction
+    sim.Config.set_reduced_interaction()
+    sim.population_init()
+
+    #set lockdown scenario
     #sim.Config.set_lockdown(lockdown_percentage = 0.1, lockdown_compliance = 0.95)
 
     #set self-isolation scenario
-    sim.Config.set_self_isolation(self_isolate_proportion = 0.9,
-                                  isolation_bounds = [0.02, 0.02, 0.09, 0.98],
-                                  traveling_infects=False)
-    sim.population_init() #reinitialize population to enforce new roaming bounds
+    #sim.Config.set_self_isolation(self_isolate_proportion = 0.9,
+    #                              isolation_bounds = [0.02, 0.02, 0.09, 0.98],
+    #                              traveling_infects=False)
+    #sim.population_init() #reinitialize population to enforce new roaming bounds
 
     #run, hold CTRL+C in terminal to end scenario early
     sim.run()
