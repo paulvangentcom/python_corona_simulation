@@ -19,7 +19,7 @@ class Configuration():
         self.save_pop_freq = kwargs.get('save_pop_freq', 10) #population data will be saved every 'n' timesteps. Default: 10
         self.save_pop_folder = kwargs.get('save_pop_folder', 'pop_data/') #folder to write population timestep data to
         self.endif_no_infections = kwargs.get('endif_no_infections', True) #whether to stop simulation if no infections remain
-        self.world_size = kwargs.get('world_size', [4, 4]) #x and y sizes of the world
+        self.world_size = kwargs.get('world_size', [2, 2]) #x and y sizes of the world
 
 
         #scenario flags

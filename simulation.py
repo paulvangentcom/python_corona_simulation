@@ -36,12 +36,21 @@ class Simulation():
         self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)        
 
 
+    def reinitialise(self):
+        '''reset the simulation'''
+        
+        self.frame = 0
+        self.population_init()
+        self.pop_tracker = Population_trackers()
+        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
+
 
     def population_init(self):
         '''(re-)initializes population'''
         self.population = initialize_population(self.Config, self.Config.mean_age, 
                                                 self.Config.max_age, self.Config.xbounds, 
                                                 self.Config.ybounds)
+
 
     def tstep(self):
         '''
