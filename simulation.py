@@ -159,7 +159,7 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
         '''
 
         if self.frame == 50:
-            print('\ninfecting person')
+            print('\ninfecting patient zero')
             self.population[0][6] = 1
             self.population[0][8] = 50
             self.population[0][10] = 1
