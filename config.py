@@ -19,7 +19,7 @@ class Configuration():
         self.save_pop_freq = kwargs.get('save_pop_freq', 10) #population data will be saved every 'n' timesteps. Default: 10
         self.save_pop_folder = kwargs.get('save_pop_folder', 'pop_data/') #folder to write population timestep data to
         self.endif_no_infections = kwargs.get('endif_no_infections', True) #whether to stop simulation if no infections remain
-        self.worldsize = kwargs.get('worldsize', [4, 4]) #x and y sizes of the world
+        self.world_size = kwargs.get('world_size', [4, 4]) #x and y sizes of the world
 
 
         #scenario flags
@@ -33,8 +33,8 @@ class Configuration():
         self.visualise = kwargs.get('visualise', True) #whether to visualise the simulation 
         self.plot_mode = kwargs.get('plot_mode', 'sir') #default or sir
         #size of the simulated world in coordinates
-        self.x_plot = kwargs.get('x_plot', [0, self.worldsize[0]])
-        self.y_plot = kwargs.get('y_plot', [0, self.worldsize[1]])
+        self.x_plot = kwargs.get('x_plot', [0, self.world_size[0]])
+        self.y_plot = kwargs.get('y_plot', [0, self.world_size[1]])
         self.save_plot = kwargs.get('save_plot', False)
         self.plot_path = kwargs.get('plot_path', 'render/') #folder where plots are saved to
         self.plot_style = kwargs.get('plot_style', 'default') #can be default, dark, ...
