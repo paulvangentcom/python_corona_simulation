@@ -102,10 +102,10 @@ def draw_tstep(Config, population, pop_tracker, frame,
         ax2.plot(pop_tracker.infectious, color=palette[1])
         ax2.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
     elif Config.plot_mode.lower() == 'sir':
-        ax2.plot(pop_tracker.infectious, color=palette[1], label='infectious')
-        ax2.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
         ax2.plot(pop_tracker.susceptible, color=palette[0], label='susceptible')
+        ax2.plot(pop_tracker.infectious, color=palette[1], label='infectious')
         ax2.plot(pop_tracker.recovered, color=palette[2], label='recovered')
+        ax2.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
     else:
         raise ValueError('incorrect plot_style specified, use \'sir\' or \'default\'')
 
