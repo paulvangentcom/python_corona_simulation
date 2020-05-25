@@ -19,6 +19,8 @@ class Configuration():
         self.save_pop_freq = kwargs.get('save_pop_freq', 10) #population data will be saved every 'n' timesteps. Default: 10
         self.save_pop_folder = kwargs.get('save_pop_folder', 'pop_data/') #folder to write population timestep data to
         self.endif_no_infections = kwargs.get('endif_no_infections', True) #whether to stop simulation if no infections remain
+        self.worldsize = kwargs.get('worldsize', [4, 4]) #x and y sizes of the world
+
 
         #scenario flags
         self.traveling_infects = kwargs.get('traveling_infects', False)
@@ -26,17 +28,13 @@ class Configuration():
         self.lockdown = kwargs.get('lockdown', False)
         self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1) #after this proportion is infected, lock-down begins
         self.lockdown_compliance = kwargs.get('lockdown_compliance', 0.95) #fraction of the population that will obey the lockdown        
-
-        #world variables, defines where population can and cannot roam
-        self.xbounds = kwargs.get('xbounds', [0.02, 0.98])
-        self.ybounds = kwargs.get('ybounds', [0.02, 0.98])
         
         #visualisation variables
         self.visualise = kwargs.get('visualise', True) #whether to visualise the simulation 
         self.plot_mode = kwargs.get('plot_mode', 'sir') #default or sir
         #size of the simulated world in coordinates
-        self.x_plot = kwargs.get('x_plot', [0, 1])
-        self.y_plot = kwargs.get('y_plot', [0, 1])
+        self.x_plot = kwargs.get('x_plot', [0, self.worldsize[0]])
+        self.y_plot = kwargs.get('y_plot', [0, self.worldsize[1]])
         self.save_plot = kwargs.get('save_plot', False)
         self.plot_path = kwargs.get('plot_path', 'render/') #folder where plots are saved to
         self.plot_style = kwargs.get('plot_style', 'default') #can be default, dark, ...
@@ -45,6 +43,10 @@ class Configuration():
         #available: deuteranopia, protanopia, tritanopia. defauld=deuteranopia
         self.colorblind_type = kwargs.get('colorblind_type', 'deuteranopia')
         
+        #world variables, defines where population can and cannot roam
+        self.xbounds = kwargs.get('xbounds', [self.x_plot[0] + 0.02, self.x_plot[1] - 0.02])
+        self.ybounds = kwargs.get('ybounds', [self.y_plot[0] + 0.02, self.y_plot[1] - 0.02])    
+    
         #population variables
         self.pop_size = kwargs.get('pop_size', 2000)
         self.mean_age = kwargs.get('mean_age', 45)
