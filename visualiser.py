@@ -120,3 +120,51 @@ def draw_tstep(Config, population, pop_tracker, frame,
         except:
             check_folder(Config.plot_path)
             plt.savefig('%s/%i.png' %(Config.plot_path, frame))
+       
+            
+def plot_sir(Config, pop_tracker, size=(6,3), include_fatalities=False,
+             title='S-I-R plot of simulation'):
+    '''plots S-I-R parameters in the population tracker
+    
+    Keyword arguments
+    -----------------
+    Config : class
+        the configuration class
+        
+    pop_tracker : ndarray
+        the population tracker, containing
+        
+    size : tuple
+        size at which the plot will be initialised (default: (6,3))
+        
+    include_fatalities : bool
+        whether to plot the fatalities as well (default: False) 
+    '''
+    
+    #set plot style
+    set_style(Config)
+
+    #get color palettes
+    palette = Config.get_palette()
+    
+    #plot the thing
+    plt.figure(figsize=size)
+    plt.title(title)    
+    plt.plot(pop_tracker.susceptible, color=palette[0], label='susceptible')
+    plt.plot(pop_tracker.infectious, color=palette[1], label='infectious')
+    plt.plot(pop_tracker.recovered, color=palette[2], label='recovered')
+    if include_fatalities:
+        plt.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
+        
+    #add axis labels
+    plt.xlabel('time in hours')
+    plt.ylabel('population')
+    
+    #add legend
+    plt.legend()
+    
+    #beautify
+    plt.tight_layout()
+    
+    #initialise
+    plt.show()

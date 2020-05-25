@@ -15,7 +15,7 @@ from path_planning import go_to_location, set_destination, check_at_destination,
 keep_at_destination, reset_destinations
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data, save_population, Population_trackers
-from visualiser import build_fig, draw_tstep, set_style
+from visualiser import build_fig, draw_tstep, set_style, plot_sir
 
 #set seed for reproducibility
 #np.random.seed(100)
@@ -33,11 +33,8 @@ class Simulation():
         self.pop_tracker = Population_trackers()
 
         #initalise destinations vector
-        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
+        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)        
 
-        self.fig, self.spec, self.ax1, self.ax2 = build_fig(self.Config)
-
-        #set_style(self.Config)
 
 
     def population_init(self):
@@ -50,6 +47,10 @@ class Simulation():
         '''
         takes a time step in the simulation
         '''
+        
+        if self.frame == 0 and self.Config.visualise:
+            #initialize figure
+            self.fig, self.spec, self.ax1, self.ax2 = build_fig(self.Config)
 
         #check destinations if active
         #define motion vectors if destinations active and not everybody is at destination
@@ -187,6 +188,12 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
         print('total infectious: %i' %len(self.population[(self.population[:,6] == 1) |
                                                           (self.population[:,6] == 4)]))
         print('total unaffected: %i' %len(self.population[self.population[:,6] == 0]))
+        
+
+    def plot_sir(self, size=(6,3), include_fatalities=False, 
+                 title='S-I-R plot of simulation'):
+        plot_sir(self.Config, self.pop_tracker, size, include_fatalities,
+                 title)
 
 
 
