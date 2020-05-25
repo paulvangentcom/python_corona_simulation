@@ -11,83 +11,83 @@ class config_error(Exception):
 class Configuration():
     def __init__(self, *args, **kwargs):
         #simulation variables
-        self.verbose = True #whether to print infections, recoveries and fatalities to the terminal
-        self.simulation_steps = 10000 #total simulation steps performed
-        self.tstep = 0 #current simulation timestep
-        self.save_data = False #whether to dump data at end of simulation
-        self.save_pop = False #whether to save population matrix every 'save_pop_freq' timesteps
-        self.save_pop_freq = 10 #population data will be saved every 'n' timesteps. Default: 10
-        self.save_pop_folder = 'pop_data/' #folder to write population timestep data to
-        self.endif_no_infections = True #whether to stop simulation if no infections remain
+        self.verbose = kwargs.get('verbose', True) #whether to print infections, recoveries and fatalities to the terminal
+        self.simulation_steps = kwargs.get('simulation_steps', 10000) #total simulation steps performed
+        self.tstep = kwargs.get('tstep', 0) #current simulation timestep
+        self.save_data = kwargs.get('save_data', False) #whether to dump data at end of simulation
+        self.save_pop = kwargs.get('save_pop', False) #whether to save population matrix every 'save_pop_freq' timesteps
+        self.save_pop_freq = kwargs.get('save_pop_freq', 10) #population data will be saved every 'n' timesteps. Default: 10
+        self.save_pop_folder = kwargs.get('save_pop_folder', 'pop_data/') #folder to write population timestep data to
+        self.endif_no_infections = kwargs.get('endif_no_infections', True) #whether to stop simulation if no infections remain
 
         #scenario flags
-        self.traveling_infects = False
-        self.self_isolate = False
-        self.lockdown = False
-        self.lockdown_percentage = 0.1 #after this proportion is infected, lock-down begins
-        self.lockdown_compliance = 0.95 #fraction of the population that will obey the lockdown        
+        self.traveling_infects = kwargs.get('traveling_infects', False)
+        self.self_isolate = kwargs.get('self_isolate', False)
+        self.lockdown = kwargs.get('lockdown', False)
+        self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1) #after this proportion is infected, lock-down begins
+        self.lockdown_compliance = kwargs.get('lockdown_compliance', 0.95) #fraction of the population that will obey the lockdown        
 
         #world variables, defines where population can and cannot roam
-        self.xbounds = [0.02, 0.98]
-        self.ybounds = [0.02, 0.98]
+        self.xbounds = kwargs.get('xbounds', [0.02, 0.98])
+        self.ybounds = kwargs.get('ybounds', [0.02, 0.98])
         
         #visualisation variables
-        self.visualise = True #whether to visualise the simulation 
-        self.plot_mode = 'sir' #default or sir
+        self.visualise = kwargs.get('visualise', True) #whether to visualise the simulation 
+        self.plot_mode = kwargs.get('plot_mode', 'sir') #default or sir
         #size of the simulated world in coordinates
-        self.x_plot = [0, 1] 
-        self.y_plot = [0, 1]
-        self.save_plot = False
-        self.plot_path = 'render/' #folder where plots are saved to
-        self.plot_style = 'default' #can be default, dark, ...
-        self.colorblind_mode = False
+        self.x_plot = kwargs.get('x_plot', [0, 1])
+        self.y_plot = kwargs.get('y_plot', [0, 1])
+        self.save_plot = kwargs.get('save_plot', False)
+        self.plot_path = kwargs.get('plot_path', 'render/') #folder where plots are saved to
+        self.plot_style = kwargs.get('plot_style', 'default') #can be default, dark, ...
+        self.colorblind_mode = kwargs.get('colorblind_mode', False)
         #if colorblind is enabled, set type of colorblindness
         #available: deuteranopia, protanopia, tritanopia. defauld=deuteranopia
-        self.colorblind_type = 'deuteranopia'
+        self.colorblind_type = kwargs.get('colorblind_type', 'deuteranopia')
         
         #population variables
-        self.pop_size = 2000
-        self.mean_age = 45
-        self.max_age = 105
-        self.age_dependent_risk = True #whether risk increases with age
-        self.risk_age = 55 #age where mortality risk starts increasing
-        self.critical_age = 75 #age at and beyond which mortality risk reaches maximum
-        self.critical_mortality_chance = 0.1 #maximum mortality risk for older age
-        self.risk_increase = 'quadratic' #whether risk between risk and critical age increases 'linear' or 'quadratic'
+        self.pop_size = kwargs.get('pop_size', 2000)
+        self.mean_age = kwargs.get('mean_age', 45)
+        self.max_age = kwargs.get('max_age', 105)
+        self.age_dependent_risk = kwargs.get('age_dependent_risk', True) #whether risk increases with age
+        self.risk_age = kwargs.get('risk_age', 55) #age where mortality risk starts increasing
+        self.critical_age = kwargs.get('critical_age', 75) #age at and beyond which mortality risk reaches maximum
+        self.critical_mortality_chance = kwargs.get('critical_mortality_chance', 0.1) #maximum mortality risk for older age
+        self.risk_increase = kwargs.get('risk_increase', 'quadratic') #whether risk between risk and critical age increases 'linear' or 'quadratic'
         
         #movement variables
         #mean_speed = 0.01 # the mean speed (defined as heading * speed)
         #std_speed = 0.01 / 3 #the standard deviation of the speed parameter
         #the proportion of the population that practices social distancing, simulated
         #by them standing still
-        proportion_distancing = 0
-        self.speed = 0.01 #average speed of population
+        self.proportion_distancing = kwargs.get('proportion_distancing', 0)
+        self.speed = kwargs.get('speed', 0.01) #average speed of population
         #when people have an active destination, the wander range defines the area
         #surrounding the destination they will wander upon arriving
-        self.wander_range = 0.05
-        self.wander_factor = 1 
-        self.wander_factor_dest = 1.5 #area around destination
+        self.wander_range = kwargs.get('wander_range', 0.05)
+        self.wander_factor = kwargs.get('wander_factor', 1) 
+        self.wander_factor_dest = kwargs.get('wander_factor_dest', 1.5) #area around destination
 
         #infection variables
-        self.infection_range=0.01 #range surrounding sick patient that infections can take place
-        self.infection_chance=0.03   #chance that an infection spreads to nearby healthy people each tick
-        self.recovery_duration=(200, 500) #how many ticks it may take to recover from the illness
-        self.mortality_chance=0.02 #global baseline chance of dying from the disease
+        self.infection_range = kwargs.get('infection_range', 0.01) #range surrounding sick patient that infections can take place
+        self.infection_chance = kwargs.get('infection_chance', 0.03)   #chance that an infection spreads to nearby healthy people each tick
+        self.recovery_duration = kwargs.get('recovery_duration', (200, 500)) #how many ticks it may take to recover from the illness
+        self.mortality_chance = kwargs.get('mortality_chance', 0.02) #global baseline chance of dying from the disease
 
         #healthcare variables
-        self.healthcare_capacity = 300 #capacity of the healthcare system
-        self.treatment_factor = 0.5 #when in treatment, affect risk by this factor
-        self.no_treatment_factor = 3 #risk increase factor to use if healthcare system is full
+        self.healthcare_capacity = kwargs.get('healthcare_capacity', 300) #capacity of the healthcare system
+        self.treatment_factor = kwargs.get('treatment_factor', 0.5) #when in treatment, affect risk by this factor
+        self.no_treatment_factor = kwargs.get('no_treatment_factor', 3) #risk increase factor to use if healthcare system is full
         #risk parameters
-        self.treatment_dependent_risk = True #whether risk is affected by treatment
+        self.treatment_dependent_risk = kwargs.get('treatment_dependent_risk', True) #whether risk is affected by treatment
 
         #self isolation variables
-        self.self_isolate_proportion = 0.6
-        self.isolation_bounds = [0.02, 0.02, 0.1, 0.98]
+        self.self_isolate_proportion = kwargs.get('self_isolate_proportion', 0.6)
+        self.isolation_bounds = kwargs.get('isolation_bounds', [0.02, 0.02, 0.1, 0.98])
         
         #lockdown variables
-        self.lockdown_percentage = 0.1 
-        self.lockdown_vector = []
+        self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1) 
+        self.lockdown_vector = kwargs.get('lockdown_vector', [])
         
         
     def get_palette(self):

@@ -24,7 +24,7 @@ class Simulation():
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
     def __init__(self, *args, **kwargs):
         #load default config data
-        self.Config = Configuration()
+        self.Config = Configuration(*args, **kwargs)
         self.frame = 0
 
         #initialize default population
