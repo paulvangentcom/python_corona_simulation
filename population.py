@@ -8,7 +8,7 @@ import os
 
 import numpy as np
 
-from motion import get_motion_parameters
+from motion import get_motion_parameters, ray_trace_polygon
 from utils import check_folder
 
 def initialize_population(Config, mean_age=45, max_age=105,
@@ -235,3 +235,78 @@ class Population_trackers():
             self.susceptible.append(pop_size - (self.infectious[-1] +
                                                 self.recovered[-1] +
                                                 self.fatalities[-1]))
+            
+        
+def populate_provinces(country, population, spread=[1.0]):
+    '''places population starting positions within provinces
+    
+    
+    Keyword arguments
+    -----------------
+    country : dict
+        dict object containing all provinces with revised coordinates
+        
+    population : ndarray
+        the array containing all the population information
+        
+    spread : list or ndarray
+        contains information on how to spread population across provinces. 
+        Must be same length as number of provinces.
+        
+        Can be:
+        -- list of floats: must have sum 1, will divide population across 
+           provinces according to these proportions
+        -- list of ints: must have sum equal to Config.pop_size. Will divide
+           across provinces according to absolute counts indicated.
+    
+    '''
+    
+    assert len(country) == len(spread), 'error: number of provinces in country needs \
+to equal lengh of "spread"!'
+
+    if type(spread[0]) == float:
+        #do something with proportions
+        assert sum(spread) == 1, 'error: when using proportions, "spread" needs to equal 1'
+        
+        st_idx = 0
+        i = 0
+        for province in country.keys():
+            prov_x = [np.min(country[province][:,0]), np.max(country[province][:,0])]
+            prov_y = [np.min(country[province][:,1]), np.max(country[province][:,1])]
+            
+            print(prov_x)
+            print(prov_y)
+            
+            #slice pop
+            sliced = population[st_idx:st_idx + int(len(population) * spread[i])]
+            to_change = sliced[~ray_trace_polygon(sliced[:,1], sliced[:,2], country[province])]
+                       
+            while len(to_change) > 0:
+                #keep generating new random coords for those outside bounds until all are in
+                #determine who is out of bounds
+                mask = ~ray_trace_polygon(sliced[:,1], sliced[:,2], country[province])
+                to_change = sliced[mask]
+                
+                #generate new random coordinates for those out of bounds
+                x_coords = (np.ptp(prov_x) * np.random.random(size=(len(to_change)))) + prov_x[0]
+                y_coords = (np.ptp(prov_y) * np.random.random(size=(len(to_change)))) + prov_y[0]
+                
+                #re-insert coordinates
+                to_change[:,1] = x_coords
+                to_change[:,2] = y_coords
+                sliced[mask] = to_change
+                
+            #reinsert into population
+            population[st_idx:st_idx + int(len(population) * spread[i])] = sliced
+            
+            #set start index to slice length minus 1
+            st_idx = len(sliced) - 1        
+                
+    elif type(spread[0]) == int:
+        #do something with absolute numbers
+        assert sum(spread) == len(population), 'error: length of population table is different \
+from the sum of "spread", these need to match!'
+        
+        pass
+    
+    return population
