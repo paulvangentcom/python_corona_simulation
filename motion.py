@@ -48,16 +48,16 @@ def out_of_bounds(population, xbounds, ybounds):
                             (population[:,3] < 0)].shape
     population[:,3][(population[:,1] <= xbounds[:,0]) &
                     (population[:,3] < 0)] = np.clip(np.random.normal(loc = 0.5, 
-                                                                        scale = 0.5/3,
-                                                                        size = shp),
+                                                                      scale = 0.5/3,
+                                                                      size = shp),
                                                         a_min = 0.05, a_max = 1)
 
     shp = population[:,3][(population[:,1] >= xbounds[:,1]) &
                             (population[:,3] > 0)].shape
     population[:,3][(population[:,1] >= xbounds[:,1]) &
                     (population[:,3] > 0)] = np.clip(-np.random.normal(loc = 0.5, 
-                                                                        scale = 0.5/3,
-                                                                        size = shp),
+                                                                       scale = 0.5/3,
+                                                                       size = shp),
                                                         a_min = -1, a_max = -0.05)
 
     #update y heading
@@ -65,19 +65,65 @@ def out_of_bounds(population, xbounds, ybounds):
                             (population[:,4] < 0)].shape
     population[:,4][(population[:,2] <= ybounds[:,0]) &
                     (population[:,4] < 0)] = np.clip(np.random.normal(loc = 0.5, 
-                                                                        scale = 0.5/3,
-                                                                        size = shp),
+                                                                      scale = 0.5/3,
+                                                                      size = shp),
                                                         a_min = 0.05, a_max = 1)
 
     shp = population[:,4][(population[:,2] >= ybounds[:,1]) &
                             (population[:,4] > 0)].shape
     population[:,4][(population[:,2] >= ybounds[:,1]) &
                     (population[:,4] > 0)] = np.clip(-np.random.normal(loc = 0.5, 
-                                                                        scale = 0.5/3,
-                                                                        size = shp),
+                                                                       scale = 0.5/3,
+                                                                       size = shp),
                                                         a_min = -1, a_max = -0.05)
 
     return population
+
+
+def out_of_bounds_polygon(population, polygon):
+    '''checks who is outside of the given polygon and adjusts their heading
+    
+    '''
+    #find those outside 
+    mask = ~ray_trace_polygon(population[:,1], 
+                              population[:,2], 
+                              polygon)   
+    
+    outside = population[mask]
+
+    
+    #define size of polygon
+    x_scale = np.ptp(polygon[:,0])
+    y_scale = np.ptp(polygon[:,1])
+    
+    #define random points around mean of polygon on x/y
+    x_mean = np.min(polygon[:,0]) + (x_scale / 2)
+    y_mean = np.min(polygon[:,1]) + (y_scale / 2)
+    
+    #x_dests = np.clip(np.random.normal(loc = x_mean,
+    #                                   scale = x_scale / 3,
+    #                                   size = len(outside)),
+    #                  a_min = -1, a_max = 1)
+    
+    #y_dests = np.clip(np.random.normal(loc = y_mean,
+    #                                   scale = y_scale / 3,
+    #                                   size = len(outside)),
+    #                  a_min = -1, a_max = 1)
+
+    
+    x_dests = np.clip(((x_mean + x_scale / 2) - (x_mean - x_scale / 2)) * np.random.random(size = len(outside)) + (x_mean - x_scale / 2),
+                      a_min = -1, a_max = 1)
+    
+    y_dests = np.clip(((y_mean + y_scale / 2) - (y_mean - y_scale / 2)) * np.random.random(size = len(outside)) + (y_mean - y_scale / 2),
+                      a_min = -1, a_max = 1)
+
+    
+    outside[:,3] = x_dests - outside[:,1] #heading x
+    outside[:,4] = y_dests - outside[:,2] #headings y
+    
+    population[mask] = outside
+    
+    return population   
 
 
 def update_randoms(population, pop_size, speed=0.01, heading_update_chance=0.02, 

@@ -86,7 +86,7 @@ def set_destination(population, destinations):
         population[:,4][(population[:,11] == d) &
                         (population[:,12] == 0)] = head_y[(population[:,11] == d) &
                                                             (population[:,12] == 0)]
-        #set speed to 0.01
+        #set speed to 0.02
         population[:,5][(population[:,11] == d) &
                         (population[:,12] == 0)] = 0.02
 

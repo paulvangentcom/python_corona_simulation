@@ -19,7 +19,7 @@ class Configuration():
         self.save_pop_freq = kwargs.get('save_pop_freq', 10) #population data will be saved every 'n' timesteps. Default: 10
         self.save_pop_folder = kwargs.get('save_pop_folder', 'pop_data/') #folder to write population timestep data to
         self.endif_no_infections = kwargs.get('endif_no_infections', True) #whether to stop simulation if no infections remain
-        self.world_size = kwargs.get('world_size', [2, 2]) #x and y sizes of the world
+        self.world_size = kwargs.get('world_size', [1, 1]) #x and y sizes of the world
 
 
         #scenario flags
@@ -45,7 +45,10 @@ class Configuration():
         
         #world variables, defines where population can and cannot roam
         self.xbounds = kwargs.get('xbounds', [self.x_plot[0] + 0.02, self.x_plot[1] - 0.02])
-        self.ybounds = kwargs.get('ybounds', [self.y_plot[0] + 0.02, self.y_plot[1] - 0.02])    
+        self.ybounds = kwargs.get('ybounds', [self.y_plot[0] + 0.02, self.y_plot[1] - 0.02])  
+        
+        #whether population resides inside polygons, or whether just a square grid
+        self.polygons = kwargs.get('polygons', False)  
     
         #population variables
         self.pop_size = kwargs.get('pop_size', 2000)
@@ -92,6 +95,16 @@ class Configuration():
         self.lockdown_vector = kwargs.get('lockdown_vector', [])
         
         
+    def update_worldsize(self):
+        '''update variables when worldsize changes'''
+        
+        self.x_plot = [0, self.world_size[0]]
+        self.y_plot = [0, self.world_size[1]]
+        
+        self.xbounds = [self.x_plot[0] + 0.02, self.x_plot[1] - 0.02]
+        self.ybounds = [self.y_plot[0] + 0.02, self.y_plot[1] - 0.02]
+
+
     def get_palette(self):
         '''returns appropriate color palette
 

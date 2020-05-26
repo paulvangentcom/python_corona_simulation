@@ -6,15 +6,16 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 from config import Configuration, config_error
-from environment import build_hospital
+from environment import build_hospital, load_province_data, build_country
 from infection import find_nearby, infect, recover_or_die, compute_mortality,\
 healthcare_infection_correction
 from motion import update_positions, out_of_bounds, update_randoms,\
-get_motion_parameters
+get_motion_parameters, out_of_bounds_polygon
 from path_planning import go_to_location, set_destination, check_at_destination,\
 keep_at_destination, reset_destinations
 from population import initialize_population, initialize_destination_matrix,\
-set_destination_bounds, save_data, save_population, Population_trackers
+set_destination_bounds, save_data, save_population, Population_trackers,\
+ray_trace_polygon, populate_provinces
 from visualiser import build_fig, draw_tstep, set_style, plot_sir
 
 #set seed for reproducibility
@@ -33,7 +34,12 @@ class Simulation():
         self.pop_tracker = Population_trackers()
 
         #initalise destinations vector
-        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)        
+        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)   
+        
+        #check if country is simulated
+        if self.Config.polygons:
+            #call whatever function to load the custom polygons here
+            self.build_netherlands()
 
 
     def reinitialise(self):
@@ -79,10 +85,17 @@ class Simulation():
         #out of bounds
         #define bounds arrays, excluding those who are marked as having a custom destination
         if len(self.population[:,11] == 0) > 0:
-            _xbounds = np.array([[self.Config.xbounds[0] + 0.02, self.Config.xbounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
-            _ybounds = np.array([[self.Config.ybounds[0] + 0.02, self.Config.ybounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
-            self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0], 
-                                                                        _xbounds, _ybounds)
+            if self.Config.polygons:
+                #loop over polygons to see whether any are outside
+                self.population[self.population[:,11] == 0] = out_of_bounds_polygon(self.population,
+                                                                                    self.Config.country['noordholland'])
+            else:
+                #check whether outside plotting area
+                _xbounds = np.array([[self.Config.xbounds[0] + 0.02, self.Config.xbounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
+                _ybounds = np.array([[self.Config.ybounds[0] + 0.02, self.Config.ybounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
+                self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0], 
+                                                                            _xbounds, _ybounds)
+            
         
         #set randoms
         if self.Config.lockdown:
@@ -203,13 +216,40 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
                  title='S-I-R plot of simulation'):
         plot_sir(self.Config, self.pop_tracker, size, include_fatalities,
                  title)
+        
+        
+    def build_netherlands(self):
+        '''example function to simulate country dynamics.
+        
+        Function that builds provinces of the Netherlands, distributes the population amongst
+        them, and updates the visualisation
+        
+        '''
+        
+        self.Config.world_size = [1, 1]
+        self.Config.update_worldsize()
+        
+        #load the provided province data
+        self.Config.provinces = load_province_data()
+        #use province data to build the country
+        #note the province_origins dict, that determines where on the canvas they are placed
+        self.Config.province_origins = {}
+        self.Config.province_origins['noordholland'] = [0, 1] 
+        self.Config.country = build_country(self.Config.provinces, self.Config.province_origins)
+        
+        #divide population amongst provinces
+        self.population = populate_provinces(self.Config, self.population, spread=[1.0])
+        
+        #build province bounds
+        
 
 
 
 if __name__ == '__main__':
 
     #initialize
-    sim = Simulation()
+    sim = Simulation(polygons = True,
+                     pop_size = 500)
 
     #set number of simulation steps
     sim.Config.simulation_steps = 20000

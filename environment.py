@@ -110,6 +110,6 @@ def build_country(provinces, province_origins={}):
         prov[:,1] += province_origins[province][1]
         #place province based on center
         
-        country[province] = np.copy(prov)
+        country[province] = prov
     
     return country

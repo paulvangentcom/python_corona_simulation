@@ -237,14 +237,14 @@ class Population_trackers():
                                                 self.fatalities[-1]))
             
         
-def populate_provinces(country, population, spread=[1.0]):
+def populate_provinces(Config, population, spread=[1.0]):
     '''places population starting positions within provinces
     
     
     Keyword arguments
     -----------------
-    country : dict
-        dict object containing all provinces with revised coordinates
+    Config : class
+        the config class object
         
     population : ndarray
         the array containing all the population information
@@ -261,7 +261,7 @@ def populate_provinces(country, population, spread=[1.0]):
     
     '''
     
-    assert len(country) == len(spread), 'error: number of provinces in country needs \
+    assert len(Config.country) == len(spread), 'error: number of provinces in country needs \
 to equal lengh of "spread"!'
 
     if type(spread[0]) == float:
@@ -270,21 +270,18 @@ to equal lengh of "spread"!'
         
         st_idx = 0
         i = 0
-        for province in country.keys():
-            prov_x = [np.min(country[province][:,0]), np.max(country[province][:,0])]
-            prov_y = [np.min(country[province][:,1]), np.max(country[province][:,1])]
-            
-            print(prov_x)
-            print(prov_y)
+        for province in Config.country.keys():
+            prov_x = [np.min(Config.country[province][:,0]), np.max(Config.country[province][:,0])]
+            prov_y = [np.min(Config.country[province][:,1]), np.max(Config.country[province][:,1])]
             
             #slice pop
             sliced = population[st_idx:st_idx + int(len(population) * spread[i])]
-            to_change = sliced[~ray_trace_polygon(sliced[:,1], sliced[:,2], country[province])]
+            to_change = sliced[~ray_trace_polygon(sliced[:,1], sliced[:,2], Config.country[province])]
                        
             while len(to_change) > 0:
                 #keep generating new random coords for those outside bounds until all are in
                 #determine who is out of bounds
-                mask = ~ray_trace_polygon(sliced[:,1], sliced[:,2], country[province])
+                mask = ~ray_trace_polygon(sliced[:,1], sliced[:,2], Config.country[province])
                 to_change = sliced[mask]
                 
                 #generate new random coordinates for those out of bounds

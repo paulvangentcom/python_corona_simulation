@@ -57,7 +57,12 @@ def draw_tstep(Config, population, pop_tracker, frame,
     if Config.self_isolate and Config.isolation_bounds != None:
         build_hospital(Config.isolation_bounds[0], Config.isolation_bounds[2],
                        Config.isolation_bounds[1], Config.isolation_bounds[3], ax1,
-                       addcross = False)
+                       addcross = False)     
+        
+    if Config.polygons:
+        for province in Config.country:
+            polygon = Config.country[province]
+            ax1.plot(polygon[:,0], polygon[:,1], color='black')
         
     #plot population segments
     healthy = population[population[:,6] == 0][:,1:3]
@@ -121,6 +126,14 @@ def draw_tstep(Config, population, pop_tracker, frame,
             check_folder(Config.plot_path)
             plt.savefig('%s/%i.png' %(Config.plot_path, frame))
        
+            
+def plot_polygons(polygons, color='black'):
+    '''plots the passed polygons to the simuation canvas
+    
+    '''
+    
+    
+            
             
 def plot_sir(Config, pop_tracker, size=(6,3), include_fatalities=False,
              title='S-I-R plot of simulation'):
