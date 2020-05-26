@@ -157,3 +157,56 @@ def get_motion_parameters(xmin, ymin, xmax, ymax):
     y_wander = (ymax - ymin) / 2
 
     return x_center, y_center, x_wander, y_wander
+
+
+def ray_trace_polygon(x,y,poly):
+    '''find who is inside or outside polygon
+    
+    Function that determines which population members are inside or
+    outside the polygon (province) in a fast way analogous to ray tracing.
+    
+    Adapted from https://stackoverflow.com/a/57999874
+    
+    Keyword arguments
+    -----------------
+    x : int, float, ndarray
+        x position(s) of population
+        
+    y : int, float, ndarray
+        y position(s) of population
+        
+    poly : ndarray
+        points describing the polygon. Lower point counts
+        dramatically affect performance, especially on larger populations
+        
+    Returns
+    -------
+    mask : ndarray
+        ndarray containing boolean values, true for those inside, 
+        false for those outside polygon.
+    '''
+    
+    n = len(poly)
+    inside = np.zeros(len(x),np.bool_)
+    p2x = 0.0
+    p2y = 0.0
+    xints = 0.0
+    p1x,p1y = poly[0]
+    
+    for i in range(n+1):
+        p2x,p2y = poly[i % n]
+        idx = np.nonzero((y > min(p1y,p2y)) & (y <= max(p1y,p2y)) & (x <= max(p1x,p2x)))[0]
+    
+        if p1y != p2y:
+            xints = (y[idx] - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+        
+        if p1x == p2x:
+            inside[idx] = ~inside[idx]
+        
+        else:
+            idxx = idx[x[idx] <= xints]
+            inside[idxx] = ~inside[idxx]    
+
+        p1x,p1y = p2x,p2y
+    
+    return inside   
