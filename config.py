@@ -21,7 +21,6 @@ class Configuration():
         self.endif_no_infections = kwargs.get('endif_no_infections', True) #whether to stop simulation if no infections remain
         self.world_size = kwargs.get('world_size', [1, 1]) #x and y sizes of the world
 
-
         #scenario flags
         self.traveling_infects = kwargs.get('traveling_infects', False)
         self.self_isolate = kwargs.get('self_isolate', False)
@@ -70,7 +69,7 @@ class Configuration():
         #when people have an active destination, the wander range defines the area
         #surrounding the destination they will wander upon arriving
         self.wander_range = kwargs.get('wander_range', 0.05)
-        self.wander_factor = kwargs.get('wander_factor', 1) 
+        self.wander_factor = kwargs.get('wander_factor', 1)
         self.wander_factor_dest = kwargs.get('wander_factor_dest', 1.5) #area around destination
 
         #infection variables
@@ -91,7 +90,7 @@ class Configuration():
         self.isolation_bounds = kwargs.get('isolation_bounds', [0.02, 0.02, 0.1, 0.98])
         
         #lockdown variables
-        self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1) 
+        self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1)
         self.lockdown_vector = kwargs.get('lockdown_vector', [])
         
         
