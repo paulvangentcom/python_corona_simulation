@@ -74,7 +74,7 @@ class Configuration():
         self.infection_range = kwargs.get('infection_range', 0.01) #range surrounding sick patient that infections can take place
         self.infection_chance = kwargs.get('infection_chance', 0.03)   #chance that an infection spreads to nearby healthy people each tick
         self.recovery_duration = kwargs.get('recovery_duration', (200, 500)) #how many ticks it may take to recover from the illness
-        self.mortality_chance = kwargs.get('mortality_chance', 0.02) #global baseline chance of dying from the disease
+        self.mortality_chance = kwargs.get('mortality_chance', 0.1) #global baseline chance of dying from the disease (if symptoms are severe)
 
         #healthcare variables
         self.healthcare_capacity = kwargs.get('healthcare_capacity', 300) #capacity of the healthcare system
