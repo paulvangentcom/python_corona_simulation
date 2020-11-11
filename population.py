@@ -33,8 +33,7 @@ def initialize_population(Config, mean_age=45, max_age=105,
     13 : wander_range_x : wander ranges on x axis for those who are confined to a location
     14 : wander_range_y : wander ranges on y axis for those who are confined to a location
     15 : symptoms severity (0=asymptomatic, 1=mild, 2=severe)
-    16 : in quarantine
-    17 : tested (1 if tested in current state, else 0)
+    16 : tested (1 if tested in current state, else 0)
 
     Keyword arguments
     -----------------
@@ -55,7 +54,7 @@ def initialize_population(Config, mean_age=45, max_age=105,
     '''
 
     #initialize population matrix
-    population = np.zeros((Config.pop_size, 18))
+    population = np.zeros((Config.pop_size, 17))
 
     #initalize unique IDs
     population[:,0] = [x for x in range(Config.pop_size)]

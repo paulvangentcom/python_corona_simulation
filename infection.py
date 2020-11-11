@@ -137,16 +137,15 @@ def infect(population, Config, frame, send_to_location=False,
                     population[idx][8] = frame
                     if population[idx][15] == 2 and len(population[population[:,10] == 1]) <= Config.healthcare_capacity:
                         population[idx][10] = 1
-                        if send_to_location:
-                            #send to location if die roll is positive
-                            if np.random.uniform() <= location_odds:
-                                population[idx],\
-                                destinations[idx] = go_to_location(population[idx],
-                                                                   destinations[idx],
-                                                                   location_bounds, 
-                                                                   dest_no=location_no)
-                        else:
-                            pass
+                    #send to isolation only those with mild and severe symptoms
+                    if population[idx][15] > 0 and send_to_location:
+                        #send to location if die roll is positive
+                        if np.random.uniform() <= location_odds:
+                            population[idx],\
+                            destinations[idx] = go_to_location(population[idx],
+                                                               destinations[idx],
+                                                               location_bounds, 
+                                                               dest_no=location_no)
                     new_infections.append(idx)
 
     else:
@@ -179,14 +178,15 @@ def infect(population, Config, frame, send_to_location=False,
                         population[np.int32(person[0])][8] = frame
                         if person[15] == 2 and len(population[population[:,10] == 1]) <= Config.healthcare_capacity:
                             population[np.int32(person[0])][10] = 1
-                            if send_to_location:
-                                #send to location and add to treatment if die roll is positive
-                                if np.random.uniform() < location_odds:
-                                    population[np.int32(person[0])],\
-                                    destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
-                                                                                        destinations[np.int32(person[0])],
-                                                                                        location_bounds, 
-                                                                                        dest_no=location_no)
+                        #send to isolation only those with mild and severe symptoms
+                        if person[15] > 0 and send_to_location:
+                            #send to location if die roll is positive
+                            if np.random.uniform() < location_odds:
+                                population[np.int32(person[0])],\
+                                destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
+                                                                                    destinations[np.int32(person[0])],
+                                                                                    location_bounds, 
+                                                                                    dest_no=location_no)
 
 
                         new_infections.append(np.int32(person[0]))
