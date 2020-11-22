@@ -21,14 +21,8 @@ def find_nearby(population, infection_zone, traveling_infects=False,
 
     Returns
     -------
-    if kind='healthy', indices of healthy agents within the infection
-    zone is returned. This is because for each healthy agent, the chance to
-    become infected needs to be tested
-
-    if kind='infected', only the number of infected within the infection zone is
-    returned. This is because in this situation, the odds of the healthy agent at
-    the center of the infection zone depend on how many infectious agents are around
-    it.
+    indices of healthy agents within the infection
+    zone is returned.
     '''
 
     if kind.lower() == 'healthy':
@@ -41,19 +35,19 @@ def find_nearby(population, infection_zone, traveling_infects=False,
 
     elif kind.lower() == 'infected':
         if traveling_infects:
-            infected_number = len(infected_previous_step[:,6][(infection_zone[0] < infected_previous_step[:,1]) & 
+            indices = infected_previous_step[:,6][(infection_zone[0] < infected_previous_step[:,1]) & 
                                                             (infected_previous_step[:,1] < infection_zone[2]) &
                                                             (infection_zone[1] < infected_previous_step [:,2]) & 
                                                             (infected_previous_step[:,2] < infection_zone[3]) &
-                                                            (infected_previous_step[:,6] == 1)])
+                                                            (infected_previous_step[:,6] == 1)]
         else:
-            infected_number = len(infected_previous_step[:,6][(infection_zone[0] < infected_previous_step[:,1]) & 
+            indices = infected_previous_step[:,6][(infection_zone[0] < infected_previous_step[:,1]) & 
                                                             (infected_previous_step[:,1] < infection_zone[2]) &
                                                             (infection_zone[1] < infected_previous_step [:,2]) & 
                                                             (infected_previous_step[:,2] < infection_zone[3]) &
                                                             (infected_previous_step[:,6] == 1) &
-                                                            (infected_previous_step[:,11] == 0)])
-        return infected_number
+                                                            (infected_previous_step[:,11] == 0)]
+        return indices
         
     else:
         raise ValueError('type to find %s not understood! Must be either \'healthy\' or \'ill\'')
@@ -137,21 +131,21 @@ def infect(population, Config, frame, send_to_location=False,
 
             for idx in indices:
                 #roll die to see if healthy person will be infected
-                if np.random.random() < Config.infection_chance:
+                if np.random.random() < Config.infection_chance * severity_infection_chance_multiplier(patient[15]):
                     population[idx][6] = 1
+                    population[idx][15] = choose_severity(population[idx][7], Config.age_dependent_risk)
                     population[idx][8] = frame
-                    if len(population[population[:,10] == 1]) <= Config.healthcare_capacity:
+                    if population[idx][15] == 2 and len(population[population[:,10] == 1]) <= Config.healthcare_capacity:
                         population[idx][10] = 1
-                        if send_to_location:
-                            #send to location if die roll is positive
-                            if np.random.uniform() <= location_odds:
-                                population[idx],\
-                                destinations[idx] = go_to_location(population[idx],
-                                                                   destinations[idx],
-                                                                   location_bounds, 
-                                                                   dest_no=location_no)
-                        else:
-                            pass
+                    #send to isolation only those with mild and severe symptoms
+                    if population[idx][15] > 0 and send_to_location:
+                        #send to location if die roll is positive
+                        if np.random.uniform() <= location_odds:
+                            population[idx],\
+                            destinations[idx] = go_to_location(population[idx],
+                                                               destinations[idx],
+                                                               location_bounds, 
+                                                               dest_no=location_no)
                     new_infections.append(idx)
 
     else:
@@ -167,30 +161,32 @@ def infect(population, Config, frame, send_to_location=False,
             if person[6] == 0: #if person is not already infected, find if infected are nearby
                 #find infected nearby healthy person
                 if Config.traveling_infects:
-                    poplen = find_nearby(population, infection_zone, 
+                    infected = find_nearby(population, infection_zone, 
                                          traveling_infects = True,
                                          kind = 'infected')
                 else:
-                    poplen = find_nearby(population, infection_zone, 
+                    infected = find_nearby(population, infection_zone, 
                                          traveling_infects = True,
                                          kind = 'infected',
                                          infected_previous_step = infected_previous_step)
                 
-                if poplen > 0:
-                    if np.random.random() < (Config.infection_chance * poplen):
+                if len(infected) > 0:
+                    if np.random.random() < (Config.infection_chance * sum(severity_infection_chance_multiplier(population[np.int32(infected),15]))):
                         #roll die to see if healthy person will be infected
                         population[np.int32(person[0])][6] = 1
+                        population[np.int32(person[0])][15] = choose_severity(person[7], Config.age_dependent_risk)
                         population[np.int32(person[0])][8] = frame
-                        if len(population[population[:,10] == 1]) <= Config.healthcare_capacity:
+                        if person[15] == 2 and len(population[population[:,10] == 1]) <= Config.healthcare_capacity:
                             population[np.int32(person[0])][10] = 1
-                            if send_to_location:
-                                #send to location and add to treatment if die roll is positive
-                                if np.random.uniform() < location_odds:
-                                    population[np.int32(person[0])],\
-                                    destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
-                                                                                        destinations[np.int32(person[0])],
-                                                                                        location_bounds, 
-                                                                                        dest_no=location_no)
+                        #send to isolation only those with mild and severe symptoms
+                        if person[15] > 0 and send_to_location:
+                            #send to location if die roll is positive
+                            if np.random.uniform() < location_odds:
+                                population[np.int32(person[0])],\
+                                destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
+                                                                                    destinations[np.int32(person[0])],
+                                                                                    location_bounds, 
+                                                                                    dest_no=location_no)
 
 
                         new_infections.append(np.int32(person[0]))
@@ -203,6 +199,22 @@ def infect(population, Config, frame, send_to_location=False,
     else:
         return population, destinations
 
+def severity_infection_chance_multiplier(severity):
+    return np.array([0.5, 1, 2])[np.int32(severity)]
+
+def choose_severity(age, age_dependent_risk):
+    # todo use real data
+    severities = np.array([0, 1, 2])
+    if not age_dependent_risk:
+        return np.random.choice(severities, p=[0.4, 0.4, 0.2])
+    if age < 25:
+        return np.random.choice(severities, p=[0.8, 0.2, 0])
+    elif age < 50:
+        return np.random.choice(severities, p=[0.3, 0.6, 0.1])
+    elif age < 75:
+        return np.random.choice(severities, p=[0.1, 0.6, 0.3])
+    else:
+        return np.random.choice(severities, p=[0, 0.5, 0.5])
 
 def recover_or_die(population, frame, Config):
     '''see whether to recover or die
@@ -285,6 +297,10 @@ def recover_or_die(population, frame, Config):
         elif infected_people[infected_people[:,0] == int(idx)][:,10] == 1 and Config.treatment_dependent_risk:
             #if person is in treatment, decrease risk by 
             updated_mortality_chance = updated_mortality_chance * Config.treatment_factor
+        
+        # if symptoms are not severe, don't die
+        if infected_people[infected_people[:,0] == int(idx)][:,15] != 2:
+            updated_mortality_chance = 0
 
         if np.random.random() <= updated_mortality_chance:
             #die

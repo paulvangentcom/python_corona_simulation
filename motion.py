@@ -132,10 +132,16 @@ def update_randoms(population, pop_size, speed=0.01, heading_update_chance=0.02,
     population[:,5][update <= heading_update_chance] = np.random.normal(loc = speed, 
                                                         scale = speed / 3,
                                                         size = shp) * speed_multiplication
+    
+    #modify speeds based on age
+    population[:,5][update <= heading_update_chance] *= age_to_speed_multiplier(population[:,7][update <= heading_update_chance])
 
     population[:,5] = np.clip(population[:,5], a_min=0.0001, a_max=0.05)
     return population
 
+def age_to_speed_multiplier(ages):
+    max_age = max(ages)
+    return (max_age - ages) / max_age + 0.5
 
 def get_motion_parameters(xmin, ymin, xmax, ymax):
     '''gets destination center and wander ranges
