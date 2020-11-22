@@ -11,7 +11,9 @@ import numpy as np
 from motion import get_motion_parameters
 from utils import check_folder
 
-def initialize_population(Config, mean_age=45, max_age=105,
+from custom import get_random_ages
+
+def initialize_population(Config,
                           xbounds=[0, 1], ybounds=[0, 1]):
     '''initialized the population for the simulation
 
@@ -39,12 +41,6 @@ def initialize_population(Config, mean_age=45, max_age=105,
     -----------------
     pop_size : int
         the size of the population
-
-    mean_age : int
-        the mean age of the population. Age affects mortality chances
-
-    max_age : int
-        the max age of the population
 
     xbounds : 2d array
         lower and upper bounds of x axis
@@ -75,13 +71,7 @@ def initialize_population(Config, mean_age=45, max_age=105,
     population[:,5] = np.random.normal(Config.speed, Config.speed / 3)
 
     #initalize ages
-    std_age = (max_age - mean_age) / 3
-    population[:,7] = np.int32(np.random.normal(loc = mean_age, 
-                                                scale = std_age, 
-                                                size=(Config.pop_size,)))
-
-    population[:,7] = np.clip(population[:,7], a_min = 0, 
-                              a_max = max_age) #clip those younger than 0 years
+    population[:,7] = np.int32(get_random_ages(Config.pop_size))
 
     #build recovery_vector
     population[:,9] = np.random.normal(loc = 0.5, scale = 0.5 / 3, size=(Config.pop_size,))
