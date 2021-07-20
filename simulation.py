@@ -20,6 +20,9 @@ from visualiser import build_fig, draw_tstep, set_style, plot_sir
 #set seed for reproducibility
 #np.random.seed(100)
 
+# i'm supposed to make productive changes so this is going to be a
+# productive comment. YAY!
+
 class Simulation():
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
     def __init__(self, *args, **kwargs):
@@ -33,12 +36,12 @@ class Simulation():
         self.pop_tracker = Population_trackers()
 
         #initalise destinations vector
-        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)        
+        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
 
 
     def reinitialise(self):
         '''reset the simulation'''
-        
+
         self.frame = 0
         self.population_init()
         self.pop_tracker = Population_trackers()
@@ -47,8 +50,8 @@ class Simulation():
 
     def population_init(self):
         '''(re-)initializes population'''
-        self.population = initialize_population(self.Config, self.Config.mean_age, 
-                                                self.Config.max_age, self.Config.xbounds, 
+        self.population = initialize_population(self.Config, self.Config.mean_age,
+                                                self.Config.max_age, self.Config.xbounds,
                                                 self.Config.ybounds)
 
 
@@ -56,7 +59,7 @@ class Simulation():
         '''
         takes a time step in the simulation
         '''
-        
+
         if self.frame == 0 and self.Config.visualise:
             #initialize figure
             self.fig, self.spec, self.ax1, self.ax2 = build_fig(self.Config)
@@ -67,7 +70,7 @@ class Simulation():
 
         if active_dests > 0 and len(self.population[self.population[:,12] == 0]) > 0:
             self.population = set_destination(self.population, self.destinations)
-            self.population = check_at_destination(self.population, self.destinations, 
+            self.population = check_at_destination(self.population, self.destinations,
                                                    wander_factor = self.Config.wander_factor_dest,
                                                    speed = self.Config.speed)
 
@@ -81,9 +84,9 @@ class Simulation():
         if len(self.population[:,11] == 0) > 0:
             _xbounds = np.array([[self.Config.xbounds[0] + 0.02, self.Config.xbounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
             _ybounds = np.array([[self.Config.ybounds[0] + 0.02, self.Config.ybounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
-            self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0], 
+            self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0],
                                                                         _xbounds, _ybounds)
-        
+
         #set randoms
         if self.Config.lockdown:
             if len(self.pop_tracker.infectious) == 0:
@@ -106,16 +109,16 @@ class Simulation():
 
         #for dead ones: set speed and heading to 0
         self.population[:,3:5][self.population[:,6] == 3] = 0
-        
+
         #update positions
         self.population = update_positions(self.population)
 
         #find new infections
-        self.population, self.destinations = infect(self.population, self.Config, self.frame, 
-                                                    send_to_location = self.Config.self_isolate, 
-                                                    location_bounds = self.Config.isolation_bounds,  
-                                                    destinations = self.destinations, 
-                                                    location_no = 1, 
+        self.population, self.destinations = infect(self.population, self.Config, self.frame,
+                                                    send_to_location = self.Config.self_isolate,
+                                                    location_bounds = self.Config.isolation_bounds,
+                                                    destinations = self.destinations,
+                                                    location_no = 1,
                                                     location_odds = self.Config.self_isolate_proportion)
 
         #recover and die
@@ -131,7 +134,7 @@ class Simulation():
 
         #visualise
         if self.Config.visualise:
-            draw_tstep(self.Config, self.population, self.pop_tracker, self.frame, 
+            draw_tstep(self.Config, self.population, self.pop_tracker, self.frame,
                        self.fig, self.spec, self.ax1, self.ax2)
 
         #report stuff to console
@@ -169,7 +172,7 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
         '''run simulation'''
 
         i = 0
-        
+
         while i < self.Config.simulation_steps:
             try:
                 self.tstep()
@@ -181,7 +184,7 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
             #check if self.frame is above some threshold to prevent early breaking when simulation
             #starts initially with no infections.
             if self.Config.endif_no_infections and self.frame >= 500:
-                if len(self.population[(self.population[:,6] == 1) | 
+                if len(self.population[(self.population[:,6] == 1) |
                                        (self.population[:,6] == 4)]) == 0:
                     i = self.Config.simulation_steps
 
@@ -197,9 +200,9 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
         print('total infectious: %i' %len(self.population[(self.population[:,6] == 1) |
                                                           (self.population[:,6] == 4)]))
         print('total unaffected: %i' %len(self.population[self.population[:,6] == 0]))
-        
 
-    def plot_sir(self, size=(6,3), include_fatalities=False, 
+
+    def plot_sir(self, size=(6,3), include_fatalities=False,
                  title='S-I-R plot of simulation'):
         plot_sir(self.Config, self.pop_tracker, size, include_fatalities,
                  title)
