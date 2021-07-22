@@ -124,24 +124,25 @@ def infect(population, Config, frame, send_to_location=False,
     new_infections = []
 
     #if less than half are infected, slice based on infected (to speed up computation)
-    if len(infected_previous_step) < (Config.pop_size // 2):
+    if len(infected_previous_step) < (Config.get_pop_size() // 2):
         for patient in infected_previous_step:
             #define infection zone for patient
-            infection_zone = [patient[1] - Config.infection_range, patient[2] - Config.infection_range,
-                                patient[1] + Config.infection_range, patient[2] + Config.infection_range]
+            infection_range = Config.get_infection_range()
+            infection_zone = [patient[1] - infection_range, patient[2] - infection_range,
+                                patient[1] + infection_range, patient[2] + infection_range]
 
             #find healthy people surrounding infected patient
-            if Config.traveling_infects or patient[11] == 0:
+            if Config.get_raveling_infects() or patient[11] == 0:
                 indices = find_nearby(population, infection_zone, kind = 'healthy')
             else:
                 indices = []
 
             for idx in indices:
                 #roll die to see if healthy person will be infected
-                if np.random.random() < Config.infection_chance:
+                if np.random.random() < Config.get_infection_chance():
                     population[idx][6] = 1
                     population[idx][8] = frame
-                    if len(population[population[:,10] == 1]) <= Config.healthcare_capacity:
+                    if len(population[population[:,10] == 1]) <= Config.get_healthcare_capacity():
                         population[idx][10] = 1
                         if send_to_location:
                             #send to location if die roll is positive
@@ -162,13 +163,19 @@ def infect(population, Config, frame, send_to_location=False,
 
         for person in healthy_previous_step:
             #define infecftion range around healthy person
-            infection_zone = [person[1] - Config.infection_range, person[2] - Config.infection_range,
-                                person[1] + Config.infection_range, person[2] + Config.infection_range]
+            infection_range = Config.get_infection_range()
+            infection_zone = [person[1] - infection_range, person[2] - infection_range,
+                                person[1] + infection_range, person[2] + infection_range]
 
             if person[6] == 0: #if person is not already infected, find if infected are nearby
                 #find infected nearby healthy person
+<<<<<<< Updated upstream
                 if Config.traveling_infects:
                     poplen = find_nearby(population, infection_zone,
+=======
+                if Config.get_traveling_infects():
+                    poplen = find_nearby(population, infection_zone, 
+>>>>>>> Stashed changes
                                          traveling_infects = True,
                                          kind = 'infected')
                 else:
@@ -178,11 +185,11 @@ def infect(population, Config, frame, send_to_location=False,
                                          infected_previous_step = infected_previous_step)
 
                 if poplen > 0:
-                    if np.random.random() < (Config.infection_chance * poplen):
+                    if np.random.random() < (Config.get_infection_chance() * poplen):
                         #roll die to see if healthy person will be infected
                         population[np.int32(person[0])][6] = 1
                         population[np.int32(person[0])][8] = frame
-                        if len(population[population[:,10] == 1]) <= Config.healthcare_capacity:
+                        if len(population[population[:,10] == 1]) <= Config.get_healthcare_capacity():
                             population[np.int32(person[0])][10] = 1
                             if send_to_location:
                                 #send to location and add to treatment if die roll is positive
@@ -196,7 +203,7 @@ def infect(population, Config, frame, send_to_location=False,
 
                         new_infections.append(np.int32(person[0]))
 
-    if len(new_infections) > 0 and Config.verbose:
+    if len(new_infections) > 0 and Config.get_verbose():
         print('\nat timestep %i these people got sick: %s' %(frame, new_infections))
 
     if len(destinations) == 0:
@@ -257,8 +264,13 @@ def recover_or_die(population, frame, Config):
 
     #define vector of how long everyone has been sick
     illness_duration_vector = frame - infected_people[:,8]
+<<<<<<< Updated upstream
 
     recovery_odds_vector = (illness_duration_vector - Config.recovery_duration[0]) / np.ptp(Config.recovery_duration)
+=======
+    
+    recovery_odds_vector = (illness_duration_vector - Config.get_recovery_duration()[0]) / np.ptp(Config.get_recovery_duration())
+>>>>>>> Stashed changes
     recovery_odds_vector = np.clip(recovery_odds_vector, a_min = 0, a_max = None)
 
     #update states of sick people
@@ -271,21 +283,37 @@ def recover_or_die(population, frame, Config):
     for idx in indices:
         #check if we want risk to be age dependent
         #if age_dependent_risk:
+<<<<<<< Updated upstream
         if Config.age_dependent_risk:
             updated_mortality_chance = compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0],
                                                             Config.mortality_chance,
                                                             Config.risk_age, Config.critical_age,
                                                             Config.critical_mortality_chance,
                                                             Config.risk_increase)
+=======
+        if Config.get_age_dependent_risk():
+            updated_mortality_chance = compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0], 
+                                                            Config.get_mortality_chance(),
+                                                            Config.get_risk_age(), Config.get_critical_age(),
+                                                            Config.get_critical_mortality_chance(),
+                                                            Config.get_risk_increase())
+>>>>>>> Stashed changes
         else:
-            updated_mortality_chance = Config.mortality_chance
+            updated_mortality_chance = Config.get_mortality_chance()
 
-        if infected_people[infected_people[:,0] == int(idx)][:,10] == 0 and Config.treatment_dependent_risk:
+        if infected_people[infected_people[:,0] == int(idx)][:,10] == 0 and Config.get_treatment_dependent_risk():
             #if person is not in treatment, increase risk by no_treatment_factor
+<<<<<<< Updated upstream
             updated_mortality_chance = updated_mortality_chance * Config.no_treatment_factor
         elif infected_people[infected_people[:,0] == int(idx)][:,10] == 1 and Config.treatment_dependent_risk:
             #if person is in treatment, decrease risk by
             updated_mortality_chance = updated_mortality_chance * Config.treatment_factor
+=======
+            updated_mortality_chance = updated_mortality_chance * Config.get_no_treatment_factor()
+        elif infected_people[infected_people[:,0] == int(idx)][:,10] == 1 and Config.get_treatment_dependent_risk():
+            #if person is in treatment, decrease risk by 
+            updated_mortality_chance = updated_mortality_chance * Config.get_treatment_factor()
+>>>>>>> Stashed changes
 
         if np.random.random() <= updated_mortality_chance:
             #die
@@ -298,9 +326,9 @@ def recover_or_die(population, frame, Config):
             infected_people[:,10][infected_people[:,0] == idx] = 0
             recovered.append(np.int32(infected_people[infected_people[:,0] == idx][:,0][0]))
 
-    if len(fatalities) > 0 and Config.verbose:
+    if len(fatalities) > 0 and Config.get_verbose():
         print('\nat timestep %i these people died: %s' %(frame, fatalities))
-    if len(recovered) > 0 and Config.verbose:
+    if len(recovered) > 0 and Config.get_verbose():
         print('\nat timestep %i these people recovered: %s' %(frame, recovered))
 
     #put array back into population
