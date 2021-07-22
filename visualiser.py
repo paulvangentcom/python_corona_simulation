@@ -17,8 +17,14 @@ def set_style(Config):
         mpl.style.use('plot_styles/dark.mplstyle')
 
 
-def build_fig(Config, figsize=(5,7)):
-    set_style(Config)
+
+   
+
+
+def draw_tstep(Config, population, pop_tracker, frame,
+               fig, spec, ax1, ax2，figsize=(5,7)):
+    #construct plot and visualise
+     set_style(Config)
     fig = plt.figure(figsize=(5,7))
     spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
 
@@ -34,12 +40,6 @@ def build_fig(Config, figsize=(5,7)):
 
     #if 
 
-    return fig, spec, ax1, ax2
-
-
-def draw_tstep(Config, population, pop_tracker, frame,
-               fig, spec, ax1, ax2):
-    #construct plot and visualise
 
     #set plot style
     set_style(Config)
@@ -120,6 +120,7 @@ def draw_tstep(Config, population, pop_tracker, frame,
         except:
             check_folder(Config.plot_path)
             plt.savefig('%s/%i.png' %(Config.plot_path, frame))
+            
        
             
 def plot_sir(Config, pop_tracker, size=(6,3), include_fatalities=False,
