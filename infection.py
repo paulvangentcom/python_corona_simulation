@@ -169,13 +169,8 @@ def infect(population, Config, frame, send_to_location=False,
 
             if person[6] == 0: #if person is not already infected, find if infected are nearby
                 #find infected nearby healthy person
-<<<<<<< Updated upstream
-                if Config.traveling_infects:
-                    poplen = find_nearby(population, infection_zone,
-=======
                 if Config.get_traveling_infects():
-                    poplen = find_nearby(population, infection_zone, 
->>>>>>> Stashed changes
+                    poplen = find_nearby(population, infection_zone,
                                          traveling_infects = True,
                                          kind = 'infected')
                 else:
@@ -264,13 +259,8 @@ def recover_or_die(population, frame, Config):
 
     #define vector of how long everyone has been sick
     illness_duration_vector = frame - infected_people[:,8]
-<<<<<<< Updated upstream
-
-    recovery_odds_vector = (illness_duration_vector - Config.recovery_duration[0]) / np.ptp(Config.recovery_duration)
-=======
     
     recovery_odds_vector = (illness_duration_vector - Config.get_recovery_duration()[0]) / np.ptp(Config.get_recovery_duration())
->>>>>>> Stashed changes
     recovery_odds_vector = np.clip(recovery_odds_vector, a_min = 0, a_max = None)
 
     #update states of sick people
@@ -283,37 +273,21 @@ def recover_or_die(population, frame, Config):
     for idx in indices:
         #check if we want risk to be age dependent
         #if age_dependent_risk:
-<<<<<<< Updated upstream
-        if Config.age_dependent_risk:
-            updated_mortality_chance = compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0],
-                                                            Config.mortality_chance,
-                                                            Config.risk_age, Config.critical_age,
-                                                            Config.critical_mortality_chance,
-                                                            Config.risk_increase)
-=======
         if Config.get_age_dependent_risk():
             updated_mortality_chance = compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0], 
                                                             Config.get_mortality_chance(),
                                                             Config.get_risk_age(), Config.get_critical_age(),
                                                             Config.get_critical_mortality_chance(),
                                                             Config.get_risk_increase())
->>>>>>> Stashed changes
         else:
             updated_mortality_chance = Config.get_mortality_chance()
 
         if infected_people[infected_people[:,0] == int(idx)][:,10] == 0 and Config.get_treatment_dependent_risk():
             #if person is not in treatment, increase risk by no_treatment_factor
-<<<<<<< Updated upstream
-            updated_mortality_chance = updated_mortality_chance * Config.no_treatment_factor
-        elif infected_people[infected_people[:,0] == int(idx)][:,10] == 1 and Config.treatment_dependent_risk:
-            #if person is in treatment, decrease risk by
-            updated_mortality_chance = updated_mortality_chance * Config.treatment_factor
-=======
             updated_mortality_chance = updated_mortality_chance * Config.get_no_treatment_factor()
         elif infected_people[infected_people[:,0] == int(idx)][:,10] == 1 and Config.get_treatment_dependent_risk():
             #if person is in treatment, decrease risk by 
             updated_mortality_chance = updated_mortality_chance * Config.get_treatment_factor()
->>>>>>> Stashed changes
 
         if np.random.random() <= updated_mortality_chance:
             #die

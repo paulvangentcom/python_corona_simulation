@@ -36,11 +36,7 @@ class Simulation():
         self.pop_tracker = Population_trackers()
 
         #initalise destinations vector
-<<<<<<< Updated upstream
-        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
-=======
         self.destinations = initialize_destination_matrix(self.Config.get_pop_size(), 1)
->>>>>>> Stashed changes
 
 
     def reinitialise(self):
@@ -54,27 +50,15 @@ class Simulation():
 
     def population_init(self):
         '''(re-)initializes population'''
-<<<<<<< Updated upstream
-        self.population = initialize_population(self.Config, self.Config.mean_age,
-                                                self.Config.max_age, self.Config.xbounds,
-                                                self.Config.ybounds)
-=======
         self.population = initialize_population(self.Config, self.Config.get_mean_age(), self.Config.get_max_age(),
                                                 self.Config.get_xbounds(), self.Config.get_ybounds())
->>>>>>> Stashed changes
 
 
     def tstep(self):
         '''
         takes a time step in the simulation
         '''
-<<<<<<< Updated upstream
-
-        if self.frame == 0 and self.Config.visualise:
-=======
-        
         if self.frame == 0 and self.Config.get_visualise():
->>>>>>> Stashed changes
             #initialize figure
             self.fig, self.spec, self.ax1, self.ax2 = build_fig(self.Config)
 
@@ -84,15 +68,10 @@ class Simulation():
 
         if active_dests > 0 and len(self.population[self.population[:,12] == 0]) > 0:
             self.population = set_destination(self.population, self.destinations)
-<<<<<<< Updated upstream
-            self.population = check_at_destination(self.population, self.destinations,
-                                                   wander_factor = self.Config.wander_factor_dest,
-                                                   speed = self.Config.speed)
-=======
+
             self.population = check_at_destination(self.population, self.destinations, 
                                                    wander_factor = self.Config.get_wander_factor_dest(),
                                                    speed = self.Config.get_speed())
->>>>>>> Stashed changes
 
         if active_dests > 0 and len(self.population[self.population[:,12] == 1]) > 0:
             #keep them at destination
@@ -102,15 +81,9 @@ class Simulation():
         #out of bounds
         #define bounds arrays, excluding those who are marked as having a custom destination
         if len(self.population[:,11] == 0) > 0:
-<<<<<<< Updated upstream
-            _xbounds = np.array([[self.Config.xbounds[0] + 0.02, self.Config.xbounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
-            _ybounds = np.array([[self.Config.ybounds[0] + 0.02, self.Config.ybounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
-            self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0],
-=======
             _xbounds = np.array([[self.Config.get_xbounds()[0] + 0.02, self.Config.get_xbounds()[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
             _ybounds = np.array([[self.Config.get_ybounds()[0] + 0.02, self.Config.get_ybounds()[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
-            self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0], 
->>>>>>> Stashed changes
+            self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0],
                                                                         _xbounds, _ybounds)
 
         #set randoms
@@ -140,21 +113,12 @@ class Simulation():
         self.population = update_positions(self.population)
 
         #find new infections
-<<<<<<< Updated upstream
-        self.population, self.destinations = infect(self.population, self.Config, self.frame,
-                                                    send_to_location = self.Config.self_isolate,
-                                                    location_bounds = self.Config.isolation_bounds,
-                                                    destinations = self.destinations,
-                                                    location_no = 1,
-                                                    location_odds = self.Config.self_isolate_proportion)
-=======
         self.population, self.destinations = infect(self.population, self.Config, self.frame, 
                                                     send_to_location = self.Config.get_self_isolate(),
                                                     location_bounds = self.Config.get_isolation_bounds(),
                                                     destinations = self.destinations, 
                                                     location_no = 1, 
                                                     location_odds = self.Config.get_self_isolate_proportion())
->>>>>>> Stashed changes
 
         #recover and die
         self.population = recover_or_die(self.population, self.frame, self.Config)
@@ -168,13 +132,8 @@ class Simulation():
         self.pop_tracker.update_counts(self.population)
 
         #visualise
-<<<<<<< Updated upstream
-        if self.Config.visualise:
-            draw_tstep(self.Config, self.population, self.pop_tracker, self.frame,
-=======
         if self.Config.get_visualise():
-            draw_tstep(self.Config, self.population, self.pop_tracker, self.frame, 
->>>>>>> Stashed changes
+            draw_tstep(self.Config, self.population, self.pop_tracker, self.frame,
                        self.fig, self.spec, self.ax1, self.ax2)
 
         #report stuff to console
@@ -213,11 +172,7 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
 
         i = 0
 
-<<<<<<< Updated upstream
-        while i < self.Config.simulation_steps:
-=======
         while i < self.Config.get_simulation_steps():
->>>>>>> Stashed changes
             try:
                 self.tstep()
                 #update i = self.frame to check simulation steps is over configurated simulation steps
@@ -229,13 +184,8 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
             #check whether to end if no infecious persons remain.
             #check if self.frame is above some threshold to prevent early breaking when simulation
             #starts initially with no infections.
-<<<<<<< Updated upstream
-            if self.Config.endif_no_infections and self.frame >= 500:
-                if len(self.population[(self.population[:,6] == 1) |
-=======
             if self.Config.get_endif_no_infections() and self.frame >= 500:
-                if len(self.population[(self.population[:,6] == 1) | 
->>>>>>> Stashed changes
+                if len(self.population[(self.population[:,6] == 1) |
                                        (self.population[:,6] == 4)]) == 0:
                     i = self.Config.get_simulation_steps()
 
