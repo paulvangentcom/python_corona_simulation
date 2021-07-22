@@ -176,6 +176,8 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
         while i < self.Config.simulation_steps:
             try:
                 self.tstep()
+                #update i = self.frame to check simulation steps is over configurated simulation steps
+                i = self.frame
             except KeyboardInterrupt:
                 print('\nCTRL-C caught, exiting')
                 sys.exit(1)
