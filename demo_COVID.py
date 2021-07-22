@@ -21,7 +21,7 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
 
     #add one infection to jumpstart
     if frame == 100:
-        #make C
+     
         #first leg
         #THIS IS MY CHANGR IN THIS:
         destinations[:,0][0:100] = 0.05
