@@ -132,7 +132,7 @@ def infect(population, Config, frame, send_to_location=False,
                                 patient[1] + infection_range, patient[2] + infection_range]
 
             #find healthy people surrounding infected patient
-            if Config.get_raveling_infects() or patient[11] == 0:
+            if Config.get_traveling_infects() or patient[11] == 0:
                 indices = find_nearby(population, infection_zone, kind = 'healthy')
             else:
                 indices = []
