@@ -4,7 +4,7 @@ environment of the simulated world.
 '''
 
 import numpy as np
-class Enviroment:
+class Environment:
     def __init__(self, xmin, xmax, ymin, ymax):
         self.xmin = xmin
         self.xmax = xmax
