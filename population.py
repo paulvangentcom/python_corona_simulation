@@ -7,6 +7,7 @@ import numpy as np
 from motion import get_motion_parameters
 from utils import check_folder
 
+
 class Population_setup:
     '''class that initialize the population parameters for the simulation'''
     def initialize_population(Config, mean_age=45, max_age=105,
