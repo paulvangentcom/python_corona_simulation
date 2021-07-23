@@ -86,7 +86,6 @@ def initialize_population(Config, mean_age = 45, max_age = 105,
 
     return population
 
-
 def initialize_destination_matrix(pop_size, total_destinations):
     '''intializes the destination matrix
 
