@@ -4,6 +4,7 @@ and related computations
 '''
 
 import numpy as np
+from environment import Environment
 
 def update_positions(population):
     '''update positions of all people
