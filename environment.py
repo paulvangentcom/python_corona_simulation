@@ -46,8 +46,10 @@ class Enviroment:
         return [self.ymax, self.ymax]  
     
     def getyminymax(self):
-        return [self.ymin, self.ymax]       
-
+        return [self.ymin, self.ymax]    
+    
+    def getxminyminxmaxymax(self):
+        return [self.xmin, self.ymin, self.xmax, self.ymax]       
     
     
     
