@@ -13,7 +13,7 @@ from motion import update_positions, out_of_bounds, update_randoms,\
 get_motion_parameters
 from path_planning import go_to_location, set_destination, check_at_destination,\
 keep_at_destination, reset_destinations
-from population import Population_setup, Population_data, Population_trackers
+from population import Population
 from visualiser import build_fig, draw_tstep, set_style, plot_sir
 
 #set seed for reproducibility
@@ -32,10 +32,10 @@ class Simulation():
         #initialize default population
         self.population_init()
 
-        self.pop_tracker = Population_trackers()
+        self.pop_tracker = Population.Population_trackers()
 
         #initalise destinations vector
-        self.destinations = Population_setup.initialize_destination_matrix(self.Config.pop_size, 1)
+        self.destinations = Population.Population_setup.initialize_destination_matrix(self.Config.pop_size, 1)
 
 
     def reinitialise(self):
@@ -43,13 +43,13 @@ class Simulation():
 
         self.frame = 0
         self.population_init()
-        self.pop_tracker = Population_trackers()
-        self.destinations = Population_setup.initialize_destination_matrix(self.Config.pop_size, 1)
+        self.pop_tracker = Population.Population_trackers()
+        self.destinations = Population.Population_setup.initialize_destination_matrix(self.Config.pop_size, 1)
 
 
     def population_init(self):
         '''(re-)initializes population'''
-        self.population = Population_setup.initialize_population(self.Config, self.Config.mean_age,
+        self.population = Population.Population_setup.initialize_population(self.Config, self.Config.mean_age,
                                                 self.Config.max_age, self.Config.xbounds,
                                                 self.Config.ybounds)
 
@@ -145,7 +145,7 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
 
         #save popdata if required
         if self.Config.save_pop and (self.frame % self.Config.save_pop_freq) == 0:
-            Population_data.save_population(self.population, self.frame, self.Config.save_pop_folder)
+            Population.Population_data.save_population(self.population, self.frame, self.Config.save_pop_folder)
         #run callback
         self.callback()
 
@@ -188,7 +188,7 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
                     i = self.Config.simulation_steps
 
         if self.Config.save_data:
-            Population_data.save_data(self.population, self.pop_tracker)
+            Population.Population_data.save_data(self.population, self.pop_tracker)
 
         #report outcomes
         print('\n-----stopping-----\n')
