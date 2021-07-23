@@ -8,7 +8,7 @@ from matplotlib.animation import FuncAnimation
 from infection import infect, recover_or_die, compute_mortality
 from motion import update_positions, out_of_bounds, update_randoms
 from path_planning import set_destination, check_at_destination, keep_at_destination
-from population import initialize_population, initialize_destination_matrix
+from population import initialize_population, initialize_destination_matrix, Population
 
 
 def update(frame, population, destinations, pop_size, infection_range=0.01, 
@@ -397,7 +397,7 @@ if __name__ == '__main__':
     ######################################
     
     #initalize population
-    population = initialize_population(pop_size, mean_age, max_age, xbounds, ybounds)
+    population = initialize_population(pop_size,  Population(mean_age, max_age) , xbounds, ybounds)
     population[:,13] = wander_range_x #set wander ranges to default specified value
     population[:,14] = wander_range_y #set wander ranges to default specified value
 
