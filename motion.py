@@ -137,7 +137,7 @@ def update_randoms(population, pop_size, speed=0.01, heading_update_chance=0.02,
     return population
 
 
-def get_motion_parameters(xmin, ymin, xmax, ymax):
+def get_motion_parameters(env):
     '''gets destination center and wander ranges
 
     Function that returns geometric parameters of the destination
@@ -150,10 +150,10 @@ def get_motion_parameters(xmin, ymin, xmax, ymax):
 
     '''
 
-    x_center = xmin + ((xmax - xmin) / 2)
-    y_center = ymin + ((ymax - ymin) / 2)
+    x_center = env.getxmin + ((env.getxmax - env.getxmin) / 2)
+    y_center = env.getymin + ((env.getymax - env.getymin) / 2)
 
-    x_wander = (xmax - xmin) / 2
-    y_wander = (ymax - ymin) / 2
+    x_wander = (env.getxmax - env.getxmin) / 2
+    y_wander = (env.getymax - env.getymin) / 2
 
     return x_center, y_center, x_wander, y_wander
