@@ -108,8 +108,7 @@ def initialize_destination_matrix(pop_size, total_destinations):
     return destinations
 
 
-def set_destination_bounds(population, destinations, xmin, ymin, 
-                           xmax, ymax, dest_no=1, teleport=True):
+def set_destination_bounds(population, destinations, env, dest_no=1, teleport=True):
     '''teleports all persons within limits
 
     Function that takes the population and coordinates,
@@ -137,12 +136,11 @@ def set_destination_bounds(population, destinations, xmin, ymin,
 
     #teleport
     if teleport:
-        population[:,1] = np.random.uniform(low = xmin, high = xmax, size = len(population))
-        population[:,2] = np.random.uniform(low = ymin, high = ymax, size = len(population))
+        population[:,1] = np.random.uniform(low = env.getxmin(), high = env.getxmax(), size = len(population))
+        population[:,2] = np.random.uniform(low = env.getymin(), high = env.getymax(), size = len(population))
 
     #get parameters
-    x_center, y_center, x_wander, y_wander = get_motion_parameters(xmin, ymin, 
-                                                                   xmax, ymax)
+    x_center, y_center, x_wander, y_wander = get_motion_parameters(env.getxminyminxmaxymax())
 
     #set destination centers
     destinations[:,(dest_no - 1) * 2] = x_center
