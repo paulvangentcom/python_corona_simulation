@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from infection import infect, recover_or_die, compute_mortality
+from infection import Infection_locator, Infection_computator
 from motion import update_positions, out_of_bounds, update_randoms
 from path_planning import set_destination, check_at_destination, keep_at_destination
 from population import initialize_population, initialize_destination_matrix
@@ -271,12 +271,12 @@ def update(frame, population, destinations, pop_size, infection_range=0.01,
     population = update_positions(population)
     
     #find new infections
-    population = infect(population, pop_size, infection_range, infection_chance, frame, 
+    population = Infection_locator.infect(population, pop_size, infection_range, infection_chance, frame, 
                         healthcare_capacity, verbose)
     infected_plot.append(len(population[population[:,6] == 1]))
 
     #recover and die
-    population = recover_or_die(population, frame, recovery_duration, mortality_chance,
+    population = Infection_computator.recover_or_die(population, frame, recovery_duration, mortality_chance,
                                 risk_age, critical_age, critical_mortality_chance,
                                 risk_increase, no_treatment_factor, age_dependent_risk,
                                 treatment_dependent_risk, treatment_factor, verbose)
