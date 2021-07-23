@@ -131,7 +131,7 @@ class Infection:
 
                     #find healthy people surrounding infected patient
                     if Config.traveling_infects or patient[11] == 0:
-                        indices = Infection_locator.find_nearby(population, infection_zone, kind = 'healthy')
+                        indices = Infection.Infection_locator.find_nearby(population, infection_zone, kind = 'healthy')
                     else:
                         indices = []
 
@@ -167,11 +167,11 @@ class Infection:
                     if person[6] == 0: #if person is not already infected, find if infected are nearby
                         #find infected nearby healthy person
                         if Config.traveling_infects:
-                            poplen = Infection_locator.find_nearby(population, infection_zone, 
+                            poplen = Infection.Infection_locator.find_nearby(population, infection_zone, 
                                                 traveling_infects = True,
                                                 kind = 'infected')
                         else:
-                            poplen = Infection_locator.find_nearby(population, infection_zone, 
+                            poplen = Infection.Infection_locator.find_nearby(population, infection_zone, 
                                                 traveling_infects = True,
                                                 kind = 'infected',
                                                 infected_previous_step = infected_previous_step)
@@ -276,7 +276,7 @@ class Infection:
                 #check if we want risk to be age dependent
                 #if age_dependent_risk:
                 if Config.age_dependent_risk:
-                    updated_mortality_chance = Infection_computator.compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0], 
+                    updated_mortality_chance = Infection.Infection_computator.compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0], 
                                                                     Config.mortality_chance,
                                                                     Config.risk_age, Config.critical_age, 
                                                                     Config.critical_mortality_chance, 
