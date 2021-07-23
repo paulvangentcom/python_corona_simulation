@@ -150,10 +150,10 @@ def get_motion_parameters(env):
 
     '''
 
-    x_center = env.getxmin + ((env.getxmax - env.getxmin) / 2)
-    y_center = env.getymin + ((env.getymax - env.getymin) / 2)
+    x_center = env.getxmin() + ((env.getxmax() - env.getxmin()) / 2)
+    y_center = env.getymin() + ((env.getymax() - env.getymin()) / 2)
 
-    x_wander = (env.getxmax - env.getxmin) / 2
-    y_wander = (env.getymax - env.getymin) / 2
+    x_wander = (env.getxmax() - env.getxmin()) / 2
+    y_wander = (env.getymax() - env.getymin()) / 2
 
     return x_center, y_center, x_wander, y_wander
