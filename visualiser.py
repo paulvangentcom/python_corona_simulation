@@ -55,8 +55,8 @@ def draw_tstep(Config, population, pop_tracker, frame,
     ax1.set_ylim(Config.y_plot[0], Config.y_plot[1])
 
     if Config.self_isolate and Config.isolation_bounds != None:
-        build_hospital(Config.isolation_bounds[0], Config.isolation_bounds[2],
-                       Config.isolation_bounds[1], Config.isolation_bounds[3], ax1,
+        build_hospital(Enviroment(Config.isolation_bounds[0], Config.isolation_bounds[2],
+                       Config.isolation_bounds[1], Config.isolation_bounds[3]), ax1,
                        addcross = False)
         
     #plot population segments
