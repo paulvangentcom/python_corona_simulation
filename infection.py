@@ -5,7 +5,7 @@ new infections, recoveries, and deaths
 # let's make one more productive change here, shall we?
 
 import numpy as np
-from path_planning import go_to_location
+from Speed_path import go_to_location
 
 
 def find_nearby(population, infection_zone, traveling_infects=False,

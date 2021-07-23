@@ -8,7 +8,7 @@ import os
 
 import numpy as np
 
-from motion import get_motion_parameters
+from Speed_path import get_motion_parameters
 from utils import check_folder
 
 def initialize_population(Config, mean_age=45, max_age=105,
