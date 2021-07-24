@@ -5,7 +5,7 @@ and path planning
 
 import numpy as np
 
-from motion import get_motion_parameters, update_randoms
+from motion import get_motion_parameters, update_randoms, out_of_bounds
 
 def go_to_location(patient, destination, location_bounds, dest_no=1):
     '''sends patient to defined location
@@ -242,3 +242,47 @@ def reset_destinations(population, ids=[]):
 
     
     pass
+
+def update_pops_destination(population, destinations, Config):
+    '''update the destination of population at one time
+
+    Function that aggragate set_destination, check_at_destination 
+    and keep_at_destion. Other entities only need to call this method 
+    to update all the desination information of population, rather than 
+    call the separated function one by one.
+
+    Keyword arguments
+    -----------------
+    population : ndarray
+        the array containing all the population information
+
+    destinations : ndarray
+        the array containing all destinations information
+    '''
+    #check destinations if active
+    #define motion vectors if destinations active and not everybody is at destination
+    
+    active_dests_length = len(population[population[:,11] != 0])
+    at_destination_length = len(population[population[:,12] == 1])
+    population_length = len(population)
+
+    if active_dests_length > 0:
+        if at_destination_length < population_length:
+            population = set_destination(population,destinations)
+            population = check_at_destination(population, destinations,
+                                                wander_factor = Config.wander_factor_dest,
+                                                speed = Config.speed)
+            
+        if at_destination_length > 0:
+            # Keep them at destination
+            population = keep_at_destination(population, destinations,
+                                                Config.wander_factor)
+    #out of bounds
+    #define bounds arrays, excluding those who are marked as having a custom destination    
+    if active_dests_length < population_length:
+        _xbounds = np.array([[Config.xbounds[0] + 0.02, Config.xbounds[1] - 0.02]] * len(population[population[:,11] == 0]))
+        _ybounds = np.array([[Config.ybounds[0] + 0.02, Config.ybounds[1] - 0.02]] * len(population[population[:,11] == 0]))
+        population[population[:,11] == 0] = out_of_bounds(population[population[:,11] == 0],
+                                                            _xbounds, _ybounds)
+    
+    return population
