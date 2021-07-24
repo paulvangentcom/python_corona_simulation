@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 from config import Configuration, config_error
-from environment import build_hospital
+
 from infection import find_nearby, infect, recover_or_die, compute_mortality,\
 healthcare_infection_correction
 from motion import update_positions, out_of_bounds, update_randoms,\

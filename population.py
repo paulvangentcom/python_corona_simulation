@@ -32,6 +32,7 @@ def initialize_population(Config, mean_age=45, max_age=105,
     12 : at destination: whether arrived at destination (0=traveling, 1=arrived)
     13 : wander_range_x : wander ranges on x axis for those who are confined to a location
     14 : wander_range_y : wander ranges on y axis for those who are confined to a location
+    
 
     Keyword arguments
     -----------------
