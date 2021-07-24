@@ -8,11 +8,10 @@ from matplotlib.animation import FuncAnimation
 from config import Configuration, config_error
 from environment import build_hospital
 from infection import find_nearby, infect, recover_or_die, compute_mortality,\
-healthcare_infection_correction
-from motion import update_positions, out_of_bounds, update_randoms,\
-get_motion_parameters
-from path_planning import go_to_location, set_destination, check_at_destination,\
-keep_at_destination, reset_destinations
+healthcare_infection_correction, go_to_location
+from motion import update_positions, out_of_bounds, update_randoms, get_motion_parameters,\
+set_destination, check_at_destination,keep_at_destination, reset_destinations
+
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data, save_population, Population_trackers
 from visualiser import build_fig, draw_tstep, set_style, plot_sir

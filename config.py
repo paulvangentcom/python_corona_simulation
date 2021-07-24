@@ -171,6 +171,10 @@ class Configuration():
     def set_reduced_interaction(self, speed = 0.001):
         '''sets reduced interaction scenario to active'''
 
+        #set minimum speed
+        if(speed <= 0):
+            speed = 0.001
+
         self.speed = speed
 
 

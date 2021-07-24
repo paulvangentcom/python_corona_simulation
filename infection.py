@@ -5,8 +5,8 @@ new infections, recoveries, and deaths
 # let's make one more productive change here, shall we?
 
 import numpy as np
-from path_planning import go_to_location
 
+from motion import get_motion_parameters, update_randoms
 
 def find_nearby(population, infection_zone, traveling_infects=False,
                 kind='healthy', infected_previous_step=[]):
@@ -401,3 +401,45 @@ def healthcare_infection_correction(worker_population, healthcare_risk_factor=0.
         pass #if no changed risk, do nothing
 
     return worker_population
+
+
+def go_to_location(patient, destination, location_bounds, dest_no=1):
+    '''sends patient to defined location
+
+    Function that takes a patient an destination, and sets the location
+    as active for that patient.
+
+    Keyword arguments
+    -----------------
+    patient : 1d array
+        1d array of the patient data, is a row from population matrix
+
+    destination : 1d array
+        1d array of the destination data, is a row from destination matrix
+
+    location_bounds : list or tuple
+        defines bounds for the location the patient will be roam in when sent
+        there. format: [xmin, ymin, xmax, ymax]
+
+    dest_no : int
+        the location number, used as index for destinations array if multiple possible
+        destinations are defined`.
+
+
+    TODO: vectorize
+
+    '''
+
+    x_center, y_center, x_wander, y_wander = get_motion_parameters(location_bounds[0],
+                                                                   location_bounds[1],
+                                                                   location_bounds[2],
+                                                                   location_bounds[3])
+    patient[13] = x_wander
+    patient[14] = y_wander
+
+    destination[(dest_no - 1) * 2] = x_center
+    destination[((dest_no - 1) * 2) + 1] = y_center
+
+    patient[11] = dest_no  # set destination active
+
+    return patient, destination
