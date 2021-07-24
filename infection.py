@@ -204,6 +204,67 @@ class infect_impact:
     else:
         return population, destinations
 
+ def compute_mortality(age, mortality_chance, risk_age=50,
+                      critical_age=80, critical_mortality_chance=0.5,
+                      risk_increase='linear'):
+
+    '''compute mortality based on age
+
+    The risk is computed based on the age, with the risk_age marking
+    the age where risk starts increasing, and the crticial age marks where
+    the 'critical_mortality_odds' become the new mortality chance.
+
+    Whether risk increases linearly or quadratic is settable.
+
+    Keyword arguments
+    -----------------
+    age : int
+        the age of the person
+
+    mortality_chance : float
+        the base mortality chance
+        can be very small but cannot be zero if increase is quadratic.
+
+    risk_age : int
+        the age from which risk starts increasing
+
+    critical_age : int
+        the age where mortality risk equals the specified
+        critical_mortality_odds
+
+    critical_mortality_chance : float
+        the odds of dying at the critical age
+
+    risk_increase : str
+        defines whether the mortality risk between the at risk age
+        and the critical age increases linearly or exponentially
+    '''
+
+    if risk_age < age < critical_age: # if age in range
+        if risk_increase == 'linear':
+            #find linear risk
+            step_increase = (critical_mortality_chance) / ((critical_age - risk_age) + 1)
+            risk = critical_mortality_chance - ((critical_age - age) * step_increase)
+            return risk
+        elif risk_increase == 'quadratic':
+            #define exponential function between risk_age and critical_age
+            pw = 15
+            A = np.exp(np.log(mortality_chance / critical_mortality_chance)/pw)
+            a = ((risk_age - 1) - critical_age * A) / (A - 1)
+            b = mortality_chance / ((risk_age -1) + a ) ** pw
+
+            #define linespace
+            x = np.linspace(0, critical_age, critical_age)
+            #find values
+            risk_values = ((x + a) ** pw) * b
+            return risk_values[np.int32(age- 1)]
+    elif age <= risk_age:
+        #simply return the base mortality chance
+        return mortality_chance
+    elif age >= critical_age:
+        #simply return the maximum mortality chance
+        return critical_mortality_chance
+
 
  def recover_or_die(population, frame, Config):
     '''see whether to recover or die
@@ -272,7 +333,7 @@ class infect_impact:
         #check if we want risk to be age dependent
         #if age_dependent_risk:
         if Config.age_dependent_risk:
-            updated_mortality_chance = compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0],
+            updated_mortality_chance = infect_impact.compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0],
                                                             Config.mortality_chance,
                                                             Config.risk_age, Config.critical_age,
                                                             Config.critical_mortality_chance,
@@ -308,67 +369,6 @@ class infect_impact:
 
     return population
 
-
- def compute_mortality(age, mortality_chance, risk_age=50,
-                      critical_age=80, critical_mortality_chance=0.5,
-                      risk_increase='linear'):
-
-    '''compute mortality based on age
-
-    The risk is computed based on the age, with the risk_age marking
-    the age where risk starts increasing, and the crticial age marks where
-    the 'critical_mortality_odds' become the new mortality chance.
-
-    Whether risk increases linearly or quadratic is settable.
-
-    Keyword arguments
-    -----------------
-    age : int
-        the age of the person
-
-    mortality_chance : float
-        the base mortality chance
-        can be very small but cannot be zero if increase is quadratic.
-
-    risk_age : int
-        the age from which risk starts increasing
-
-    critical_age : int
-        the age where mortality risk equals the specified
-        critical_mortality_odds
-
-    critical_mortality_chance : float
-        the odds of dying at the critical age
-
-    risk_increase : str
-        defines whether the mortality risk between the at risk age
-        and the critical age increases linearly or exponentially
-    '''
-
-    if risk_age < age < critical_age: # if age in range
-        if risk_increase == 'linear':
-            #find linear risk
-            step_increase = (critical_mortality_chance) / ((critical_age - risk_age) + 1)
-            risk = critical_mortality_chance - ((critical_age - age) * step_increase)
-            return risk
-        elif risk_increase == 'quadratic':
-            #define exponential function between risk_age and critical_age
-            pw = 15
-            A = np.exp(np.log(mortality_chance / critical_mortality_chance)/pw)
-            a = ((risk_age - 1) - critical_age * A) / (A - 1)
-            b = mortality_chance / ((risk_age -1) + a ) ** pw
-
-            #define linespace
-            x = np.linspace(0, critical_age, critical_age)
-            #find values
-            risk_values = ((x + a) ** pw) * b
-            return risk_values[np.int32(age- 1)]
-    elif age <= risk_age:
-        #simply return the base mortality chance
-        return mortality_chance
-    elif age >= critical_age:
-        #simply return the maximum mortality chance
-        return critical_mortality_chance
 
 
  def healthcare_infection_correction(worker_population, healthcare_risk_factor=0.2):
