@@ -23,7 +23,6 @@ from visualiser import build_fig, draw_tstep, set_style, plot_sir
 # i'm supposed to make productive changes so this is going to be a
 # productive comment. YAY!
 
-# Test vscode push
 class Simulation():
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
     def __init__(self, *args, **kwargs):
