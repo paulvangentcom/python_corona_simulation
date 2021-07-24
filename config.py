@@ -3,6 +3,7 @@ file that contains all configuration related methods and classes
 '''
 
 import ast
+import configparser
 import numpy as np
 import os
 
@@ -136,19 +137,18 @@ class Configuration():
 
     def read_from_file(self, filename):
         '''reads config from filename'''
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        with open(dir_path + filename) as file:
-            for line in file:
-                line = line.strip().split(" ", 1)
-                key = line[0]
-                value = line[1]
+        path = os.path.dirname(os.path.realpath(__file__)) + filename
+        config = configparser.ConfigParser()
+        config.read(path)
+        for section in config.sections():
+            for key in config[section]:
                 try:
                     # converts the string value into its corresponding data type
-                    value = ast.literal_eval(value)
+                    value = ast.literal_eval(config[section][key])
                 except ValueError:
                     print("Invalid custom config value for: " + key)
                 self.set(key, value)
-
+        
 
     def set_lockdown(self, lockdown_percentage=0.1, lockdown_compliance=0.9):
         '''sets lockdown to active'''
