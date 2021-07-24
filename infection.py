@@ -2,6 +2,7 @@
 this file contains all functions required in computing
 new infections, recoveries, and deaths
 '''
+# let's make one more productive change here, shall we?
 
 import numpy as np
 from path_planning import go_to_location
@@ -32,44 +33,44 @@ def find_nearby(population, infection_zone, traveling_infects=False,
     '''
 
     if kind.lower() == 'healthy':
-        indices = np.int32(population[:,0][(infection_zone[0] < population[:,1]) & 
+        indices = np.int32(population[:,0][(infection_zone[0] < population[:,1]) &
                                             (population[:,1] < infection_zone[2]) &
-                                            (infection_zone[1] < population [:,2]) & 
+                                            (infection_zone[1] < population [:,2]) &
                                             (population[:,2] < infection_zone[3]) &
                                             (population[:,6] == 0)])
         return indices
 
     elif kind.lower() == 'infected':
         if traveling_infects:
-            infected_number = len(infected_previous_step[:,6][(infection_zone[0] < infected_previous_step[:,1]) & 
+            infected_number = len(infected_previous_step[:,6][(infection_zone[0] < infected_previous_step[:,1]) &
                                                             (infected_previous_step[:,1] < infection_zone[2]) &
-                                                            (infection_zone[1] < infected_previous_step [:,2]) & 
+                                                            (infection_zone[1] < infected_previous_step [:,2]) &
                                                             (infected_previous_step[:,2] < infection_zone[3]) &
                                                             (infected_previous_step[:,6] == 1)])
         else:
-            infected_number = len(infected_previous_step[:,6][(infection_zone[0] < infected_previous_step[:,1]) & 
+            infected_number = len(infected_previous_step[:,6][(infection_zone[0] < infected_previous_step[:,1]) &
                                                             (infected_previous_step[:,1] < infection_zone[2]) &
-                                                            (infection_zone[1] < infected_previous_step [:,2]) & 
+                                                            (infection_zone[1] < infected_previous_step [:,2]) &
                                                             (infected_previous_step[:,2] < infection_zone[3]) &
                                                             (infected_previous_step[:,6] == 1) &
                                                             (infected_previous_step[:,11] == 0)])
         return infected_number
-        
+
     else:
         raise ValueError('type to find %s not understood! Must be either \'healthy\' or \'ill\'')
-        
-        
 
 
 
-def infect(population, Config, frame, send_to_location=False, 
-           location_bounds=[], destinations=[], location_no=1, 
+
+
+def infect(population, Config, frame, send_to_location=False,
+           location_bounds=[], destinations=[], location_no=1,
            location_odds=1.0):
     '''finds new infections.
-    
+
     Function that finds new infections in an area around infected persens
     defined by infection_range, and infects others with chance infection_chance
-    
+
     Keyword arguments
     -----------------
     population : ndarray
@@ -77,7 +78,7 @@ def infect(population, Config, frame, send_to_location=False,
 
     pop_size : int
         the number if individuals in the population
-    
+
     infection_range : float
         the radius around each infected person where transmission of virus can take place
 
@@ -148,7 +149,7 @@ def infect(population, Config, frame, send_to_location=False,
                                 population[idx],\
                                 destinations[idx] = go_to_location(population[idx],
                                                                    destinations[idx],
-                                                                   location_bounds, 
+                                                                   location_bounds,
                                                                    dest_no=location_no)
                         else:
                             pass
@@ -156,9 +157,9 @@ def infect(population, Config, frame, send_to_location=False,
 
     else:
         #if more than half are infected slice based in healthy people (to speed up computation)
-            
-        
-        
+
+
+
         for person in healthy_previous_step:
             #define infecftion range around healthy person
             infection_zone = [person[1] - Config.infection_range, person[2] - Config.infection_range,
@@ -167,15 +168,15 @@ def infect(population, Config, frame, send_to_location=False,
             if person[6] == 0: #if person is not already infected, find if infected are nearby
                 #find infected nearby healthy person
                 if Config.traveling_infects:
-                    poplen = find_nearby(population, infection_zone, 
+                    poplen = find_nearby(population, infection_zone,
                                          traveling_infects = True,
                                          kind = 'infected')
                 else:
-                    poplen = find_nearby(population, infection_zone, 
+                    poplen = find_nearby(population, infection_zone,
                                          traveling_infects = True,
                                          kind = 'infected',
                                          infected_previous_step = infected_previous_step)
-                
+
                 if poplen > 0:
                     if np.random.random() < (Config.infection_chance * poplen):
                         #roll die to see if healthy person will be infected
@@ -189,7 +190,7 @@ def infect(population, Config, frame, send_to_location=False,
                                     population[np.int32(person[0])],\
                                     destinations[np.int32(person[0])] = go_to_location(population[np.int32(person[0])],
                                                                                         destinations[np.int32(person[0])],
-                                                                                        location_bounds, 
+                                                                                        location_bounds,
                                                                                         dest_no=location_no)
 
 
@@ -256,11 +257,11 @@ def recover_or_die(population, frame, Config):
 
     #define vector of how long everyone has been sick
     illness_duration_vector = frame - infected_people[:,8]
-    
+
     recovery_odds_vector = (illness_duration_vector - Config.recovery_duration[0]) / np.ptp(Config.recovery_duration)
     recovery_odds_vector = np.clip(recovery_odds_vector, a_min = 0, a_max = None)
 
-    #update states of sick people 
+    #update states of sick people
     indices = infected_people[:,0][recovery_odds_vector >= infected_people[:,9]]
 
     recovered = []
@@ -271,10 +272,10 @@ def recover_or_die(population, frame, Config):
         #check if we want risk to be age dependent
         #if age_dependent_risk:
         if Config.age_dependent_risk:
-            updated_mortality_chance = compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0], 
+            updated_mortality_chance = compute_mortality(infected_people[infected_people[:,0] == idx][:,7][0],
                                                             Config.mortality_chance,
-                                                            Config.risk_age, Config.critical_age, 
-                                                            Config.critical_mortality_chance, 
+                                                            Config.risk_age, Config.critical_age,
+                                                            Config.critical_mortality_chance,
                                                             Config.risk_increase)
         else:
             updated_mortality_chance = Config.mortality_chance
@@ -283,7 +284,7 @@ def recover_or_die(population, frame, Config):
             #if person is not in treatment, increase risk by no_treatment_factor
             updated_mortality_chance = updated_mortality_chance * Config.no_treatment_factor
         elif infected_people[infected_people[:,0] == int(idx)][:,10] == 1 and Config.treatment_dependent_risk:
-            #if person is in treatment, decrease risk by 
+            #if person is in treatment, decrease risk by
             updated_mortality_chance = updated_mortality_chance * Config.treatment_factor
 
         if np.random.random() <= updated_mortality_chance:
@@ -333,7 +334,7 @@ def compute_mortality(age, mortality_chance, risk_age=50,
         the age from which risk starts increasing
 
     critical_age : int
-        the age where mortality risk equals the specified 
+        the age where mortality risk equals the specified
         critical_mortality_odds
 
     critical_mortality_chance : float
