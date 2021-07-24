@@ -24,7 +24,6 @@ from visualiser import build_fig, draw_tstep, set_style, plot_sir
 # productive comment. YAY!
 
 class Simulation():
-    #TODO: if lockdown or otherwise stopped: destination -1 means no motion
     def __init__(self, *args, **kwargs):
         #load default config data
         self.Config = Configuration(*args, **kwargs)
@@ -237,6 +236,9 @@ if __name__ == '__main__':
     #                              isolation_bounds = [0.02, 0.02, 0.09, 0.98],
     #                              traveling_infects=False)
     #sim.population_init() #reinitialize population to enforce new roaming bounds
+
+    #load custom config 
+    sim.Config.read_from_file('\custom_config.txt')
 
     #run, hold CTRL+C in terminal to end scenario early
     sim.run()

@@ -2,7 +2,9 @@
 file that contains all configuration related methods and classes
 '''
 
+import ast
 import numpy as np
+import os
 
 class config_error(Exception):
     pass
@@ -132,10 +134,20 @@ class Configuration():
         self.__dict__[key] = value
 
 
-    def read_from_file(self, path):
+    def read_from_file(self, filename):
         '''reads config from filename'''
-        #TODO: implement
-        pass
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(dir_path + filename) as file:
+            for line in file:
+                line = line.strip().split(" ", 1)
+                key = line[0]
+                value = line[1]
+                try:
+                    # converts the string value into its corresponding data type
+                    value = ast.literal_eval(value)
+                except ValueError:
+                    print("Invalid custom config value for: " + key)
+                self.set(key, value)
 
 
     def set_lockdown(self, lockdown_percentage=0.1, lockdown_compliance=0.9):

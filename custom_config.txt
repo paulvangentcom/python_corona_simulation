@@ -1,0 +1,50 @@
+verbose True
+simulation_steps 10000
+tstep 0
+save_data False
+save_pop False
+save_pop_freq 10
+save_pop_folder 'pop_data/'
+endif_no_infections True
+world_size [2, 2]
+traveling_infects False
+self_isolate False
+lockdown False
+lockdown_percentage 0.1
+lockdown_compliance 0.95
+visualise True
+plot_mode 'sir'
+x_plot [0, 2]
+y_plot [0, 2]
+save_plot False
+plot_path 'render/'
+plot_style 'default'
+colorblind_mode False
+colorblind_type 'deuteranopia'
+xbounds [0.02, 1.98]
+ybounds [0.02, 1.98]
+pop_size 2000
+mean_age 45
+max_age 105
+age_dependent_risk True
+risk_age 55
+critical_age 75
+critical_mortality_chance 0.1
+risk_increase 'quadratic'
+proportion_distancing 0
+speed 0.01
+wander_range 0.05
+wander_factor 1
+wander_factor_dest 1.5
+infection_range 0.01
+infection_chance 0.03
+recovery_duration (200, 500)
+mortality_chance 0.02
+healthcare_capacity 300
+treatment_factor 0.5
+no_treatment_factor 3
+treatment_dependent_risk True
+self_isolate_proportion 0.6
+isolation_bounds [0.02, 0.02, 0.1, 0.98]
+lockdown_percentage 0.1
+lockdown_vector []
