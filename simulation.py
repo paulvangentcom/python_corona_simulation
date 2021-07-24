@@ -64,28 +64,8 @@ class Simulation():
             #initialize figure
             self.fig, self.spec, self.ax1, self.ax2 = build_fig(self.Config)
 
-        #check destinations if active
-        #define motion vectors if destinations active and not everybody is at destination
-        active_dests = len(self.population[self.population[:,11] != 0]) # look op this only once
-
-        if active_dests > 0 and len(self.population[self.population[:,12] == 0]) > 0:
-            self.population = set_destination(self.population, self.destinations)
-            self.population = check_at_destination(self.population, self.destinations,
-                                                   wander_factor = self.Config.wander_factor_dest,
-                                                   speed = self.Config.speed)
-
-        if active_dests > 0 and len(self.population[self.population[:,12] == 1]) > 0:
-            #keep them at destination
-            self.population = keep_at_destination(self.population, self.destinations,
-                                                  self.Config.wander_factor)
-
-        #out of bounds
-        #define bounds arrays, excluding those who are marked as having a custom destination
-        if len(self.population[:,11] == 0) > 0:
-            _xbounds = np.array([[self.Config.xbounds[0] + 0.02, self.Config.xbounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
-            _ybounds = np.array([[self.Config.ybounds[0] + 0.02, self.Config.ybounds[1] - 0.02]] * len(self.population[self.population[:,11] == 0]))
-            self.population[self.population[:,11] == 0] = out_of_bounds(self.population[self.population[:,11] == 0],
-                                                                        _xbounds, _ybounds)
+        #update populations' destination conditioning on their current status and the information of destinations.                                                          _xbounds, _ybounds)
+        self.population = update_pops_destination(self.population, self.destinations, self.Config)
 
         #set randoms
         if self.Config.lockdown:
