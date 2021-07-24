@@ -3,6 +3,7 @@ import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from matplotlib.animation import FuncAnimation
 
 from config import Configuration, config_error
@@ -14,11 +15,227 @@ from path_planning import go_to_location, set_destination, check_at_destination,
 keep_at_destination, reset_destinations
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data, save_population, Population_trackers
-from visualiser import build_fig, draw_tstep, set_style, plot_sir
+from utils import check_folder
 
 #set seed for reproducibility
 #np.random.seed(100)
 
+class Environment():
+    '''
+    file that contains all functions to define destinations in the
+    environment of the simulated world.
+    '''
+
+    def build_hospital(xmin, xmax, ymin, ymax, plt, addcross=True):
+        '''builds hospital
+
+        Defines hospital and returns wall coordinates for
+        the hospital, as well as coordinates for a red cross
+        above it
+
+        Keyword arguments
+        -----------------
+        xmin : int or float
+            lower boundary on the x axis
+
+        xmax : int or float
+            upper boundary on the x axis
+
+        ymin : int or float
+            lower boundary on the y axis
+
+        ymax : int or float
+            upper boundary on the y axis
+
+        plt : matplotlib.pyplot object
+            the plot object to which to append the hospital drawing
+            if None, coordinates are returned
+
+        Returns
+        -------
+        None
+        '''
+
+        #plot walls
+        plt.plot([xmin, xmin], [ymin, ymax], color = 'black')
+        plt.plot([xmax, xmax], [ymin, ymax], color = 'black')
+        plt.plot([xmin, xmax], [ymin, ymin], color = 'black')
+        plt.plot([xmin, xmax], [ymax, ymax], color = 'black')
+
+        #plot red cross
+        if addcross:
+            xmiddle = xmin + ((xmax - xmin) / 2)
+            height = np.min([0.3, (ymax - ymin) / 5])
+            plt.plot([xmiddle, xmiddle], [ymax, ymax + height], color='red',
+                     linewidth = 3)
+            plt.plot([xmiddle - (height / 2), xmiddle + (height / 2)],
+                     [ymax + (height / 2), ymax + (height / 2)], color='red',
+                     linewidth = 3)
+
+class Visualiser():
+    '''
+    contains all methods for visualisation tasks
+    '''
+
+    def set_style(Config):
+        '''sets the plot style
+
+        '''
+        if Config.plot_style.lower() == 'dark':
+            mpl.style.use('plot_styles/dark.mplstyle')
+
+
+    def build_fig(Config, figsize=(5,7)):
+        set_style(Config)
+        fig = plt.figure(figsize=(5,7))
+        spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
+
+        ax1 = fig.add_subplot(spec[0,0])
+        plt.title('infection simulation')
+        plt.xlim(Config.xbounds[0], Config.xbounds[1])
+        plt.ylim(Config.ybounds[0], Config.ybounds[1])
+
+        ax2 = fig.add_subplot(spec[1,0])
+        ax2.set_title('number of infected')
+        #ax2.set_xlim(0, simulation_steps)
+        ax2.set_ylim(0, Config.pop_size + 100)
+
+        #if
+
+        return fig, spec, ax1, ax2
+
+
+    def draw_tstep(Config, population, pop_tracker, frame,
+                   fig, spec, ax1, ax2):
+        #construct plot and visualise
+
+        #set plot style
+        set_style(Config)
+
+        #get color palettes
+        palette = Config.get_palette()
+
+        spec = fig.add_gridspec(ncols=1, nrows=2, height_ratios=[5,2])
+        ax1.clear()
+        ax2.clear()
+
+        ax1.set_xlim(Config.x_plot[0], Config.x_plot[1])
+        ax1.set_ylim(Config.y_plot[0], Config.y_plot[1])
+
+        if Config.self_isolate and Config.isolation_bounds != None:
+            build_hospital(Config.isolation_bounds[0], Config.isolation_bounds[2],
+                           Config.isolation_bounds[1], Config.isolation_bounds[3], ax1,
+                           addcross = False)
+
+        #plot population segments
+        healthy = population[population[:,6] == 0][:,1:3]
+        ax1.scatter(healthy[:,0], healthy[:,1], color=palette[0], s = 2, label='healthy')
+
+        infected = population[population[:,6] == 1][:,1:3]
+        ax1.scatter(infected[:,0], infected[:,1], color=palette[1], s = 2, label='infected')
+
+        immune = population[population[:,6] == 2][:,1:3]
+        ax1.scatter(immune[:,0], immune[:,1], color=palette[2], s = 2, label='immune')
+
+        fatalities = population[population[:,6] == 3][:,1:3]
+        ax1.scatter(fatalities[:,0], fatalities[:,1], color=palette[3], s = 2, label='dead')
+
+
+        #add text descriptors
+        ax1.text(Config.x_plot[0],
+                 Config.y_plot[1] + ((Config.y_plot[1] - Config.y_plot[0]) / 100),
+                 'timestep: %i, total: %i, healthy: %i infected: %i immune: %i fatalities: %i' %(frame,
+                                                                                                 len(population),
+                                                                                                 len(healthy),
+                                                                                                 len(infected),
+                                                                                                 len(immune),
+                                                                                                 len(fatalities)),
+                    fontsize=6)
+
+        ax2.set_title('number of infected')
+        ax2.text(0, Config.pop_size * 0.05,
+                    'https://github.com/paulvangentcom/python-corona-simulation',
+                    fontsize=6, alpha=0.5)
+        #ax2.set_xlim(0, simulation_steps)
+        ax2.set_ylim(0, Config.pop_size + 200)
+
+        if Config.treatment_dependent_risk:
+            infected_arr = np.asarray(pop_tracker.infectious)
+            indices = np.argwhere(infected_arr >= Config.healthcare_capacity)
+
+            ax2.plot([Config.healthcare_capacity for x in range(len(pop_tracker.infectious))],
+                     'r:', label='healthcare capacity')
+
+        if Config.plot_mode.lower() == 'default':
+            ax2.plot(pop_tracker.infectious, color=palette[1])
+            ax2.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
+        elif Config.plot_mode.lower() == 'sir':
+            ax2.plot(pop_tracker.susceptible, color=palette[0], label='susceptible')
+            ax2.plot(pop_tracker.infectious, color=palette[1], label='infectious')
+            ax2.plot(pop_tracker.recovered, color=palette[2], label='recovered')
+            ax2.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
+        else:
+            raise ValueError('incorrect plot_style specified, use \'sir\' or \'default\'')
+
+        ax2.legend(loc = 'best', fontsize = 6)
+
+        plt.draw()
+        plt.pause(0.0001)
+
+        if Config.save_plot:
+            try:
+                plt.savefig('%s/%i.png' %(Config.plot_path, frame))
+            except:
+                check_folder(Config.plot_path)
+                plt.savefig('%s/%i.png' %(Config.plot_path, frame))
+
+
+    def plot_sir(Config, pop_tracker, size=(6,3), include_fatalities=False,
+                 title='S-I-R plot of simulation'):
+        '''plots S-I-R parameters in the population tracker
+
+        Keyword arguments
+        -----------------
+        Config : class
+            the configuration class
+
+        pop_tracker : ndarray
+            the population tracker, containing
+
+        size : tuple
+            size at which the plot will be initialised (default: (6,3))
+
+        include_fatalities : bool
+            whether to plot the fatalities as well (default: False)
+        '''
+
+        #set plot style
+        set_style(Config)
+
+        #get color palettes
+        palette = Config.get_palette()
+
+        #plot the thing
+        plt.figure(figsize=size)
+        plt.title(title)
+        plt.plot(pop_tracker.susceptible, color=palette[0], label='susceptible')
+        plt.plot(pop_tracker.infectious, color=palette[1], label='infectious')
+        plt.plot(pop_tracker.recovered, color=palette[2], label='recovered')
+        if include_fatalities:
+            plt.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
+
+        #add axis labels
+        plt.xlabel('time in hours')
+        plt.ylabel('population')
+
+        #add legend
+        plt.legend()
+
+        #beautify
+        plt.tight_layout()
+
+        #initialise
+        plt.show()
 
 class Simulation():
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
@@ -203,58 +420,6 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
                  title='S-I-R plot of simulation'):
         plot_sir(self.Config, self.pop_tracker, size, include_fatalities,
                  title)
-
-class Environment():
-    '''
-    file that contains all functions to define destinations in the
-    environment of the simulated world.
-    '''
-
-    def build_hospital(xmin, xmax, ymin, ymax, plt, addcross=True):
-        '''builds hospital
-
-        Defines hospital and returns wall coordinates for
-        the hospital, as well as coordinates for a red cross
-        above it
-
-        Keyword arguments
-        -----------------
-        xmin : int or float
-            lower boundary on the x axis
-
-        xmax : int or float
-            upper boundary on the x axis
-
-        ymin : int or float
-            lower boundary on the y axis
-
-        ymax : int or float
-            upper boundary on the y axis
-
-        plt : matplotlib.pyplot object
-            the plot object to which to append the hospital drawing
-            if None, coordinates are returned
-
-        Returns
-        -------
-        None
-        '''
-
-        #plot walls
-        plt.plot([xmin, xmin], [ymin, ymax], color = 'black')
-        plt.plot([xmax, xmax], [ymin, ymax], color = 'black')
-        plt.plot([xmin, xmax], [ymin, ymin], color = 'black')
-        plt.plot([xmin, xmax], [ymax, ymax], color = 'black')
-
-        #plot red cross
-        if addcross:
-            xmiddle = xmin + ((xmax - xmin) / 2)
-            height = np.min([0.3, (ymax - ymin) / 5])
-            plt.plot([xmiddle, xmiddle], [ymax, ymax + height], color='red',
-                     linewidth = 3)
-            plt.plot([xmiddle - (height / 2), xmiddle + (height / 2)],
-                     [ymax + (height / 2), ymax + (height / 2)], color='red',
-                     linewidth = 3)
 
 if __name__ == '__main__':
 
