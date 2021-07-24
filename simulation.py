@@ -183,6 +183,9 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
                                         isolation_bounds = [0.02, 0.02, 0.09, 0.98],
                                         traveling_infects=False)
             sim.population_init() #reinitialize population to enforce new roaming bounds
+        else:
+            print("Invalid scenario!")
+            return
 
         i = 0
 
