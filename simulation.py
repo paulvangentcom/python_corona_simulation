@@ -13,8 +13,8 @@ from motion import update_positions, out_of_bounds, update_randoms,\
 get_motion_parameters
 from path_planning import go_to_location, set_destination, check_at_destination,\
 keep_at_destination, reset_destinations
-from population import InitPopulation, initialize_destination_matrix,\
-set_destination_bounds, save_data, save_population, Population_trackers
+from population import InitPopulation, DestinationsData, save_data, save_population,\
+ Population_trackers
 from visualiser import build_fig, draw_tstep, set_style, plot_sir
 
 #set seed for reproducibility
@@ -36,7 +36,7 @@ class Simulation():
         self.pop_tracker = Population_trackers()
 
         #initalise destinations vector
-        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
+        self.destinations = DestinationsData.initialize_destination_matrix(self.Config.pop_size, 1)
 
 
     def reinitialise(self):
@@ -45,7 +45,7 @@ class Simulation():
         self.frame = 0
         self.population_init()
         self.pop_tracker = Population_trackers()
-        self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
+        self.destinations = DestinationsData.initialize_destination_matrix(self.Config.pop_size, 1)
 
 
     def population_init(self):

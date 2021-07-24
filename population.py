@@ -92,75 +92,76 @@ class InitPopulation:
         return population
 
 
-def initialize_destination_matrix(pop_size, total_destinations):
-    '''intializes the destination matrix
+class DestinationsData:
+    def initialize_destination_matrix(pop_size, total_destinations):
+        '''intializes the destination matrix
 
-    function that initializes the destination matrix used to
-    define individual location and roam zones for population members
+        function that initializes the destination matrix used to
+        define individual location and roam zones for population members
 
-    Keyword arguments
-    -----------------
-    pop_size : int
-        the size of the population
+        Keyword arguments
+        -----------------
+        pop_size : int
+            the size of the population
 
-    total_destinations : int
-        the number of destinations to maintain in the matrix. Set to more than
-        one if for example people can go to work, supermarket, home, etc.
-    '''
+        total_destinations : int
+            the number of destinations to maintain in the matrix. Set to more than
+            one if for example people can go to work, supermarket, home, etc.
+        '''
 
-    destinations = np.zeros((pop_size, total_destinations * 2))
+        destinations = np.zeros((pop_size, total_destinations * 2))
 
-    return destinations
+        return destinations
 
 
-def set_destination_bounds(population, destinations, xmin, ymin, 
-                           xmax, ymax, dest_no=1, teleport=True):
-    '''teleports all persons within limits
+    def set_destination_bounds(population, destinations, xmin, ymin, 
+                            xmax, ymax, dest_no=1, teleport=True):
+        '''teleports all persons within limits
 
-    Function that takes the population and coordinates,
-    teleports everyone there, sets destination active and
-    destination as reached
+        Function that takes the population and coordinates,
+        teleports everyone there, sets destination active and
+        destination as reached
 
-    Keyword arguments
-    -----------------
-    population : ndarray
-        the array containing all the population information
+        Keyword arguments
+        -----------------
+        population : ndarray
+            the array containing all the population information
 
-    destinations : ndarray
-        the array containing all the destination information
+        destinations : ndarray
+            the array containing all the destination information
 
-    xmin, ymin, xmax, ymax : int or float
-        define the bounds on both axes where the individual can roam within
-        after reaching the defined area
+        xmin, ymin, xmax, ymax : int or float
+            define the bounds on both axes where the individual can roam within
+            after reaching the defined area
 
-    dest_no : int
-        the destination number to set as active (if more than one)
+        dest_no : int
+            the destination number to set as active (if more than one)
 
-    teleport : bool
-        whether to instantly teleport individuals to the defined locations
-    '''
+        teleport : bool
+            whether to instantly teleport individuals to the defined locations
+        '''
 
-    #teleport
-    if teleport:
-        population[:,1] = np.random.uniform(low = xmin, high = xmax, size = len(population))
-        population[:,2] = np.random.uniform(low = ymin, high = ymax, size = len(population))
+        #teleport
+        if teleport:
+            population[:,1] = np.random.uniform(low = xmin, high = xmax, size = len(population))
+            population[:,2] = np.random.uniform(low = ymin, high = ymax, size = len(population))
 
-    #get parameters
-    x_center, y_center, x_wander, y_wander = get_motion_parameters(xmin, ymin, 
-                                                                   xmax, ymax)
+        #get parameters
+        x_center, y_center, x_wander, y_wander = get_motion_parameters(xmin, ymin, 
+                                                                    xmax, ymax)
 
-    #set destination centers
-    destinations[:,(dest_no - 1) * 2] = x_center
-    destinations[:,((dest_no - 1) * 2) + 1] = y_center
+        #set destination centers
+        destinations[:,(dest_no - 1) * 2] = x_center
+        destinations[:,((dest_no - 1) * 2) + 1] = y_center
 
-    #set wander bounds
-    population[:,13] = x_wander
-    population[:,14] = y_wander
+        #set wander bounds
+        population[:,13] = x_wander
+        population[:,14] = y_wander
 
-    population[:,11] = dest_no #set destination active
-    population[:,12] = 1 #set destination reached
+        population[:,11] = dest_no #set destination active
+        population[:,12] = 1 #set destination reached
 
-    return population, destinations
+        return population, destinations
 
 
 def save_data(population, pop_tracker):
