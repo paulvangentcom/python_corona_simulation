@@ -25,7 +25,7 @@ from visualiser import build_fig, draw_tstep, set_style, plot_sir
 
 class Simulation():
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
-    def __init__(self, *args, **kwargs):
+    def __init__(self, scenario='default', *args, **kwargs):
         #load default config data
         self.Config = Configuration(*args, **kwargs)
         self.frame = 0
@@ -37,6 +37,9 @@ class Simulation():
 
         #initalise destinations vector
         self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
+        
+        #set scenario
+        self.scenario = scenario
 
 
     def reinitialise(self):
@@ -170,6 +173,16 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
 
     def run(self):
         '''run simulation'''
+        if self.scenario == 'lockdown':
+            sim.Config.set_lockdown(lockdown_percentage = 0.1, lockdown_compliance = 0.95)
+        elif self.scenario == 'reduced_interaction':
+            sim.Config.set_reduced_interaction()
+            sim.population_init()
+        elif self.scenario == 'self_isolation':
+            sim.Config.set_self_isolation(self_isolate_proportion = 0.9,
+                                        isolation_bounds = [0.02, 0.02, 0.09, 0.98],
+                                        traveling_infects=False)
+            sim.population_init() #reinitialize population to enforce new roaming bounds
 
         i = 0
 
@@ -212,10 +225,12 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
 if __name__ == '__main__':
 
     #initialize
-    sim = Simulation()
+    #choice of scenarios: default, lockdown, reduced_interaction, or self_isolation
+    #scenario parameters can be adjusted in run() or config.py
+    sim = Simulation(scenario='default')
 
     #set number of simulation steps
-    sim.Config.simulation_steps = 20000
+    # sim.Config.simulation_steps = 20000
 
     #set color mode
     sim.Config.plot_style = 'default' #can also be dark
@@ -224,19 +239,6 @@ if __name__ == '__main__':
     #sim.Config.colorblind_mode = True
     #set colorblind type (default deuteranopia)
     #sim.Config.colorblind_type = 'deuteranopia'
-
-    #set reduced interaction
-    #sim.Config.set_reduced_interaction()
-    #sim.population_init()
-
-    #set lockdown scenario
-    #sim.Config.set_lockdown(lockdown_percentage = 0.1, lockdown_compliance = 0.95)
-
-    #set self-isolation scenario
-    #sim.Config.set_self_isolation(self_isolate_proportion = 0.9,
-    #                              isolation_bounds = [0.02, 0.02, 0.09, 0.98],
-    #                              traveling_infects=False)
-    #sim.population_init() #reinitialize population to enforce new roaming bounds
 
     #run, hold CTRL+C in terminal to end scenario early
     sim.run()
