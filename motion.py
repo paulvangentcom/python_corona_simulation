@@ -29,9 +29,9 @@ def update_positions(population):
 def out_of_bounds(population, xbounds, ybounds):
     '''checks which people are about to go out of bounds and corrects
 
-    Function that updates headings of individuals that are about to 
+    Function that updates headings of individuals that are about to
     go outside of the world boundaries.
-    
+
     Keyword arguments
     -----------------
     population : ndarray
@@ -47,7 +47,7 @@ def out_of_bounds(population, xbounds, ybounds):
     shp = population[:,3][(population[:,1] <= xbounds[:,0]) &
                             (population[:,3] < 0)].shape
     population[:,3][(population[:,1] <= xbounds[:,0]) &
-                    (population[:,3] < 0)] = np.clip(np.random.normal(loc = 0.5, 
+                    (population[:,3] < 0)] = np.clip(np.random.normal(loc = 0.5,
                                                                         scale = 0.5/3,
                                                                         size = shp),
                                                         a_min = 0.05, a_max = 1)
@@ -55,7 +55,7 @@ def out_of_bounds(population, xbounds, ybounds):
     shp = population[:,3][(population[:,1] >= xbounds[:,1]) &
                             (population[:,3] > 0)].shape
     population[:,3][(population[:,1] >= xbounds[:,1]) &
-                    (population[:,3] > 0)] = np.clip(-np.random.normal(loc = 0.5, 
+                    (population[:,3] > 0)] = np.clip(-np.random.normal(loc = 0.5,
                                                                         scale = 0.5/3,
                                                                         size = shp),
                                                         a_min = -1, a_max = -0.05)
@@ -64,7 +64,7 @@ def out_of_bounds(population, xbounds, ybounds):
     shp = population[:,4][(population[:,2] <= ybounds[:,0]) &
                             (population[:,4] < 0)].shape
     population[:,4][(population[:,2] <= ybounds[:,0]) &
-                    (population[:,4] < 0)] = np.clip(np.random.normal(loc = 0.5, 
+                    (population[:,4] < 0)] = np.clip(np.random.normal(loc = 0.5,
                                                                         scale = 0.5/3,
                                                                         size = shp),
                                                         a_min = 0.05, a_max = 1)
@@ -72,7 +72,7 @@ def out_of_bounds(population, xbounds, ybounds):
     shp = population[:,4][(population[:,2] >= ybounds[:,1]) &
                             (population[:,4] > 0)].shape
     population[:,4][(population[:,2] >= ybounds[:,1]) &
-                    (population[:,4] > 0)] = np.clip(-np.random.normal(loc = 0.5, 
+                    (population[:,4] > 0)] = np.clip(-np.random.normal(loc = 0.5,
                                                                         scale = 0.5/3,
                                                                         size = shp),
                                                         a_min = -1, a_max = -0.05)
@@ -80,11 +80,11 @@ def out_of_bounds(population, xbounds, ybounds):
     return population
 
 
-def update_randoms(population, pop_size, speed=0.01, heading_update_chance=0.02, 
+def update_randoms(population, pop_size, speed=0.01, heading_update_chance=0.02,
                    speed_update_chance=0.02, heading_multiplication=1,
                    speed_multiplication=1):
     '''updates random states such as heading and speed
-    
+
     Function that randomized the headings and speeds for population members
     with settable odds.
 
@@ -92,7 +92,7 @@ def update_randoms(population, pop_size, speed=0.01, heading_update_chance=0.02,
     -----------------
     population : ndarray
         the array containing all the population information
-    
+
     pop_size : int
         the size of the population
 
@@ -100,7 +100,7 @@ def update_randoms(population, pop_size, speed=0.01, heading_update_chance=0.02,
         the odds of updating the heading of each member, each time step
 
     speed_update_chance : float
-        the oodds of updating the speed of each member, each time step
+        the odds of updating the speed of each member, each time step
 
     heading_multiplication : int or float
         factor to multiply heading with (default headings are between -1 and 1)
@@ -117,19 +117,19 @@ def update_randoms(population, pop_size, speed=0.01, heading_update_chance=0.02,
     #x
     update = np.random.random(size=(pop_size,))
     shp = update[update <= heading_update_chance].shape
-    population[:,3][update <= heading_update_chance] = np.random.normal(loc = 0, 
+    population[:,3][update <= heading_update_chance] = np.random.normal(loc = 0,
                                                         scale = 1/3,
                                                         size = shp) * heading_multiplication
     #y
     update = np.random.random(size=(pop_size,))
     shp = update[update <= heading_update_chance].shape
-    population[:,4][update <= heading_update_chance] = np.random.normal(loc = 0, 
+    population[:,4][update <= heading_update_chance] = np.random.normal(loc = 0,
                                                         scale = 1/3,
                                                         size = shp) * heading_multiplication
     #randomize speeds
     update = np.random.random(size=(pop_size,))
     shp = update[update <= heading_update_chance].shape
-    population[:,5][update <= heading_update_chance] = np.random.normal(loc = speed, 
+    population[:,5][update <= heading_update_chance] = np.random.normal(loc = speed,
                                                         scale = speed / 3,
                                                         size = shp) * speed_multiplication
 
