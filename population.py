@@ -10,8 +10,8 @@ import numpy as np
 
 from motion import get_motion_parameters
 from utils import check_folder
-
-def initialize_population(Config, mean_age=45, max_age=105,
+class inital_population:
+ def initialize_population(Config, mean_age=45, max_age=105,
                           xbounds=[0, 1], ybounds=[0, 1]):
     '''initialized the population for the simulation
 
@@ -86,8 +86,8 @@ def initialize_population(Config, mean_age=45, max_age=105,
 
     return population
 
-
-def initialize_destination_matrix(pop_size, total_destinations):
+class set_destination:
+ def initialize_destination_matrix(pop_size, total_destinations):
     '''intializes the destination matrix
 
     function that initializes the destination matrix used to
@@ -108,7 +108,7 @@ def initialize_destination_matrix(pop_size, total_destinations):
     return destinations
 
 
-def set_destination_bounds(population, destinations, xmin, ymin, 
+ def set_destination_bounds(population, destinations, xmin, ymin,
                            xmax, ymax, dest_no=1, teleport=True):
     '''teleports all persons within limits
 
@@ -157,8 +157,8 @@ def set_destination_bounds(population, destinations, xmin, ymin,
 
     return population, destinations
 
-
-def save_data(population, pop_tracker):
+class record_population:
+ def save_data(population, pop_tracker):
     '''dumps simulation data to disk
 
     Function that dumps the simulation data to specific files on the disk.
@@ -184,7 +184,7 @@ def save_data(population, pop_tracker):
     np.save('data/%i/fatalities.npy' %num_files, pop_tracker.fatalities)
 
 
-def save_population(population, tstep=0, folder='data_tstep'):
+ def save_population(population, tstep=0, folder='data_tstep'):
     '''dumps population data at given timestep to disk
 
     Function that dumps the simulation data to specific files on the disk.
