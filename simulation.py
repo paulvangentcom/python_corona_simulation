@@ -7,12 +7,10 @@ from matplotlib.animation import FuncAnimation
 
 from config import Configuration, config_error
 from environment import build_hospital
-from infection import find_nearby, infect, recover_or_die, compute_mortality,\
-healthcare_infection_correction
+from infection import near_by,infect_impact
 from motion import update_positions, out_of_bounds, update_randoms,\
 get_motion_parameters
-from path_planning import go_to_location, set_destination, check_at_destination,\
-keep_at_destination, reset_destinations
+from path_planning import go_to_location, destination_function
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data, save_population, Population_trackers
 from visualiser import build_fig, draw_tstep, set_style, plot_sir
@@ -69,14 +67,14 @@ class Simulation():
         active_dests = len(self.population[self.population[:,11] != 0]) # look op this only once
 
         if active_dests > 0 and len(self.population[self.population[:,12] == 0]) > 0:
-            self.population = set_destination(self.population, self.destinations)
-            self.population = check_at_destination(self.population, self.destinations,
+            self.population = destination_function.set_destination(self.population, self.destinations)
+            self.population = destination_function.check_at_destination(self.population, self.destinations,
                                                    wander_factor = self.Config.wander_factor_dest,
                                                    speed = self.Config.speed)
 
         if active_dests > 0 and len(self.population[self.population[:,12] == 1]) > 0:
             #keep them at destination
-            self.population = keep_at_destination(self.population, self.destinations,
+            self.population = destination_function.keep_at_destination(self.population, self.destinations,
                                                   self.Config.wander_factor)
 
         #out of bounds
@@ -114,7 +112,7 @@ class Simulation():
         self.population = update_positions(self.population)
 
         #find new infections
-        self.population, self.destinations = infect(self.population, self.Config, self.frame,
+        self.population, self.destinations = infect_impact.infect(self.population, self.Config, self.frame,
                                                     send_to_location = self.Config.self_isolate,
                                                     location_bounds = self.Config.isolation_bounds,
                                                     destinations = self.destinations,
@@ -122,7 +120,7 @@ class Simulation():
                                                     location_odds = self.Config.self_isolate_proportion)
 
         #recover and die
-        self.population = recover_or_die(self.population, self.frame, self.Config)
+        self.population = infect_impact.recover_or_die(self.population, self.frame, self.Config)
 
         #send cured back to population if self isolation active
         #perhaps put in recover or die class

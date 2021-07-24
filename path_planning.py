@@ -48,8 +48,8 @@ def go_to_location(patient, destination, location_bounds, dest_no=1):
 
     return patient, destination
 
-
-def set_destination(population, destinations):
+class destination_function:
+ def set_destination(population, destinations):
     '''sets destination of population
 
     Sets the destination of population if destination marker is not 0.
@@ -93,7 +93,7 @@ def set_destination(population, destinations):
     return population
 
 
-def check_at_destination(population, destinations, wander_factor=1.5, speed = 0.01):
+ def check_at_destination(population, destinations, wander_factor=1.5, speed = 0.01):
     '''check who is at their destination already
 
     Takes subset of population with active destination and
@@ -144,7 +144,7 @@ def check_at_destination(population, destinations, wander_factor=1.5, speed = 0.
     return population
         
 
-def keep_at_destination(population, destinations, wander_factor=1):
+ def keep_at_destination(population, destinations, wander_factor=1):
     '''keeps those who have arrived, within wander range
 
     Function that keeps those who have been marked as arrived at their
@@ -217,7 +217,7 @@ def keep_at_destination(population, destinations, wander_factor=1):
     return population
 
 
-def reset_destinations(population, ids=[]):
+ def reset_destinations(population, ids=[]):
     '''clears destination markers
 
     Function that clears all active destination markers from the population

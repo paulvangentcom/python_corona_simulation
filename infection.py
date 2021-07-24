@@ -7,8 +7,8 @@ new infections, recoveries, and deaths
 import numpy as np
 from path_planning import go_to_location
 
-
-def find_nearby(population, infection_zone, traveling_infects=False,
+class near_by:
+ def find_nearby(population, infection_zone, traveling_infects=False,
                 kind='healthy', infected_previous_step=[]):
     '''finds nearby IDs
 
@@ -62,8 +62,8 @@ def find_nearby(population, infection_zone, traveling_infects=False,
 
 
 
-
-def infect(population, Config, frame, send_to_location=False,
+class infect_impact:
+ def infect(population, Config, frame, send_to_location=False,
            location_bounds=[], destinations=[], location_no=1,
            location_odds=1.0):
     '''finds new infections.
@@ -132,7 +132,7 @@ def infect(population, Config, frame, send_to_location=False,
 
             #find healthy people surrounding infected patient
             if Config.traveling_infects or patient[11] == 0:
-                indices = find_nearby(population, infection_zone, kind = 'healthy')
+                indices = near_by.find_nearby(population, infection_zone, kind = 'healthy')
             else:
                 indices = []
 
@@ -168,11 +168,11 @@ def infect(population, Config, frame, send_to_location=False,
             if person[6] == 0: #if person is not already infected, find if infected are nearby
                 #find infected nearby healthy person
                 if Config.traveling_infects:
-                    poplen = find_nearby(population, infection_zone,
+                    poplen = near_by.find_nearby(population, infection_zone,
                                          traveling_infects = True,
                                          kind = 'infected')
                 else:
-                    poplen = find_nearby(population, infection_zone,
+                    poplen = near_by.find_nearby(population, infection_zone,
                                          traveling_infects = True,
                                          kind = 'infected',
                                          infected_previous_step = infected_previous_step)
@@ -205,7 +205,7 @@ def infect(population, Config, frame, send_to_location=False,
         return population, destinations
 
 
-def recover_or_die(population, frame, Config):
+ def recover_or_die(population, frame, Config):
     '''see whether to recover or die
 
 
@@ -309,7 +309,7 @@ def recover_or_die(population, frame, Config):
     return population
 
 
-def compute_mortality(age, mortality_chance, risk_age=50,
+ def compute_mortality(age, mortality_chance, risk_age=50,
                       critical_age=80, critical_mortality_chance=0.5,
                       risk_increase='linear'):
 
@@ -371,7 +371,7 @@ def compute_mortality(age, mortality_chance, risk_age=50,
         return critical_mortality_chance
 
 
-def healthcare_infection_correction(worker_population, healthcare_risk_factor=0.2):
+ def healthcare_infection_correction(worker_population, healthcare_risk_factor=0.2):
     '''corrects infection to healthcare population.
 
     Takes the healthcare risk factor and adjusts the sick healthcare workers
