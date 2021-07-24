@@ -7,7 +7,7 @@ import matplotlib as mpl
 from matplotlib.animation import FuncAnimation
 
 from config import Configuration, config_error
-from infection import find_nearby, infect, recover_or_die, compute_mortality,\
+from infection import infect, recover_or_die, compute_mortality,\
 healthcare_infection_correction
 from motion import update_positions, out_of_bounds, update_randoms,\
 get_motion_parameters
@@ -16,6 +16,7 @@ keep_at_destination, reset_destinations
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data, save_population, Population_trackers
 from utils import check_folder
+from finder import find_nearby
 
 #set seed for reproducibility
 #np.random.seed(100)
