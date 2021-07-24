@@ -65,7 +65,7 @@ class Simulation():
 
         #check destinations if active
         #define motion vectors if destinations active and not everybody is at destination
-        active_dests = len(self.population[self.population[:,11] != 0]) # look op this only once
+        active_dests = len(self.population[self.population[:,11] != 0]) # look up this only once
 
         if active_dests > 0 and len(self.population[self.population[:,12] == 0]) > 0:
             self.population = set_destination(self.population, self.destinations)
