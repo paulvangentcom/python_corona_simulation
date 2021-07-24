@@ -11,80 +11,85 @@ import numpy as np
 from motion import get_motion_parameters
 from utils import check_folder
 
-def initialize_population(Config, mean_age=45, max_age=105,
-                          xbounds=[0, 1], ybounds=[0, 1]):
-    '''initialized the population for the simulation
+# Single entity aggregation class InitPopulation
+# First implementation of aggregation domain pattern
+# contains initialize_population
 
-    the population matrix for this simulation has the following columns:
+class InitPopulation:
+    def initialize_population(Config, mean_age=45, max_age=105,
+                            xbounds=[0, 1], ybounds=[0, 1]):
+        '''initialized the population for the simulation
 
-    0 : unique ID
-    1 : current x coordinate
-    2 : current y coordinate
-    3 : current heading in x direction
-    4 : current heading in y direction
-    5 : current speed
-    6 : current state (0=healthy, 1=sick, 2=immune, 3=dead, 4=immune but infectious)
-    7 : age
-    8 : infected_since (frame the person got infected)
-    9 : recovery vector (used in determining when someone recovers or dies)
-    10 : in treatment
-    11 : active destination (0 = random wander, 1, .. = destination matrix index)
-    12 : at destination: whether arrived at destination (0=traveling, 1=arrived)
-    13 : wander_range_x : wander ranges on x axis for those who are confined to a location
-    14 : wander_range_y : wander ranges on y axis for those who are confined to a location
+        the population matrix for this simulation has the following columns:
 
-    Keyword arguments
-    -----------------
-    pop_size : int
-        the size of the population
+        0 : unique ID
+        1 : current x coordinate
+        2 : current y coordinate
+        3 : current heading in x direction
+        4 : current heading in y direction
+        5 : current speed
+        6 : current state (0=healthy, 1=sick, 2=immune, 3=dead, 4=immune but infectious)
+        7 : age
+        8 : infected_since (frame the person got infected)
+        9 : recovery vector (used in determining when someone recovers or dies)
+        10 : in treatment
+        11 : active destination (0 = random wander, 1, .. = destination matrix index)
+        12 : at destination: whether arrived at destination (0=traveling, 1=arrived)
+        13 : wander_range_x : wander ranges on x axis for those who are confined to a location
+        14 : wander_range_y : wander ranges on y axis for those who are confined to a location
 
-    mean_age : int
-        the mean age of the population. Age affects mortality chances
+        Keyword arguments
+        -----------------
+        pop_size : int
+            the size of the population
 
-    max_age : int
-        the max age of the population
+        mean_age : int
+            the mean age of the population. Age affects mortality chances
 
-    xbounds : 2d array
-        lower and upper bounds of x axis
+        max_age : int
+            the max age of the population
 
-    ybounds : 2d array
-        lower and upper bounds of y axis
-    '''
+        xbounds : 2d array
+            lower and upper bounds of x axis
 
-    #initialize population matrix
-    population = np.zeros((Config.pop_size, 15))
+        ybounds : 2d array
+            lower and upper bounds of y axis
+        '''
 
-    #initalize unique IDs
-    population[:,0] = [x for x in range(Config.pop_size)]
+        #initialize population matrix
+        population = np.zeros((Config.pop_size, 15))
 
-    #initialize random coordinates
-    population[:,1] = np.random.uniform(low = xbounds[0] + 0.05, high = xbounds[1] - 0.05, 
-                                        size = (Config.pop_size,))
-    population[:,2] = np.random.uniform(low = ybounds[0] + 0.05, high = ybounds[1] - 0.05, 
+        #initalize unique IDs
+        population[:,0] = [x for x in range(Config.pop_size)]
+
+        #initialize random coordinates
+        population[:,1] = np.random.uniform(low = xbounds[0] + 0.05, high = xbounds[1] - 0.05, 
+                                            size = (Config.pop_size,))
+        population[:,2] = np.random.uniform(low = ybounds[0] + 0.05, high = ybounds[1] - 0.05, 
+                                            size=(Config.pop_size,))
+
+        #initialize random headings -1 to 1
+        population[:,3] = np.random.normal(loc = 0, scale = 1/3, 
+                                        size=(Config.pop_size,))
+        population[:,4] = np.random.normal(loc = 0, scale = 1/3, 
                                         size=(Config.pop_size,))
 
-    #initialize random headings -1 to 1
-    population[:,3] = np.random.normal(loc = 0, scale = 1/3, 
-                                       size=(Config.pop_size,))
-    population[:,4] = np.random.normal(loc = 0, scale = 1/3, 
-                                       size=(Config.pop_size,))
+        #initialize random speeds
+        population[:,5] = np.random.normal(Config.speed, Config.speed / 3)
 
-    #initialize random speeds
-    population[:,5] = np.random.normal(Config.speed, Config.speed / 3)
+        #initalize ages
+        std_age = (max_age - mean_age) / 3
+        population[:,7] = np.int32(np.random.normal(loc = mean_age, 
+                                                    scale = std_age, 
+                                                    size=(Config.pop_size,)))
 
-    #initalize ages
-    std_age = (max_age - mean_age) / 3
-    population[:,7] = np.int32(np.random.normal(loc = mean_age, 
-                                                scale = std_age, 
-                                                size=(Config.pop_size,)))
+        population[:,7] = np.clip(population[:,7], a_min = 0, 
+                                a_max = max_age) #clip those younger than 0 years
 
-    population[:,7] = np.clip(population[:,7], a_min = 0, 
-                              a_max = max_age) #clip those younger than 0 years
+        #build recovery_vector
+        population[:,9] = np.random.normal(loc = 0.5, scale = 0.5 / 3, size=(Config.pop_size,))
 
-    #build recovery_vector
-    population[:,9] = np.random.normal(loc = 0.5, scale = 0.5 / 3, size=(Config.pop_size,))
-
-    return population
+        return population
 
 
 def initialize_destination_matrix(pop_size, total_destinations):
