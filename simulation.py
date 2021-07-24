@@ -14,7 +14,8 @@ get_motion_parameters
 from path_planning import go_to_location, set_destination, check_at_destination,\
 keep_at_destination, reset_destinations
 from population import initialize_population, initialize_destination_matrix,\
-set_destination_bounds, save_data, save_population, Population_trackers
+set_destination_bounds, Population_trackers
+from save import Save
 from visualiser import build_fig, draw_tstep, set_style, plot_sir
 
 #set seed for reproducibility
@@ -145,8 +146,8 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
                         self.pop_tracker.fatalities[-1], self.Config.pop_size))
 
         #save popdata if required
-        if self.Config.save_pop and (self.frame % self.Config.save_pop_freq) == 0:
-            save_population(self.population, self.frame, self.Config.save_pop_folder)
+        if Save.save_pop and (self.frame % Save.save_pop_freq) == 0:
+            Save.save_population(self.population, self.frame)
         #run callback
         self.callback()
 
@@ -188,8 +189,8 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
                                        (self.population[:,6] == 4)]) == 0:
                     i = self.Config.simulation_steps
 
-        if self.Config.save_data:
-            save_data(self.population, self.pop_tracker)
+        if Save.save_data:
+            Save.save_data(self.population, self.pop_tracker)
 
         #report outcomes
         print('\n-----stopping-----\n')

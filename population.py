@@ -158,51 +158,6 @@ def set_destination_bounds(population, destinations, xmin, ymin,
     return population, destinations
 
 
-def save_data(population, pop_tracker):
-    '''dumps simulation data to disk
-
-    Function that dumps the simulation data to specific files on the disk.
-    Saves final state of the population matrix, the array of infected over time,
-    and the array of fatalities over time
-
-    Keyword arguments
-    -----------------
-    population : ndarray
-        the array containing all the population information
-
-    infected : list or ndarray
-        the array containing data of infections over time
-
-    fatalities : list or ndarray
-        the array containing data of fatalities over time
-    ''' 
-    num_files = len(glob('data/*'))
-    check_folder('data/%i' %num_files)
-    np.save('data/%i/population.npy' %num_files, population)
-    np.save('data/%i/infected.npy' %num_files, pop_tracker.infectious)
-    np.save('data/%i/recovered.npy' %num_files, pop_tracker.recovered)
-    np.save('data/%i/fatalities.npy' %num_files, pop_tracker.fatalities)
-
-
-def save_population(population, tstep=0, folder='data_tstep'):
-    '''dumps population data at given timestep to disk
-
-    Function that dumps the simulation data to specific files on the disk.
-    Saves final state of the population matrix, the array of infected over time,
-    and the array of fatalities over time
-
-    Keyword arguments
-    -----------------
-    population : ndarray
-        the array containing all the population information
-
-    tstep : int
-        the timestep that will be saved
-    ''' 
-    check_folder('%s/' %(folder))
-    np.save('%s/population_%i.npy' %(folder, tstep), population)
-
-
 class Population_trackers():
     '''class used to track population parameters
 

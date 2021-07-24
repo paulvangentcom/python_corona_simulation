@@ -5,6 +5,7 @@ contains all methods for visualisation tasks
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
+from save import Save
 
 from environment import build_hospital
 from utils import check_folder
@@ -114,12 +115,12 @@ def draw_tstep(Config, population, pop_tracker, frame,
     plt.draw()
     plt.pause(0.0001)
 
-    if Config.save_plot:
+    if Save.save_plot:
         try:
-            plt.savefig('%s/%i.png' %(Config.plot_path, frame))
+            Save.savefig(Config.plot_path, frame)
         except:
             check_folder(Config.plot_path)
-            plt.savefig('%s/%i.png' %(Config.plot_path, frame))
+            Save.savefig(Config.plot_path, frame)
        
             
 def plot_sir(Config, pop_tracker, size=(6,3), include_fatalities=False,
