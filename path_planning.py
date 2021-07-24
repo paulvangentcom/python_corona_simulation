@@ -5,7 +5,7 @@ and path planning
 
 import numpy as np
 
-from motion import get_motion_parameters, update_randoms
+from motionHelper import update_randoms,get_motion_parameters
 
 def go_to_location(patient, destination, location_bounds, dest_no=1):
     '''sends patient to defined location
