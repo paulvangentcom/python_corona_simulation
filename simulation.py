@@ -238,7 +238,7 @@ if __name__ == '__main__':
     #sim.population_init() #reinitialize population to enforce new roaming bounds
 
     #load custom config 
-    sim.Config.read_from_file('\custom_config.txt')
+    # sim.Config.read_from_file('\custom_config.txt')
 
     #run, hold CTRL+C in terminal to end scenario early
     sim.run()
