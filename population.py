@@ -52,37 +52,37 @@ def initialize_population(Config, mean_age=45, max_age=105,
     '''
 
     #initialize population matrix
-    population = np.zeros((Config.pop_size, 15))
+    population = np.zeros((Config.population.pop_size, 15))
 
     #initalize unique IDs
-    population[:,0] = [x for x in range(Config.pop_size)]
+    population[:,0] = [x for x in range(Config.population.pop_size)]
 
     #initialize random coordinates
     population[:,1] = np.random.uniform(low = xbounds[0] + 0.05, high = xbounds[1] - 0.05, 
-                                        size = (Config.pop_size,))
+                                        size = (Config.population.pop_size,))
     population[:,2] = np.random.uniform(low = ybounds[0] + 0.05, high = ybounds[1] - 0.05, 
-                                        size=(Config.pop_size,))
+                                        size=(Config.population.pop_size,))
 
     #initialize random headings -1 to 1
     population[:,3] = np.random.normal(loc = 0, scale = 1/3, 
-                                       size=(Config.pop_size,))
+                                       size=(Config.population.pop_size,))
     population[:,4] = np.random.normal(loc = 0, scale = 1/3, 
-                                       size=(Config.pop_size,))
+                                       size=(Config.population.pop_size,))
 
     #initialize random speeds
-    population[:,5] = np.random.normal(Config.speed, Config.speed / 3)
+    population[:,5] = np.random.normal(Config.movement.speed, Config.movement.speed / 3)
 
     #initalize ages
     std_age = (max_age - mean_age) / 3
     population[:,7] = np.int32(np.random.normal(loc = mean_age, 
                                                 scale = std_age, 
-                                                size=(Config.pop_size,)))
+                                                size=(Config.population.pop_size,)))
 
     population[:,7] = np.clip(population[:,7], a_min = 0, 
                               a_max = max_age) #clip those younger than 0 years
 
     #build recovery_vector
-    population[:,9] = np.random.normal(loc = 0.5, scale = 0.5 / 3, size=(Config.pop_size,))
+    population[:,9] = np.random.normal(loc = 0.5, scale = 0.5 / 3, size=(Config.population.pop_size,))
 
     return population
 

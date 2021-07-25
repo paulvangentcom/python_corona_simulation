@@ -13,7 +13,7 @@ def set_style(Config):
     '''sets the plot style
     
     '''
-    if Config.plot_style.lower() == 'dark':
+    if Config.visualisation.plot_style.lower() == 'dark':
         mpl.style.use('plot_styles/dark.mplstyle')
 
 
@@ -24,13 +24,13 @@ def build_fig(Config, figsize=(5,7)):
 
     ax1 = fig.add_subplot(spec[0,0])
     plt.title('infection simulation')
-    plt.xlim(Config.xbounds[0], Config.xbounds[1])
-    plt.ylim(Config.ybounds[0], Config.ybounds[1])
+    plt.xlim(Config.bounds.xbounds[0], Config.bounds.xbounds[1])
+    plt.ylim(Config.bounds.ybounds[0], Config.bounds.ybounds[1])
 
     ax2 = fig.add_subplot(spec[1,0])
     ax2.set_title('number of infected')
     #ax2.set_xlim(0, simulation_steps)
-    ax2.set_ylim(0, Config.pop_size + 100)
+    ax2.set_ylim(0, Config.population.pop_size + 100)
 
     #if 
 
@@ -51,12 +51,12 @@ def draw_tstep(Config, population, pop_tracker, frame,
     ax1.clear()
     ax2.clear()
 
-    ax1.set_xlim(Config.x_plot[0], Config.x_plot[1])
-    ax1.set_ylim(Config.y_plot[0], Config.y_plot[1])
+    ax1.set_xlim(Config.visualisation.x_plot[0], Config.visualisation.x_plot[1])
+    ax1.set_ylim(Config.visualisation.y_plot[0], Config.visualisation.y_plot[1])
 
-    if Config.self_isolate and Config.isolation_bounds != None:
-        build_hospital(Config.isolation_bounds[0], Config.isolation_bounds[2],
-                       Config.isolation_bounds[1], Config.isolation_bounds[3], ax1,
+    if Config.flags.self_isolate and Config.isolation.isolation_bounds != None:
+        build_hospital(Config.isolation.isolation_bounds[0], Config.isolation.isolation_bounds[2],
+                       Config.isolation.isolation_bounds[1], Config.isolation.isolation_bounds[3], ax1,
                        addcross = False)
         
     #plot population segments
@@ -74,8 +74,9 @@ def draw_tstep(Config, population, pop_tracker, frame,
         
     
     #add text descriptors
-    ax1.text(Config.x_plot[0], 
-             Config.y_plot[1] + ((Config.y_plot[1] - Config.y_plot[0]) / 100), 
+    ax1.text(Config.visualisation.x_plot[0],
+             Config.visualisation.y_plot[1] +
+             ((Config.visualisation.y_plot[1] - Config.visualisation.y_plot[0]) / 100),
              'timestep: %i, total: %i, healthy: %i infected: %i immune: %i fatalities: %i' %(frame,
                                                                                              len(population),
                                                                                              len(healthy), 
@@ -85,23 +86,23 @@ def draw_tstep(Config, population, pop_tracker, frame,
                 fontsize=6)
     
     ax2.set_title('number of infected')
-    ax2.text(0, Config.pop_size * 0.05, 
+    ax2.text(0, Config.population.pop_size * 0.05,
                 'https://github.com/paulvangentcom/python-corona-simulation',
                 fontsize=6, alpha=0.5)
     #ax2.set_xlim(0, simulation_steps)
-    ax2.set_ylim(0, Config.pop_size + 200)
+    ax2.set_ylim(0, Config.population.pop_size + 200)
 
-    if Config.treatment_dependent_risk:
+    if Config.healthcare.treatment_dependent_risk:
         infected_arr = np.asarray(pop_tracker.infectious)
-        indices = np.argwhere(infected_arr >= Config.healthcare_capacity)
+        indices = np.argwhere(infected_arr >= Config.healthcare.healthcare_capacity)
 
-        ax2.plot([Config.healthcare_capacity for x in range(len(pop_tracker.infectious))], 
+        ax2.plot([Config.healthcare.healthcare_capacity for x in range(len(pop_tracker.infectious))],
                  'r:', label='healthcare capacity')
 
-    if Config.plot_mode.lower() == 'default':
+    if Config.visualisation.plot_mode.lower() == 'default':
         ax2.plot(pop_tracker.infectious, color=palette[1])
         ax2.plot(pop_tracker.fatalities, color=palette[3], label='fatalities')
-    elif Config.plot_mode.lower() == 'sir':
+    elif Config.visualisation.plot_mode.lower() == 'sir':
         ax2.plot(pop_tracker.susceptible, color=palette[0], label='susceptible')
         ax2.plot(pop_tracker.infectious, color=palette[1], label='infectious')
         ax2.plot(pop_tracker.recovered, color=palette[2], label='recovered')
@@ -114,12 +115,12 @@ def draw_tstep(Config, population, pop_tracker, frame,
     plt.draw()
     plt.pause(0.0001)
 
-    if Config.save_plot:
+    if Config.visualisation.save_plot:
         try:
-            plt.savefig('%s/%i.png' %(Config.plot_path, frame))
+            plt.savefig('%s/%i.png' %(Config.visualisation.plot_path, frame))
         except:
-            check_folder(Config.plot_path)
-            plt.savefig('%s/%i.png' %(Config.plot_path, frame))
+            check_folder(Config.visualisation.plot_path)
+            plt.savefig('%s/%i.png' %(Config.visualisation.plot_path, frame))
        
             
 def plot_sir(Config, pop_tracker, size=(6,3), include_fatalities=False,

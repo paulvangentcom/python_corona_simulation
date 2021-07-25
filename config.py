@@ -4,93 +4,67 @@ file that contains all configuration related methods and classes
 
 import numpy as np
 
+from bounds_settings import BoundsSettings
+from healthcare_settings import HealthcareSettings
+from infection_settings import InfectionSettings
+from lock_down_settings import LockDownSetting
+from movement_settings import MovementSettings
+from population_settings import PopulationSettings
+from scenario_flag_settings import ScenarioFlagsSettings
+from self_isolation_settings import SelfIsolationSetting
+from simulation_settings import SimulationSettings
+from visualisation_settings import VisualisationSettings
+
+
 class config_error(Exception):
     pass
 
 
-class Configuration():
+class Configuration:
+
+    config = None
+
+    #Singleton pattern ensuring one instance of Configuration class
+    @staticmethod
+    def get_instance(*args, **kwargs):
+        if Configuration.config is not None:
+            return Configuration.config
+        Configuration.config = Configuration()
+        return Configuration.config
+
     def __init__(self, *args, **kwargs):
-        #simulation variables
-        self.verbose = kwargs.get('verbose', True) #whether to print infections, recoveries and fatalities to the terminal
-        self.simulation_steps = kwargs.get('simulation_steps', 10000) #total simulation steps performed
-        self.tstep = kwargs.get('tstep', 0) #current simulation timestep
-        self.save_data = kwargs.get('save_data', False) #whether to dump data at end of simulation
-        self.save_pop = kwargs.get('save_pop', False) #whether to save population matrix every 'save_pop_freq' timesteps
-        self.save_pop_freq = kwargs.get('save_pop_freq', 10) #population data will be saved every 'n' timesteps. Default: 10
-        self.save_pop_folder = kwargs.get('save_pop_folder', 'pop_data/') #folder to write population timestep data to
-        self.endif_no_infections = kwargs.get('endif_no_infections', True) #whether to stop simulation if no infections remain
-        self.world_size = kwargs.get('world_size', [2, 2]) #x and y sizes of the world
+        #Simulation settings
+        self.simulation = SimulationSettings(args, kwargs)
 
-
-        #scenario flags
-        self.traveling_infects = kwargs.get('traveling_infects', False)
-        self.self_isolate = kwargs.get('self_isolate', False)
-        self.lockdown = kwargs.get('lockdown', False)
-        self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1) #after this proportion is infected, lock-down begins
-        self.lockdown_compliance = kwargs.get('lockdown_compliance', 0.95) #fraction of the population that will obey the lockdown        
+        #scenario flags setting
+        self.flags = ScenarioFlagsSettings(args, kwargs)
         
         #visualisation variables
-        self.visualise = kwargs.get('visualise', True) #whether to visualise the simulation 
-        self.plot_mode = kwargs.get('plot_mode', 'sir') #default or sir
-        #size of the simulated world in coordinates
-        self.x_plot = kwargs.get('x_plot', [0, self.world_size[0]])
-        self.y_plot = kwargs.get('y_plot', [0, self.world_size[1]])
-        self.save_plot = kwargs.get('save_plot', False)
-        self.plot_path = kwargs.get('plot_path', 'render/') #folder where plots are saved to
-        self.plot_style = kwargs.get('plot_style', 'default') #can be default, dark, ...
-        self.colorblind_mode = kwargs.get('colorblind_mode', False)
-        #if colorblind is enabled, set type of colorblindness
-        #available: deuteranopia, protanopia, tritanopia. defauld=deuteranopia
-        self.colorblind_type = kwargs.get('colorblind_type', 'deuteranopia')
-        
-        #world variables, defines where population can and cannot roam
-        self.xbounds = kwargs.get('xbounds', [self.x_plot[0] + 0.02, self.x_plot[1] - 0.02])
-        self.ybounds = kwargs.get('ybounds', [self.y_plot[0] + 0.02, self.y_plot[1] - 0.02])    
-    
+        self.visualisation = VisualisationSettings(self.simulation.world_size[0], self.simulation.world_size[1],
+                                                   args, kwargs)
+
+        # world variables, defines where population can and cannot roam
+        self.bounds = BoundsSettings(self.visualisation.x_plot, self.visualisation.y_plot,
+                                     args, kwargs)
+
         #population variables
-        self.pop_size = kwargs.get('pop_size', 2000)
-        self.mean_age = kwargs.get('mean_age', 45)
-        self.max_age = kwargs.get('max_age', 105)
-        self.age_dependent_risk = kwargs.get('age_dependent_risk', True) #whether risk increases with age
-        self.risk_age = kwargs.get('risk_age', 55) #age where mortality risk starts increasing
-        self.critical_age = kwargs.get('critical_age', 75) #age at and beyond which mortality risk reaches maximum
-        self.critical_mortality_chance = kwargs.get('critical_mortality_chance', 0.1) #maximum mortality risk for older age
-        self.risk_increase = kwargs.get('risk_increase', 'quadratic') #whether risk between risk and critical age increases 'linear' or 'quadratic'
-        
-        #movement variables
-        #mean_speed = 0.01 # the mean speed (defined as heading * speed)
-        #std_speed = 0.01 / 3 #the standard deviation of the speed parameter
-        #the proportion of the population that practices social distancing, simulated
-        #by them standing still
-        self.proportion_distancing = kwargs.get('proportion_distancing', 0)
-        self.speed = kwargs.get('speed', 0.01) #average speed of population
-        #when people have an active destination, the wander range defines the area
-        #surrounding the destination they will wander upon arriving
-        self.wander_range = kwargs.get('wander_range', 0.05)
-        self.wander_factor = kwargs.get('wander_factor', 1) 
-        self.wander_factor_dest = kwargs.get('wander_factor_dest', 1.5) #area around destination
+        self.population = PopulationSettings(args, kwargs)
+
+        # movement variables
+        self.movement = MovementSettings(args, kwargs)
 
         #infection variables
-        self.infection_range = kwargs.get('infection_range', 0.01) #range surrounding sick patient that infections can take place
-        self.infection_chance = kwargs.get('infection_chance', 0.03)   #chance that an infection spreads to nearby healthy people each tick
-        self.recovery_duration = kwargs.get('recovery_duration', (200, 500)) #how many ticks it may take to recover from the illness
-        self.mortality_chance = kwargs.get('mortality_chance', 0.02) #global baseline chance of dying from the disease
+        self.infections = InfectionSettings(args, kwargs)
 
         #healthcare variables
-        self.healthcare_capacity = kwargs.get('healthcare_capacity', 300) #capacity of the healthcare system
-        self.treatment_factor = kwargs.get('treatment_factor', 0.5) #when in treatment, affect risk by this factor
-        self.no_treatment_factor = kwargs.get('no_treatment_factor', 3) #risk increase factor to use if healthcare system is full
-        #risk parameters
-        self.treatment_dependent_risk = kwargs.get('treatment_dependent_risk', True) #whether risk is affected by treatment
+        self.healthcare = HealthcareSettings(args, kwargs)
 
         #self isolation variables
-        self.self_isolate_proportion = kwargs.get('self_isolate_proportion', 0.6)
-        self.isolation_bounds = kwargs.get('isolation_bounds', [0.02, 0.02, 0.1, 0.98])
-        
+        self.isolation = SelfIsolationSetting(args, kwargs)
+
         #lockdown variables
-        self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1) 
-        self.lockdown_vector = kwargs.get('lockdown_vector', [])
-        
+        self.lockdown = LockDownSetting(args, kwargs)
+
         
     def get_palette(self):
         '''returns appropriate color palette
@@ -114,22 +88,10 @@ class Configuration():
                                    'dark': ['#404040', '#fcae91', '#6baed6', '#000000']}
                     }
 
-        if self.colorblind_mode:
-            return palettes[self.colorblind_type.lower()][self.plot_style]
+        if self.visualisation.colorblind_mode:
+            return palettes[self.visualisation.colorblind_type.lower()][self.visualisation.plot_style]
         else:
-            return palettes['regular'][self.plot_style]
-
-    def get(self, key):
-        '''gets key value from config'''
-        try:
-            return self.__dict__[key]
-        except:
-            raise config_error('key %s not present in config' %key)
-
-
-    def set(self, key, value):
-        '''sets key value in config'''
-        self.__dict__[key] = value
+            return palettes['regular'][self.visualisation.plot_style]
 
 
     def read_from_file(self, path):
@@ -141,13 +103,13 @@ class Configuration():
     def set_lockdown(self, lockdown_percentage=0.1, lockdown_compliance=0.9):
         '''sets lockdown to active'''
 
-        self.lockdown = True
+        self.flags.lockdown = True
 
         #fraction of the population that will obey the lockdown
-        self.lockdown_percentage = lockdown_percentage
-        self.lockdown_vector = np.zeros((self.pop_size,))
+        self.flags.lockdown_percentage = lockdown_percentage
+        self.lockdown.lockdown_vector = np.zeros((self.pop_size,))
         #lockdown vector is 1 for those not complying
-        self.lockdown_vector[np.random.uniform(size=(self.pop_size,)) >= lockdown_compliance] = 1
+        self.lockdown.lockdown_vector[np.random.uniform(size=(self.population.pop_size,)) >= lockdown_compliance] = 1
 
 
     def set_self_isolation(self, self_isolate_proportion=0.9,
@@ -155,23 +117,23 @@ class Configuration():
                            traveling_infects=False):
         '''sets self-isolation scenario to active'''
 
-        self.self_isolate = True
-        self.isolation_bounds = isolation_bounds
-        self.self_isolate_proportion = self_isolate_proportion
+        self.flags.self_isolate = True
+        self.isolation.isolation_bounds = isolation_bounds
+        self.isolation.self_isolate_proportion = self_isolate_proportion
         #set roaming bounds to outside isolated area
-        self.xbounds = [0.1, 1.1]
-        self.ybounds = [0.02, 0.98]
+        self.bounds.xbounds = [0.1, 1.1]
+        self.bounds.ybounds = [0.02, 0.98]
         #update plot bounds everything is shown
-        self.x_plot = [0, 1.1]
-        self.y_plot = [0, 1]
+        self.visualisation.x_plot = [0, 1.1]
+        self.visualisation.y_plot = [0, 1]
         #update whether traveling agents also infect
-        self.traveling_infects = traveling_infects
+        self.flags.traveling_infects = traveling_infects
 
 
     def set_reduced_interaction(self, speed = 0.001):
         '''sets reduced interaction scenario to active'''
 
-        self.speed = speed
+        self.movement.speed = speed
 
 
     def set_demo(self, destinations, population):
@@ -391,3 +353,4 @@ class Configuration():
 
         #set all destinations active
         population[:,11] = 1
+
