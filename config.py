@@ -3,12 +3,23 @@ file that contains all configuration related methods and classes
 '''
 
 import numpy as np
+import threading
 
 class config_error(Exception):
     pass
 
 
 class Configuration():
+    
+    _instance_lock = threading.Lock()
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(Configuration,"_instance"):
+            with Configuration._instance_lock:
+                if not hasattr(Configuration,"_instance"):
+                    Configuration._instance = object.__new__(cls)
+        return Configuration._instance
+    
     def __init__(self, *args, **kwargs):
         #simulation variables
         self.verbose = kwargs.get('verbose', True) #whether to print infections, recoveries and fatalities to the terminal
