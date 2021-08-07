@@ -3,6 +3,7 @@ file that contains all configuration related methods and classes
 '''
 
 import numpy as np
+import threading
 
 class config_error(Exception):
     pass
