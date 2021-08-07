@@ -168,7 +168,7 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
             self.population[0][10] = 1
 
 
-    def run(self):
+    def run(self, simulation_ad):
         '''run simulation'''
 
         i = 0
@@ -200,6 +200,8 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
         print('total infectious: %i' %len(self.population[(self.population[:,6] == 1) |
                                                           (self.population[:,6] == 4)]))
         print('total unaffected: %i' %len(self.population[self.population[:,6] == 0]))
+        
+        simulation_ad.runad()
 
 
     def plot_sir(self, size=(6,3), include_fatalities=False,
@@ -207,7 +209,17 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
         plot_sir(self.Config, self.pop_tracker, size, include_fatalities,
                  title)
 
+class simulation_():
+    def __init__(self):
+        pass
+    def run_(self):
+        pass
 
+class adapter:
+    def __init__(self):
+        self.simulation_ = simulation_()
+    def runad(self):
+        self.simulation_.run_()
 
 if __name__ == '__main__':
 
@@ -239,4 +251,5 @@ if __name__ == '__main__':
     #sim.population_init() #reinitialize population to enforce new roaming bounds
 
     #run, hold CTRL+C in terminal to end scenario early
-    sim.run()
+    adapter = adapter()
+    sim.run(adapter)
