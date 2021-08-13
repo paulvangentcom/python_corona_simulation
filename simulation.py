@@ -5,7 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from config import Configuration, config_error
+from config import Configuration, config_error, Basic_Config, LockDown_Config, SelfIsolation_Config, \
+    ReducedInteraction_Config
 from environment import build_hospital
 from infection import find_nearby, infect, recover_or_die, compute_mortality,\
 healthcare_infection_correction
@@ -208,35 +209,57 @@ dead: %i, of total: %i' %(self.frame, self.pop_tracker.susceptible[-1], self.pop
                  title)
 
 
+class SimBuilder:
+    def __init__(self) -> None:
+        self._sim = None
+
+    def basicSimulation(self) -> Simulation:
+        self._sim = Simulation()
+        self._sim.Config = Basic_Config()
+        return self._sim
+
+    def lockDownSimulation(self) -> Simulation:
+        self._sim = Simulation()
+        self._sim.Config = LockDown_Config()
+        return self._sim
+
+    def selfIsoSimulation(self) -> Simulation:
+        self._sim = Simulation()
+        self._sim.Config = SelfIsolation_Config()
+        return self._sim
+
+    def reducedIntSimulation(self) -> Simulation:
+        self._sim = Simulation()
+        self._sim.Config = ReducedInteraction_Config()
+        return self._sim
+
 
 if __name__ == '__main__':
 
     #initialize
-    sim = Simulation()
+    simBuilder = SimBuilder()
+    #set basic scenario
+    simulation = simBuilder.basicSimulation()
+
+    #set reduced interaction
+    #simulation = simBuilder.reducedIntSimulation()
+
+    #set lockdown scenario
+    #simulation = simBuilder.lockDownSimulation()
+
+    #set self-isolation scenario
+    #simulation = simBuilder.selfIsoSimulation()
 
     #set number of simulation steps
-    sim.Config.simulation_steps = 20000
+#    sim.Config.simulation_steps = 20000
 
     #set color mode
-    sim.Config.plot_style = 'default' #can also be dark
+#    sim.Config.plot_style = 'default' #can also be dark
 
     #set colorblind mode if needed
     #sim.Config.colorblind_mode = True
     #set colorblind type (default deuteranopia)
     #sim.Config.colorblind_type = 'deuteranopia'
 
-    #set reduced interaction
-    #sim.Config.set_reduced_interaction()
-    #sim.population_init()
-
-    #set lockdown scenario
-    #sim.Config.set_lockdown(lockdown_percentage = 0.1, lockdown_compliance = 0.95)
-
-    #set self-isolation scenario
-    #sim.Config.set_self_isolation(self_isolate_proportion = 0.9,
-    #                              isolation_bounds = [0.02, 0.02, 0.09, 0.98],
-    #                              traveling_infects=False)
-    #sim.population_init() #reinitialize population to enforce new roaming bounds
-
     #run, hold CTRL+C in terminal to end scenario early
-    sim.run()
+    simulation.run()
