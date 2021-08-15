@@ -2,11 +2,11 @@ from path_planning import set_destination
 import numpy as np
 
 '''
-        builds hospital
+        builds School
     
-        Defines hospital and returns wall coordinates for 
-        the hospital, as well as coordinates for a red cross
-        above it
+        Defines school, Young people will go to the school at a fixed time, 
+        and on the map you can see that the students will move in a normal 
+        distribution at a set school location.
         
         Keyword arguments
         -----------------
@@ -18,7 +18,7 @@ import numpy as np
 
         (xmin,ymax)----------(xmax,ymax)
             |                   |
-            |     Hosipital     |
+            |      School       |
             |                   |
         (xmin,ymin)----------(xmax,ymin)
 
@@ -30,7 +30,7 @@ import numpy as np
         -------
         None
 '''
-class Hospital:
+class School:
 
     def __init__(self,xmin, xmax, ymin, ymax):
         
@@ -39,7 +39,7 @@ class Hospital:
         self.xmax = xmax
         self.ymin = ymin
         self.ymax = ymax
-
+   
     def display(self, plt,addcross):
         #plot walls
         plt.plot([self.xmin, self.xmin], [self.ymin, self.ymax], color = 'black')
@@ -47,23 +47,15 @@ class Hospital:
         plt.plot([self.xmin, self.xmax], [self.ymin, self.ymin], color = 'black')
         plt.plot([self.xmin, self.xmax], [self.ymax, self.ymax], color = 'black')
         #TODO: setting the hosptial location
-        #plot red cross
-        if addcross:
-            xmiddle = self.xmin + ((self.xmax - self.xmin) / 2)
-            height = np.min([0.3, (self.ymax - self.ymin) / 5])
-            plt.plot([xmiddle, xmiddle], [self.ymax, self.ymax + height], color='red',
-                    linewidth = 3)
-            plt.plot([xmiddle - (height / 2), xmiddle + (height / 2)],
-                    [self.ymax + (height / 2), self.ymax + (height / 2)], color='red',
-                    linewidth = 3)        
 
+    def go_to_school(self, population):
+        max_studying_age = 18
 
-
-    def go_to_Hospital(self, population, pop_tracker):
-        #check infection
-        if len(pop_tracker.infectious) > 0:
-            #some people who infected will go to the hospital
-            active_dests = np.unique(population[:,6][population[:,6] == 1])
+        #If popluation exist people who age less than max studying age, then they need
+        #go to school.
+        if len(population[:7] < max_studying_age) > 0: 
+           #some people who infected will go to the hospital
+            active_dests = np.unique(population[:,7][population[:,7] < max_studying_age])
             
 
             #Go to hospital:
@@ -85,9 +77,15 @@ class Hospital:
                 population[:,4][(population[:,11] == d) &
                                 (population[:,12] == 0)] = head_y[(population[:,11] == d) &
                                                                     (population[:,12] == 0)]
-                #set speed to 0.01
+                #set speed to 0.5
                 population[:,5][(population[:,11] == d) &
-                                (population[:,12] == 0)] = 0.02
+                                (population[:,12] == 0)] = 0.05
 
-        return population    
+        return population
             
+
+
+        
+    
+
+    

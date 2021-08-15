@@ -56,10 +56,14 @@ def draw_tstep(Config, population, pop_tracker, frame,
 
     #All sourrouding will install here such as Hospital, working place
     environment = Environment()
+
     if Config.self_isolate and Config.isolation_bounds != None:
-        environment.build_hospital(Config.isolation_bounds[0], Config.isolation_bounds[2],
-                       Config.isolation_bounds[1], Config.isolation_bounds[3], ax1,
-                       addcross = False)
+        
+        environment.create_building( 'hospital', Config.isolation_bounds[0], Config.isolation_bounds[2],
+                       Config.isolation_bounds[1], Config.isolation_bounds[3])
+
+        environment.building_applied(ax1, addcross = True)
+    
         
     #plot population segments
     healthy = population[population[:,6] == 0][:,1:3]
