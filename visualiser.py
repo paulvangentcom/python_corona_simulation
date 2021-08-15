@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 
-from environment import build_hospital
+from environment import Environment
 from utils import check_folder
 
 def set_style(Config):
@@ -54,10 +54,16 @@ def draw_tstep(Config, population, pop_tracker, frame,
     ax1.set_xlim(Config.x_plot[0], Config.x_plot[1])
     ax1.set_ylim(Config.y_plot[0], Config.y_plot[1])
 
+    #All sourrouding will install here such as Hospital, working place
+    environment = Environment()
+
     if Config.self_isolate and Config.isolation_bounds != None:
-        build_hospital(Config.isolation_bounds[0], Config.isolation_bounds[2],
-                       Config.isolation_bounds[1], Config.isolation_bounds[3], ax1,
-                       addcross = False)
+        
+        environment.create_building( 'hospital', Config.isolation_bounds[0], Config.isolation_bounds[2],
+                       Config.isolation_bounds[1], Config.isolation_bounds[3])
+
+        environment.building_applied(ax1, addcross = True)
+    
         
     #plot population segments
     healthy = population[population[:,6] == 0][:,1:3]
