@@ -204,10 +204,14 @@ def save_population(population, tstep=0, folder='data_tstep'):
 
 
 class Population_trackers():
+
+
     '''class used to track population parameters
 
     Can track population parameters over time that can then be used
-    to compute statistics or to visualise. 
+    to compute statistics or to visualise.
+
+
 
     TODO: track age cohorts here as well
     '''
@@ -235,3 +239,18 @@ class Population_trackers():
             self.susceptible.append(pop_size - (self.infectious[-1] +
                                                 self.recovered[-1] +
                                                 self.fatalities[-1]))
+
+            # Facade
+class Fac:
+    def __init__(self):
+        self.sub1 = Population_trackers()
+        self.sub2 = Population_trackers()
+        self.sub3 = Population_trackers()
+        self.all = [i for i in (self.sub1, self.sub2, self.sub3)]
+
+    def run_all(self):
+        [i.run() for i in self.all]
+# Client
+if __name__ == '__main__':
+    facade = Fac()
+    facade.run_all()
