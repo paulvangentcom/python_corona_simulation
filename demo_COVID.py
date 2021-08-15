@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 from infection import infect, recover_or_die, compute_mortality
-from motion import update_positions, out_of_bounds, update_randoms
+from motionHelper import update_positions, out_of_bounds, update_randoms
 from path_planning import set_destination, check_at_destination, keep_at_destination
 from population import initialize_population, initialize_destination_matrix
 
