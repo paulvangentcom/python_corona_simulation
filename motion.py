@@ -3,10 +3,47 @@ from path_planning import go_to_location, set_destination, check_at_destination,
 keep_at_destination, reset_destinations
 from motionHelper import out_of_bounds, update_positions, update_randoms
 
+from infection import find_nearby, infect, recover_or_die, compute_mortality,\
+healthcare_infection_correction
+
 class Motion:
 
+    #This class is responsible for managing all behavior in the simulator, 
+    #including population changes, virus proliferation, etc.
+
+
+    def __init__(self, sub_motion1,  sub_motion2) -> None:
+        # human behavior will init here
+        self._human_behavior = sub_motion1
+        # virus behavior will init here
+        self._virus_behavior = sub_motion2
+    
+    def simulation_motion(self,population,destinations,Config,pop_tracker, frame):
+
+        #Monitor the basic actions of all people such as moving, out of bounding, or dead.
+        self._human_behavior.set_general_rule_motion(population, destinations, Config)
+
+        #special event happen(such as lockdown) and set randoms
+        self._human_behavior.special_event(population,destinations,Config,pop_tracker)
+
+        #The spread of the virus and whether humans infected with the virus can heal themselves
+        self._virus_behavior.infection(population, destinations, Config, frame)
+
+
+
+
+
+class Human_behavior:
+    '''
+    This class aggregates all human behaviors.
+    
+    TODO: The Judgment based on age whether someone should go to school and work, could 
+    design in here.
+    '''
+
+
     #This function will set basic movement information for the crowd at each frame
-    def set_general_rule_motion(simul,population, destinations,Config):
+    def set_general_rule_motion(self,population, destinations, Config):
 
         #check destinations if active
         #define motion vectors if destinations active and not everybody is at destination
@@ -34,7 +71,7 @@ class Motion:
         population[:,3:5][population[:,6] == 3] = 0
         
     #special event happen  *here we just have lockdown
-    def special_event(simul,population, destinations,Config,pop_tracker):
+    def special_event(self,population, destinations,Config,pop_tracker):
               
         if Config.lockdown:
             if len(pop_tracker.infectious) == 0:
@@ -60,7 +97,7 @@ class Motion:
         update_positions(population)
 
 
-    def update_positions(obj, population):
+    def update_positions(self, population):
         '''update positions of all people
 
             Uses heading and speed to update all positions for
@@ -79,5 +116,27 @@ class Motion:
         population[:,2] = population[:,2] + (population [:,4] * population[:,5])
 
         return population
+
+
+class COVID_19_behavior:
+    '''
+        This class aggregates all virus behaviors.If in the future there are functions 
+        based on temperature, vaccines, etc. that can affect the spread of the virus 
+        and the lethality, the relevant functions can be defined here
+    '''
+
+    #Base infection
+    def infection(self, population, destinations, Config, frame):
+
+        #find new infections
+        population, destinations = infect(population, Config, frame,
+                                                    send_to_location = Config.self_isolate,
+                                                    location_bounds = Config.isolation_bounds,
+                                                    destinations = destinations,
+                                                    location_no = 1,
+                                                    location_odds = Config.self_isolate_proportion)
+        
+        #recover and die
+        population = recover_or_die(population, frame, Config)
 
 

@@ -9,7 +9,7 @@ from config import Configuration, config_error
 from environment import build_hospital
 from infection import find_nearby, infect, recover_or_die, compute_mortality,\
 healthcare_infection_correction
-from motion import Motion
+from motion import Motion,Human_behavior,COVID_19_behavior
 from population import initialize_population, initialize_destination_matrix,\
 set_destination_bounds, save_data, save_population, Population_trackers
 from visualiser import build_fig, draw_tstep, set_style, plot_sir
@@ -35,8 +35,14 @@ class Simulation():
         #initalise destinations vector
         self.destinations = initialize_destination_matrix(self.Config.pop_size, 1)
 
-        #Control all human behavior here
-        self.motion_control = Motion()
+        #initalise human behavior
+        human_behavior= Human_behavior()
+
+        #initalise virus behavior
+        virus_behavior = COVID_19_behavior()
+
+        #Control all behavior here
+        self.motion_control = Motion(human_behavior,virus_behavior)
 
 
     def reinitialise(self):
@@ -64,22 +70,8 @@ class Simulation():
             #initialize figure
             self.fig, self.spec, self.ax1, self.ax2 = build_fig(self.Config)
 
-        #Monitor the basic actions of all people such as moving, out of bounding, or dead.
-        self.motion_control.set_general_rule_motion(self.population,self.destinations,self.Config)
-
-        #special event happen(such as lockdown) and set randoms
-        self.motion_control.special_event(self.population,self.destinations,self.Config,self.pop_tracker)
-
-        #find new infections
-        self.population, self.destinations = infect(self.population, self.Config, self.frame,
-                                                    send_to_location = self.Config.self_isolate,
-                                                    location_bounds = self.Config.isolation_bounds,
-                                                    destinations = self.destinations,
-                                                    location_no = 1,
-                                                    location_odds = self.Config.self_isolate_proportion)
-
-        #recover and die
-        self.population = recover_or_die(self.population, self.frame, self.Config)
+        self.motion_control.simulation_motion(self.population, self.destinations, \
+                                                self.Config, self.pop_tracker, self.frame)
 
         #send cured back to population if self isolation active
         #perhaps put in recover or die class
