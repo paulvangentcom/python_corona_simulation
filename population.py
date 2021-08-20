@@ -10,7 +10,7 @@ import numpy as np
 
 from motion import get_motion_parameters
 from utils import check_folder
-
+import iterator
 def initialize_population(Config, mean_age=45, max_age=105,
                           xbounds=[0, 1], ybounds=[0, 1]):
     '''initialized the population for the simulation

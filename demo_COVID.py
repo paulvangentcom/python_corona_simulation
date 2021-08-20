@@ -1,6 +1,6 @@
 import os
 import sys
-
+import command
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -433,6 +433,6 @@ if __name__ == '__main__':
              treatment_factor, healthcare_capacity, age_dependent_risk, 
              treatment_dependent_risk, visualise, verbose,)
 
-
+    command.excute(plt)
     animation = FuncAnimation(fig, update, fargs = fargs, frames = simulation_steps, interval = 33)
     plt.show()
