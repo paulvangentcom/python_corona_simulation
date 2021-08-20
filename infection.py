@@ -2,7 +2,6 @@
 this file contains all functions required in computing
 new infections, recoveries, and deaths
 '''
-# let's make one more productive change here, shall we?
 
 import numpy as np
 from path_planning import go_to_location

@@ -10,6 +10,9 @@ class config_error(Exception):
 
 class Configuration():
     def __init__(self, *args, **kwargs):
+        #create an empty observer list
+        self._observers = []
+
         #simulation variables
         self.verbose = kwargs.get('verbose', True) #whether to print infections, recoveries and fatalities to the terminal
         self.simulation_steps = kwargs.get('simulation_steps', 10000) #total simulation steps performed
@@ -27,10 +30,10 @@ class Configuration():
         self.self_isolate = kwargs.get('self_isolate', False)
         self.lockdown = kwargs.get('lockdown', False)
         self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1) #after this proportion is infected, lock-down begins
-        self.lockdown_compliance = kwargs.get('lockdown_compliance', 0.95) #fraction of the population that will obey the lockdown        
-        
+        self.lockdown_compliance = kwargs.get('lockdown_compliance', 0.95) #fraction of the population that will obey the lockdown
+
         #visualisation variables
-        self.visualise = kwargs.get('visualise', True) #whether to visualise the simulation 
+        self.visualise = kwargs.get('visualise', True) #whether to visualise the simulation
         self.plot_mode = kwargs.get('plot_mode', 'sir') #default or sir
         #size of the simulated world in coordinates
         self.x_plot = kwargs.get('x_plot', [0, self.world_size[0]])
@@ -42,11 +45,11 @@ class Configuration():
         #if colorblind is enabled, set type of colorblindness
         #available: deuteranopia, protanopia, tritanopia. defauld=deuteranopia
         self.colorblind_type = kwargs.get('colorblind_type', 'deuteranopia')
-        
+
         #world variables, defines where population can and cannot roam
         self.xbounds = kwargs.get('xbounds', [self.x_plot[0] + 0.02, self.x_plot[1] - 0.02])
-        self.ybounds = kwargs.get('ybounds', [self.y_plot[0] + 0.02, self.y_plot[1] - 0.02])    
-    
+        self.ybounds = kwargs.get('ybounds', [self.y_plot[0] + 0.02, self.y_plot[1] - 0.02])
+
         #population variables
         self.pop_size = kwargs.get('pop_size', 2000)
         self.mean_age = kwargs.get('mean_age', 45)
@@ -56,7 +59,7 @@ class Configuration():
         self.critical_age = kwargs.get('critical_age', 75) #age at and beyond which mortality risk reaches maximum
         self.critical_mortality_chance = kwargs.get('critical_mortality_chance', 0.1) #maximum mortality risk for older age
         self.risk_increase = kwargs.get('risk_increase', 'quadratic') #whether risk between risk and critical age increases 'linear' or 'quadratic'
-        
+
         #movement variables
         #mean_speed = 0.01 # the mean speed (defined as heading * speed)
         #std_speed = 0.01 / 3 #the standard deviation of the speed parameter
@@ -67,7 +70,7 @@ class Configuration():
         #when people have an active destination, the wander range defines the area
         #surrounding the destination they will wander upon arriving
         self.wander_range = kwargs.get('wander_range', 0.05)
-        self.wander_factor = kwargs.get('wander_factor', 1) 
+        self.wander_factor = kwargs.get('wander_factor', 1)
         self.wander_factor_dest = kwargs.get('wander_factor_dest', 1.5) #area around destination
 
         #infection variables
@@ -86,16 +89,33 @@ class Configuration():
         #self isolation variables
         self.self_isolate_proportion = kwargs.get('self_isolate_proportion', 0.6)
         self.isolation_bounds = kwargs.get('isolation_bounds', [0.02, 0.02, 0.1, 0.98])
-        
+
         #lockdown variables
-        self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1) 
+        self.lockdown_percentage = kwargs.get('lockdown_percentage', 0.1)
         self.lockdown_vector = kwargs.get('lockdown_vector', [])
-        
-        
+
+    def notify(self, modifier = None):
+        #alert observers
+        for observer in self._observers:
+            if modifier != observer:
+                observer.update(self)
+
+    def attach(self, observer):
+        #if observer is not in list, add
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def detach(self, observer):
+        #remove observer from observer list
+        try:
+            self._observers.remove(observer)
+        except ValueError:
+            pass
+
     def get_palette(self):
         '''returns appropriate color palette
 
-        Uses config.plot_style to determine which palette to pick, 
+        Uses config.plot_style to determine which palette to pick,
         and changes palette to colorblind mode (config.colorblind_mode)
         and colorblind type (config.colorblind_type) if required.
 
@@ -391,3 +411,19 @@ class Configuration():
 
         #set all destinations active
         population[:,11] = 1
+
+class Data(Configuration):
+    #monitor the object
+    def __init__(self, name = ''):
+        Configuration.__init__(self)
+        self.name = name
+        self._data = 0
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
+        self.notify()

@@ -20,9 +20,6 @@ from visualiser import build_fig, draw_tstep, set_style, plot_sir
 #set seed for reproducibility
 #np.random.seed(100)
 
-# i'm supposed to make productive changes so this is going to be a
-# productive comment. YAY!
-
 class Simulation():
     #TODO: if lockdown or otherwise stopped: destination -1 means no motion
     def __init__(self, *args, **kwargs):
