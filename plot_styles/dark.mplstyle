@@ -1,0 +1,52 @@
+##################################################################################
+## Simulation Dark Mode - By Chris / Poppahorse (https://github.com/poppahorse) ##
+##################################################################################
+
+# To check more avaialble options see:
+# https://matplotlib.org/tutorials/introductory/customizing.html
+
+text.color : ffffff
+
+# PATCH
+patch.facecolor : 202020
+
+# AXES
+axes.facecolor : 202020
+axes.titlesize : 12
+axes.labelsize : 12
+axes.edgecolor : (0.1,0.1,0.1) #Normalized RGB colours (from 0 to 1 instead of 0 to 255)
+axes.labelcolor : ffffff
+axes.linewidth : 1
+axes.spines.top : False
+axes.spines.right : False
+axes.spines.bottom : True
+axes.spines.left : True
+
+# GRID
+axes.grid : False
+grid.alpha : 0.7
+grid.linestyle : --
+grid.linewidth : 0.6
+
+# LINES
+axes.prop_cycle : cycler('color', [ '0046b8', '2464c9', '4d87e3', '7899cf', '8ea1bf']) #hex colours
+lines.linewidth : 1.5
+lines.markeredgewidth : 0.0
+
+# SCATTER PLOT
+scatter.marker : .
+
+# TICKS
+xtick.labelsize : 7
+xtick.color : ffffff
+xtick.direction : in
+ytick.labelsize : 7
+ytick.color : ffffff
+ytick.direction : in
+
+# FIGURE OUTPUT 
+figure.facecolor : 202020
+figure.figsize  : 7, 5
+#figure.dpi : 72
+savefig.dpi : 200
+
